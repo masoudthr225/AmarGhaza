@@ -336,4 +336,7 @@
   #pickTable td.c, #pickTable th { text-align: center; }
   #pickTable tr.pick-on { background: #eef7f1; font-weight: 700; }
   #pickTable input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
-  .person.notprint { opacity: .38; border-style: dashed; }
+  .person.notprint { opacity: .45; border-style: dashed; background: #f7f8f8; }
+  .person.picked { border-color: var(--primary); background: var(--primary-light); box-shadow: inset 0 0 0 1px var(--primary); }
+  .person .pchk { width: 17px; height: 17px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+  .att-unit h3 .pick-tools { display: inline-flex; gap: 6px; margin-inline-start: 10px; }

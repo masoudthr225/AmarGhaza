@@ -94,11 +94,20 @@ function renderAttendance() {
     const abs = ppl.filter(p=>S.sheet.absent[p.id]).length;
     const exs = unitExtras(u.id);
     return `<div class="att-unit">
-      <h3><span>${esc(u.name)}</span><small>حاضر: ${ppl.length-abs} — غایب: ${abs}</small></h3>
+      <h3><span>${esc(u.name)}</span><small>حاضر: ${ppl.length-abs} — غایب: ${abs}${
+        pickModeOn() ? ` — 🖨️ چاپ: ${ppl.filter(p=>picked()[p.id]).length}` : ''}</small>
+        ${pickModeOn() ? `<span class="pick-tools">
+          <button class="btn sm ghost" onclick="pickUnit('${u.id}',true)">✅ همه این واحد</button>
+          <button class="btn sm ghost" onclick="pickUnit('${u.id}',false)">⬜ هیچکدام</button></span>` : ''}
+      </h3>
       <div class="att-grid">${
-        ppl.map((p,i)=>`<div class="person ${S.sheet.absent[p.id]?'absent':''} ${(pickModeOn()&&!picked()[p.id])?'notprint':''}" onclick="toggleAbsent('${p.id}')">
+        ppl.map((p,i)=>{
+          const pm = pickModeOn(), on = !!picked()[p.id];
+          return `<div class="person ${S.sheet.absent[p.id]?'absent':''} ${pm?(on?'picked':'notprint'):''}" onclick="toggleAbsent('${p.id}')">
+          ${pm?`<input type="checkbox" class="pchk" ${on?'checked':''} title="در لیست چاپ باشد"
+                 onclick="event.stopPropagation()" onchange="togglePick('${p.id}', this.checked)">`:''}
           <span class="num">${i+1}</span><span class="pname">${esc(p.name)}</span><span class="code">${esc(p.code||'')}</span>
-        </div>`).join('') || '<span class="att-note">این واحد پرسنلی ندارد.</span>'
+        </div>`;}).join('') || '<span class="att-note">این واحد پرسنلی ندارد.</span>'
       }</div>
       <div class="extras-box">
         <div class="extras-head">
@@ -191,13 +200,16 @@ function pickPool() {
 }
 function togglePick(pid, on) {
   if (on) picked()[pid] = true; else delete picked()[pid];
-  save(); renderPickList(); renderPickInfo();
-  if (pickModeOn()) { renderAttendance(); renderPreview(); }
+  save(); renderPickList(); renderPickInfo(); renderAttendance(); renderPreview();
+}
+/* انتخاب/لغو همه نفرات یک واحد */
+function pickUnit(uId, on) {
+  unitPeople(uId).forEach(p=>{ if (on) picked()[p.id] = true; else delete picked()[p.id]; });
+  save(); renderPickList(); renderPickInfo(); renderAttendance(); renderPreview();
 }
 function pickAll(on) {
   pickPool().forEach(p=>{ if (on) picked()[p.id] = true; else delete picked()[p.id]; });
-  save(); renderPickList(); renderPickInfo();
-  if (pickModeOn()) { renderAttendance(); renderPreview(); }
+  save(); renderPickList(); renderPickInfo(); renderAttendance(); renderPreview();
 }
 function applyPick() {
   const n = Object.keys(picked()).length;
