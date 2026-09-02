@@ -8,11 +8,11 @@ window.APP_MANIFEST = {
   "js/sheet.js": "5ec72e654b",
   "js/manage.js": "a7a042828e",
   "js/pagesetup.js": "82ead3db4a",
-  "js/print.js": "a22c75ee35",
+  "js/print.js": "ff3c00bf68",
   "js/excel.js": "cdbf2354ac",
   "js/updater.js": "e87974ff08",
   "js/main.js": "0454f2ae99",
   "js/xlsx.full.min.js": "31e9848e80",
-  "index.html": "cf6ad751c6"
+  "index.html": "5c40900f52"
  }
 };

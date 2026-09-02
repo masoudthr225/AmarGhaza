@@ -105,64 +105,12 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   </div>
 
   <div class="card">
-    <h2>۴) پیش‌نمایش چاپ</h2>
-
-    <!-- نوار منوی چاپ -->
-    <div class="menubar" id="printMenubar">
-      <button class="menu-btn primary" onclick="openPrintDialog()">🖨️ چاپ لیست</button>
-
-      <div class="menu-item">
-        <button class="menu-btn" onclick="toggleMenu(this,'mnuMargin')">📐 حاشیه‌ها <span class="caret">▾</span></button>
-        <div class="menu-drop" id="mnuMargin">
-          <div class="menu-title">حاشیه کاغذ (میلی‌متر)</div>
-          <label>بالا <input type="number" id="qsMT" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>پایین <input type="number" id="qsMB" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>راست <input type="number" id="qsMR" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>چپ <input type="number" id="qsML" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <div class="menu-sep"></div>
-          <button class="btn sm ghost" onclick="quickMarginAll()">↔️ یکسان‌سازی همه</button>
-        </div>
-      </div>
-
-      <div class="menu-item">
-        <button class="menu-btn" onclick="toggleMenu(this,'mnuCols')">📏 عرض ستون‌ها <span class="caret">▾</span></button>
-        <div class="menu-drop" id="mnuCols">
-          <div class="menu-title">عرض ستون‌ها (درصد)</div>
-          <label>ردیف <input type="number" id="qsWRowNo" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>کد پرسنلی <input type="number" id="qsWCode" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>واحد <input type="number" id="qsWUnit" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>امضا <input type="number" id="qsWSign" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <div class="menu-note">ستون «نام» عرض باقیمانده را می‌گیرد.</div>
-        </div>
-      </div>
-
-      <div class="menu-item">
-        <button class="menu-btn" onclick="toggleMenu(this,'mnuRows')">🔤 اندازه رکوردها <span class="caret">▾</span></button>
-        <div class="menu-drop" id="mnuRows">
-          <div class="menu-title">اندازه رکوردها</div>
-          <label>فونت (pt) <input type="number" id="qsFontSize" min="6" max="30" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>فاصله سطر <input type="number" id="qsLineH" min="1" max="3" step="0.05" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>ارتفاع سطر (mm) <input type="number" id="qsRowH" min="0" max="20" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>فاصله سلول (mm) <input type="number" id="qsCellPad" min="0" max="10" step="0.2" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>تعداد ستون
-            <select id="qsCols" onchange="saveQuick()">
-              <option value="0">خودکار</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option>
-            </select>
-          </label>
-          <div class="menu-sep"></div>
-          <button class="btn sm secondary" onclick="resetQuick()">↩️ بازگشت به پیش‌فرض</button>
-        </div>
-      </div>
-
-      <button class="menu-btn" onclick="showTabById('tab-pagesetup')">⚙️ تنظیمات صفحه</button>
-
-      <span class="spacer"></span>
-      <span class="chip" id="paperInfo"></span>
+    <div class="row" style="align-items:center">
+      <button class="btn big orange" onclick="openPrintDialog()">🖨️ چاپ لیست</button>
+      <button class="btn big" style="background:#0b5ed7" onclick="showTabById('tab-pagesetup')">👁️ پیش‌نمایش چاپ و تنظیمات صفحه</button>
+      <span class="chip" id="paperInfo3"></span>
     </div>
-
-    <div class="preview-wrap">
-      <div id="previewPage"></div>
-    </div>
+    <div class="att-note">پیش‌نمایش کاغذ و تنظیمات چاپ به تب «⚙️ تنظیمات صفحه» منتقل شده است.</div>
   </div>
 
 </section>
@@ -385,20 +333,73 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         </div>
       </div>
 
-      <div class="card">
-        <h2>👁️ پیش‌نمایش زنده</h2>
-        <div class="row" style="margin-bottom:8px">
-          <span class="chip" id="paperInfo2"></span>
-          <button class="btn sm secondary" onclick="resetSetup()">↩️ بازگشت به پیش‌فرض</button>
-          <button class="btn sm orange" onclick="openPrintDialog()">🖨️ چاپ</button>
-        </div>
-        <div class="preview-wrap" style="max-height:62vh">
-          <div id="previewPage2"></div>
-        </div>
-      </div>
 
     </div>
   </div>
+
+  <div class="card">
+    <h2>👁️ پیش‌نمایش چاپ</h2>
+
+    <!-- نوار منوی چاپ -->
+    <div class="menubar" id="printMenubar">
+      <button class="menu-btn primary" onclick="openPrintDialog()">🖨️ چاپ لیست</button>
+
+      <div class="menu-item">
+        <button class="menu-btn" onclick="toggleMenu(this,'mnuMargin')">📐 حاشیه‌ها <span class="caret">▾</span></button>
+        <div class="menu-drop" id="mnuMargin">
+          <div class="menu-title">حاشیه کاغذ (میلی‌متر)</div>
+          <label>بالا <input type="number" id="qsMT" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>پایین <input type="number" id="qsMB" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>راست <input type="number" id="qsMR" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>چپ <input type="number" id="qsML" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <div class="menu-sep"></div>
+          <button class="btn sm ghost" onclick="quickMarginAll()">↔️ یکسان‌سازی همه</button>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-btn" onclick="toggleMenu(this,'mnuCols')">📏 عرض ستون‌ها <span class="caret">▾</span></button>
+        <div class="menu-drop" id="mnuCols">
+          <div class="menu-title">عرض ستون‌ها (درصد)</div>
+          <label>ردیف <input type="number" id="qsWRowNo" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>کد پرسنلی <input type="number" id="qsWCode" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>واحد <input type="number" id="qsWUnit" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>امضا <input type="number" id="qsWSign" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <div class="menu-note">ستون «نام» عرض باقیمانده را می‌گیرد.</div>
+        </div>
+      </div>
+
+      <div class="menu-item">
+        <button class="menu-btn" onclick="toggleMenu(this,'mnuRows')">🔤 اندازه رکوردها <span class="caret">▾</span></button>
+        <div class="menu-drop" id="mnuRows">
+          <div class="menu-title">اندازه رکوردها</div>
+          <label>فونت (pt) <input type="number" id="qsFontSize" min="6" max="30" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>فاصله سطر <input type="number" id="qsLineH" min="1" max="3" step="0.05" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>ارتفاع سطر (mm) <input type="number" id="qsRowH" min="0" max="20" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>فاصله سلول (mm) <input type="number" id="qsCellPad" min="0" max="10" step="0.2" onchange="saveQuick()" oninput="saveQuick()"></label>
+          <label>تعداد ستون
+            <select id="qsCols" onchange="saveQuick()">
+              <option value="0">خودکار</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option>
+            </select>
+          </label>
+          <div class="menu-sep"></div>
+          <button class="btn sm secondary" onclick="resetQuick()">↩️ بازگشت به پیش‌فرض</button>
+        </div>
+      </div>
+
+      <button class="menu-btn" onclick="showTabById('tab-sheet')">📋 بازگشت به آمار روز</button>
+
+      <button class="menu-btn" onclick="resetSetup()">↩️ بازگشت به پیش‌فرض</button>
+
+      <span class="spacer"></span>
+      <span class="chip" id="paperInfo"></span>
+    </div>
+
+    <div class="preview-wrap" style="max-height:70vh">
+      <div id="previewPage"></div>
+    </div>
+  </div>
+
 </section>
 
 </main>

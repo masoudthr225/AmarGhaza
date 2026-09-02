@@ -170,7 +170,7 @@ function renderPreview() {
   const st = S.setup;
   const html = buildDoc();
   const label = `${d.label} — ${d.w}×${d.h||'∞'} mm`;
-  ['paperInfo','paperInfo2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = '📄 ' + label; });
+  ['paperInfo','paperInfo2','paperInfo3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = '📄 ' + label; });
 
   const scale = Math.min(1, 700 / (d.w * 3.7795));
   ['previewPage','previewPage2'].forEach(id=>{
