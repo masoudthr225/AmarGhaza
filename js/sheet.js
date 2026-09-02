@@ -28,7 +28,9 @@ function saveSheet() {
   S.sheet.mealId = document.getElementById('sheetMeal').value;
   S.sheet.foodId = document.getElementById('sheetFood').value;
   S.sheet.note = document.getElementById('sheetNote').value.trim();
-  save(); renderPreview();
+  save();
+  if (typeof renderHolidayBadge==='function') renderHolidayBadge();
+  renderPreview();
 }
 
 function renderUnitChecks() {

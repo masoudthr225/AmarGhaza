@@ -30,7 +30,9 @@ function buildDoc() {
   const meal = S.meals.find(m=>m.id===S.sheet.mealId);
   const food = S.foods.find(f=>f.id===S.sheet.foodId);
   const cols = autoCols();
-  let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}" dir="rtl">`;
+  const rowH = +st.rowH || 0;
+  const cellPad = (st.cellPad==null?1:+st.cellPad);
+  let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;" dir="rtl">`;
 
   if (st.headerOn) {
     html += `<div class="doc-header">`;

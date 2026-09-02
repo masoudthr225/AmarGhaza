@@ -126,3 +126,56 @@ function resetSetup() {
   S.setup = {...DEFAULT_SETUP};
   save(); renderSetupControls(); renderPreview();
 }
+
+/* ============ تنظیم سریع داخل پیش‌نمایش (مارجین / عرض ستون / اندازه رکورد) ============ */
+function qsEl(id){ return document.getElementById(id); }
+function renderQuickSetup() {
+  const st = S.setup;
+  if (!qsEl('qsMT')) return;
+  const _w = { rowNo:8, code:16, unit:20, sign:15, ...(st.colW||{}) };
+  qsEl('qsMT').value = st.mt; qsEl('qsMB').value = st.mb;
+  qsEl('qsMR').value = st.mr; qsEl('qsML').value = st.ml;
+  qsEl('qsWRowNo').value = _w.rowNo; qsEl('qsWCode').value = _w.code;
+  qsEl('qsWUnit').value  = _w.unit;  qsEl('qsWSign').value = _w.sign;
+  qsEl('qsFontSize').value = st.fontSize;
+  qsEl('qsLineH').value = st.lineH;
+  qsEl('qsRowH').value = st.rowH != null ? st.rowH : 0;
+  qsEl('qsCellPad').value = st.cellPad != null ? st.cellPad : 1;
+  qsEl('qsCols').value = String(st.cols);
+}
+function saveQuick() {
+  const st = S.setup;
+  const num = (id, def) => { const v = parseFloat(qsEl(id).value); return isNaN(v) ? def : v; };
+  const clampW = v => Math.max(3, Math.min(60, v));
+  st.mt = Math.max(0, num('qsMT', st.mt));
+  st.mb = Math.max(0, num('qsMB', st.mb));
+  st.mr = Math.max(0, num('qsMR', st.mr));
+  st.ml = Math.max(0, num('qsML', st.ml));
+  if (!st.colW) st.colW = {};
+  st.colW.rowNo = clampW(num('qsWRowNo', 8));
+  st.colW.code  = clampW(num('qsWCode', 16));
+  st.colW.unit  = clampW(num('qsWUnit', 20));
+  st.colW.sign  = clampW(num('qsWSign', 15));
+  st.fontSize = Math.max(6, Math.min(30, num('qsFontSize', st.fontSize)));
+  st.lineH    = Math.max(1, Math.min(3,  num('qsLineH', st.lineH)));
+  st.rowH     = Math.max(0, Math.min(20, num('qsRowH', 0)));
+  st.cellPad  = Math.max(0, Math.min(10, num('qsCellPad', 1)));
+  st.cols     = +qsEl('qsCols').value || 0;
+  save();
+  if (qsEl('psMT')) renderSetupControls();
+  renderPreview();
+}
+function quickMarginAll() {
+  const v = parseFloat(qsEl('qsMT').value) || 0;
+  ['qsMB','qsMR','qsML'].forEach(id=>qsEl(id).value = v);
+  saveQuick();
+}
+function resetQuick() {
+  const st = S.setup;
+  ['mt','mb','mr','ml','fontSize','lineH','cols'].forEach(k=> st[k] = DEFAULT_SETUP[k]);
+  st.colW = {...DEFAULT_SETUP.colW};
+  st.rowH = DEFAULT_SETUP.rowH; st.cellPad = DEFAULT_SETUP.cellPad;
+  save(); renderQuickSetup();
+  if (qsEl('psMT')) renderSetupControls();
+  renderPreview();
+}

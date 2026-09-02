@@ -39,6 +39,7 @@
   <button class="active" data-tab="tab-sheet" onclick="showTab(this)">📋 آمار روز و چاپ</button>
   <button data-tab="tab-people" onclick="showTab(this)">👥 پرسنل و واحدها</button>
   <button data-tab="tab-menu" onclick="showTab(this)">🍲 وعده‌ها و منوی غذا</button>
+  <button data-tab="tab-holidays" onclick="showTab(this)">📅 روزهای تعطیل و آمار</button>
   <button data-tab="tab-pagesetup" onclick="showTab(this)">⚙️ تنظیمات صفحه (Page Setup)</button>
 </nav>
 
@@ -53,6 +54,10 @@
       <div class="field">
         <label>تاریخ (شمسی) — برای باز شدن تقویم کلیک کنید 📅</label>
         <input type="text" id="sheetDate" class="has-jdp" onchange="saveSheet()" placeholder="1405/06/04" autocomplete="off">
+        <div class="row" style="margin-top:6px;gap:8px">
+          <span class="chip red" id="sheetHolidayBadge" style="display:none"></span>
+          <button class="btn sm ghost" onclick="markSheetDateHoliday()">📅 تعطیل/غیرتعطیل کردن این روز</button>
+        </div>
       </div>
       <div class="field">
         <label>وعده غذایی</label>
@@ -95,6 +100,44 @@
       <span class="chip" id="paperInfo"></span>
       <button class="btn sm ghost" onclick="showTabById('tab-pagesetup')">تغییر تنظیمات صفحه</button>
     </div>
+
+    <!-- تنظیم سریع مارجین و اندازه ستون/رکورد داخل پیش‌نمایش -->
+    <div class="quick-setup">
+      <div class="qs-title">📐 تنظیم سریع چاپ <small>— مارجین کاغذ، عرض ستون‌ها و ارتفاع رکوردها (بلافاصله در پیش‌نمایش اعمال می‌شود)</small></div>
+
+      <div class="qs-group">
+        <span class="qs-label">حاشیه (mm)</span>
+        <label>بالا <input type="number" id="qsMT" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>پایین <input type="number" id="qsMB" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>راست <input type="number" id="qsMR" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>چپ <input type="number" id="qsML" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <button class="btn sm ghost" onclick="quickMarginAll()">↔️ یکسان‌سازی همه</button>
+      </div>
+
+      <div class="qs-group">
+        <span class="qs-label">عرض ستون‌ها (٪)</span>
+        <label>ردیف <input type="number" id="qsWRowNo" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>کد <input type="number" id="qsWCode" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>واحد <input type="number" id="qsWUnit" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>امضا <input type="number" id="qsWSign" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <span class="hint">ستون «نام» باقیمانده را می‌گیرد</span>
+      </div>
+
+      <div class="qs-group">
+        <span class="qs-label">اندازه رکوردها</span>
+        <label>فونت (pt) <input type="number" id="qsFontSize" min="6" max="30" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>فاصله سطر <input type="number" id="qsLineH" min="1" max="3" step="0.05" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>ارتفاع سطر (mm) <input type="number" id="qsRowH" min="0" max="20" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>فاصله داخلی سلول (mm) <input type="number" id="qsCellPad" min="0" max="10" step="0.2" onchange="saveQuick()" oninput="saveQuick()"></label>
+        <label>تعداد ستون
+          <select id="qsCols" onchange="saveQuick()">
+            <option value="0">خودکار</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option>
+          </select>
+        </label>
+        <button class="btn sm secondary" onclick="resetQuick()">↩️ پیش‌فرض</button>
+      </div>
+    </div>
+
     <div class="preview-wrap">
       <div id="previewPage"></div>
     </div>
@@ -175,6 +218,41 @@
         <button class="btn" onclick="addFood()">➕ افزودن غذا</button>
       </div>
       <div class="mini-list" id="foodList"></div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============ تب: روزهای تعطیل ============ -->
+<section id="tab-holidays" class="tabpane">
+  <div class="grid2">
+
+    <div class="card">
+      <h2>📅 روزهای تعطیل <span class="hint">— تاریخ‌هایی که غذا سرو نمی‌شود</span></h2>
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="hdDate" class="has-jdp" placeholder="تاریخ تعطیل (1405/01/01)" style="max-width:170px" autocomplete="off">
+        <input type="text" id="hdTitle" placeholder="مناسبت (اختیاری — مثال: عید نوروز)" style="flex:1;min-width:170px">
+        <button class="btn" onclick="addHoliday()">➕ افزودن روز تعطیل</button>
+      </div>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn sm ghost" onclick="addFridays()">🕌 افزودن همه جمعه‌های ماه انتخابی</button>
+        <button class="btn sm secondary" onclick="clearHolidays()">🗑️ پاک کردن همه</button>
+      </div>
+      <div class="att-note">💡 تاریخ‌ها قابل ویرایش‌اند — روی تاریخ کلیک کنید تا تقویم شمسی باز شود.</div>
+      <div class="mini-list" id="holidayList"></div>
+    </div>
+
+    <div class="card">
+      <h2>📊 آمار روزهای کاری و تعطیل</h2>
+      <div class="row" style="margin-bottom:10px">
+        <div class="field" style="flex:1"><label>سال</label><select id="hdStatYear" onchange="renderHolidayStats()"></select></div>
+        <div class="field" style="flex:1"><label>ماه</label><select id="hdStatMonth" onchange="renderHolidayStats()"></select></div>
+      </div>
+      <div class="stats" id="holidayStats"></div>
+      <div style="max-height:420px;overflow:auto;margin-top:12px">
+        <table class="list holiday-year" id="holidayYearTable"></table>
+      </div>
     </div>
 
   </div>
@@ -371,6 +449,7 @@
     'js/sheet.js',
     'js/manage.js',
     'js/pagesetup.js',
+    'js/holidays.js',
     'js/print.js',
     'js/excel.js',
     'js/updater.js',

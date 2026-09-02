@@ -1,18 +1,19 @@
 window.APP_MANIFEST = {
- "version": "1.8.0",
- "date": "2026-08-31",
+ "version": "1.9.0",
+ "date": "2026-09-02",
  "files": {
-  "css/app.css": "1ad8cea122",
-  "js/store.js": "830039259b",
+  "css/app.css": "a46bc728ef",
+  "js/store.js": "7abc3258de",
   "js/jalali.js": "783d52ba23",
-  "js/sheet.js": "a6a44bdc88",
+  "js/sheet.js": "c9e1408375",
   "js/manage.js": "a7a042828e",
-  "js/pagesetup.js": "6a16567582",
-  "js/print.js": "2fb60936bc",
+  "js/pagesetup.js": "1da4456511",
+  "js/holidays.js": "624de29195",
+  "js/print.js": "fad7b94d86",
   "js/excel.js": "cdbf2354ac",
   "js/updater.js": "e87974ff08",
-  "js/main.js": "4bddaa90ef",
+  "js/main.js": "c1d581da71",
   "js/xlsx.full.min.js": "31e9848e80",
-  "index.html": "26f833b2cf"
+  "index.html": "662c1b7007"
  }
 };
