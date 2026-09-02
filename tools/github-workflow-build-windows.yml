@@ -1,0 +1,68 @@
+name: ساخت نسخه ویندوز (exe)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "arena/01a03e92-dorekarii", "main" ]
+    paths:
+      - "index.html"
+      - "css/**"
+      - "js/**"
+      - "assets/**"
+      - "desktop/**"
+      - ".github/workflows/build-windows.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: دریافت کد
+        uses: actions/checkout@v4
+
+      - name: نصب Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: همگام‌سازی فایل‌های وب با پوشه دسکتاپ
+        shell: bash
+        run: |
+          rm -rf desktop/app
+          mkdir -p desktop/app
+          cp index.html desktop/app/
+          cp -r css js assets desktop/app/
+
+      - name: نصب وابستگی‌ها
+        working-directory: desktop
+        run: npm install
+
+      - name: ساخت exe (نصب‌کننده + پرتابل)
+        working-directory: desktop
+        run: npx electron-builder --win --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: آپلود خروجی‌ها
+        uses: actions/upload-artifact@v4
+        with:
+          name: AmarGhaza-Windows
+          path: |
+            desktop/dist-win/*.exe
+          if-no-files-found: error
+
+      - name: انتشار در Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: windows-v${{ github.run_number }}
+          name: "برنامه آمار غذا — نسخه ویندوز (build ${{ github.run_number }})"
+          body: |
+            🍽️ **برنامه آمار غذا — نسخه ویندوز ۱۱**
+
+            دو فایل ضمیمه شده است:
+            - **AmarGhaza Setup *.exe** → نصب‌کننده (پیشنهادی): نصب کنید، میان‌بر دسکتاپ ساخته می‌شود
+            - **AmarGhaza-Portable-*.exe** → پرتابل: بدون نصب، دابل‌کلیک و اجرا
+
+            💾 اطلاعات برنامه (پرسنل، منو، تنظیمات) روی سیستم شما ذخیره می‌شود.
+          files: desktop/dist-win/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

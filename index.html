@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آمار غذا — چاپ لیست ناهار و عصرانه</title>
+<script src="js/manifest.js"></script>
+<script>
+/* لودر نسخه‌دار: هر فایل با اثرانگشت خودش بارگیری می‌شود؛
+   با تغییر هر فایل فقط همان فایل دوباره دانلود می‌شود و بقیه از کش می‌آیند. */
+(function () {
+  var M = window.APP_MANIFEST || { files: {} };
+  window.__ver = function (p) { var h = M.files[p]; return p + (h ? '?v=' + h : ''); };
+  document.write('<link rel="stylesheet" href="' + window.__ver('css/app.css') + '">');
+})();
+</script>
+</head>
+<body>
+
+<header class="appbar">
+  <div>
+    <h1>🍽️ برنامه آمار غذا</h1>
+    <div class="sub">ثبت و چاپ آمار ناهار، عصرانه و شام پرسنل — سازگار با همه پرینترها و کاغذ رولی حرارتی</div>
+    <div class="sub" id="saveStatus" style="margin-top:2px">💾 ذخیره خودکار فعال</div>
+    <div class="sub" style="margin-top:2px"><span id="appVersion">نسخه —</span> · <a href="#" style="color:#ffd" onclick="checkForUpdate(false);return false">🔄 بررسی به‌روزرسانی</a></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
+  <button class="btn orange" onclick="openPrintDialog()">🖨️ چاپ</button>
+  <button class="btn" style="background:#1d6f42" onclick="exportExcel()">📥 دانلود اکسل</button>
+  <button class="btn" style="background:#2e7d5b" onclick="document.getElementById('importExcelFile').click()">📤 آپلود اکسل</button>
+  <button class="btn secondary" onclick="exportData()">💾 پشتیبان</button>
+  <button class="btn ghost" style="color:#fff;border-color:#fff" onclick="document.getElementById('importFile').click()">📂 بازیابی</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+  <input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this)">
+</header>
+
+<nav class="tabs">
+  <button class="active" data-tab="tab-sheet" onclick="showTab(this)">📋 آمار روز و چاپ</button>
+  <button data-tab="tab-people" onclick="showTab(this)">👥 پرسنل و واحدها</button>
+  <button data-tab="tab-menu" onclick="showTab(this)">🍲 وعده‌ها و منوی غذا</button>
+  <button data-tab="tab-pagesetup" onclick="showTab(this)">⚙️ تنظیمات صفحه (Page Setup)</button>
+</nav>
+
+<main>
+
+<!-- ============ تب ۱: آمار روز ============ -->
+<section id="tab-sheet" class="tabpane active">
+
+  <div class="card">
+    <h2>۱) مشخصات آمار</h2>
+    <div class="grid3">
+      <div class="field">
+        <label>تاریخ (شمسی) — برای باز شدن تقویم کلیک کنید 📅</label>
+        <input type="text" id="sheetDate" class="has-jdp" onchange="saveSheet()" placeholder="1405/06/04" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>وعده غذایی</label>
+        <select id="sheetMeal" onchange="saveSheet()"></select>
+      </div>
+      <div class="field">
+        <label>غذای امروز (از منو)</label>
+        <select id="sheetFood" onchange="saveSheet()"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>توضیحات / خوراک اضافه (اختیاری — مثال: نون پنیر ۰٫۵ ، تخم مرغ)</label>
+      <input type="text" id="sheetNote" onchange="saveSheet()" placeholder="خوراک: نون پنیر ۰٫۵ — تخم مرغ">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>۲) انتخاب واحدها <span class="hint">— تک واحد یا چند واحد</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn sm ghost" onclick="selectAllUnits(true)">انتخاب همه</button>
+      <button class="btn sm ghost" onclick="selectAllUnits(false)">هیچکدام</button>
+    </div>
+    <div class="unit-checks" id="unitChecks"></div>
+  </div>
+
+  <div class="card">
+    <h2>۳) حضور و غیاب <span class="hint">— روی نام هر شخص کلیک کنید تا غایب شود (روی نام خط کشیده می‌شود و در چاپ هم خط‌خورده چاپ می‌گردد)</span></h2>
+    <div class="stats" id="sheetStats"></div>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn sm secondary" onclick="clearAbsents()">✔️ همه حاضر</button>
+    </div>
+    <div id="attendance"></div>
+  </div>
+
+  <div class="card">
+    <h2>۴) پیش‌نمایش چاپ</h2>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn big orange" onclick="openPrintDialog()">🖨️ چاپ لیست</button>
+      <button class="btn big" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
+      <span class="chip" id="paperInfo"></span>
+      <button class="btn sm ghost" onclick="showTabById('tab-pagesetup')">تغییر تنظیمات صفحه</button>
+    </div>
+    <div class="preview-wrap">
+      <div id="previewPage"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ تب ۲: پرسنل و واحدها ============ -->
+<section id="tab-people" class="tabpane">
+  <div class="grid2">
+
+    <div class="card">
+      <h2>🏭 واحدها <span class="hint">— افزودن، ویرایش، حذف</span></h2>
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="newUnitName" placeholder="نام واحد جدید (مثال: مونتاژ)" style="flex:1;min-width:180px">
+        <button class="btn" onclick="addUnit()">➕ افزودن واحد</button>
+        <button class="btn orange" onclick="addUnitWithExcel()" title="واحد جدید بسازید و پرسنل آن را از فایل اکسل بخوانید">➕📤 واحد جدید + اکسل پرسنل</button>
+      </div>
+      <div class="att-note">💡 با دکمه 📤 کنار هر واحد می‌توانید فایل اکسل پرسنل (نام + شماره پرسنلی) را مستقیم به همان واحد اضافه کنید.</div>
+      <div class="mini-list" id="unitList"></div>
+    </div>
+
+    <div class="card">
+      <h2>👥 پرسنل <span class="hint">— افزودن، ویرایش، حذف</span></h2>
+      <div class="row" style="margin-bottom:12px">
+        <button class="btn" onclick="openPersonModal()">➕ افزودن پرسنل</button>
+        <select id="filterUnit" onchange="renderPeople()" style="max-width:220px">
+          <option value="">همه واحدها</option>
+        </select>
+        <input type="text" id="searchPerson" placeholder="جستجوی نام یا کد..." oninput="renderPeople()" style="flex:1;min-width:150px">
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <button class="btn sm" style="background:#1d6f42" onclick="exportExcel()">📥 دانلود لیست پرسنل (اکسل)</button>
+        <button class="btn sm" style="background:#2e7d5b" onclick="document.getElementById('importExcelFile').click()">📤 آپلود پرسنل از اکسل</button>
+        <button class="btn sm ghost" onclick="downloadExcelTemplate()">⬇️ دریافت فایل نمونه اکسل</button>
+        <button class="btn sm" style="background:#8e44ad" onclick="dropFirstNameAll()" title="حذف نام کوچک همه نفرات لیست — فقط نام خانوادگی بماند">✂️ همه → نام خانوادگی</button>
+      </div>
+      <div class="att-note">✏️ سلول‌های «نام» و «کد» مستقیم قابل ویرایش‌اند — کلیک کنید، تایپ کنید و Enter بزنید. دکمه ✂️ کنار هر نفر، نام کوچک را حذف می‌کند (مثال: «محسن قمشه ای» → «قمشه ای»).</div>
+      <div class="att-note">فرمت اکسل ورودی: سه ستون «نام»، «کد پرسنلی»، «واحد». واحدهای جدید به‌صورت خودکار ساخته می‌شوند.</div>
+      <div style="max-height:480px;overflow:auto">
+        <table class="list" id="peopleTable">
+          <thead><tr><th>#</th>
+            <th class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                onblur="updHead('name',this)" id="thName">نام و نام خانوادگی</th>
+            <th class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                onblur="updHead('code',this)" id="thCode">کد پرسنلی</th>
+            <th class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                onblur="updHead('unit',this)" id="thUnit">واحد</th>
+            <th style="width:110px">عملیات</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ تب ۳: وعده‌ها و منو ============ -->
+<section id="tab-menu" class="tabpane">
+  <div class="grid2">
+
+    <div class="card">
+      <h2>⏰ وعده‌های غذایی <span class="hint">— ناهار، عصرانه، شام و… (قابل افزودن و ویرایش)</span></h2>
+      <div class="row" style="margin-bottom:12px">
+        <input type="text" id="newMealName" placeholder="نام وعده جدید (مثال: صبحانه)" style="flex:1;min-width:160px">
+        <button class="btn" onclick="addMeal()">➕ افزودن وعده</button>
+      </div>
+      <div class="mini-list" id="mealList"></div>
+    </div>
+
+    <div class="card">
+      <h2>🍲 منوی غذاها <span class="hint">— لیست غذاهایی که در آمار انتخاب می‌شوند</span></h2>
+      <div class="row" style="margin-bottom:12px">
+        <input type="text" id="newFoodName" placeholder="نام غذای جدید (مثال: قورمه سبزی)" style="flex:1;min-width:160px">
+        <button class="btn" onclick="addFood()">➕ افزودن غذا</button>
+      </div>
+      <div class="mini-list" id="foodList"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ تب ۴: Page Setup ============ -->
+<section id="tab-pagesetup" class="tabpane">
+  <div class="grid2">
+    <div>
+
+      <div class="card">
+        <h2>📄 کاغذ و پرینتر</h2>
+        <div class="field">
+          <label>نوع کاغذ / پرینتر</label>
+          <select id="psPaper" onchange="onPaperChange()">
+            <option value="A4P">A4 عمودی (پرینتر معمولی)</option>
+            <option value="A4L">A4 افقی</option>
+            <option value="A5P">A5 عمودی</option>
+            <option value="A5L">A5 افقی</option>
+            <option value="LETTER">Letter</option>
+            <option value="T80">🧾 پرینتر حرارتی — رول ۸۰ میلی‌متر</option>
+            <option value="T58">🧾 پرینتر حرارتی — رول ۵۸ میلی‌متر</option>
+            <option value="CUSTOM">اندازه دلخواه…</option>
+          </select>
+        </div>
+        <div class="row" id="customSizeRow" style="display:none">
+          <div class="field" style="flex:1"><label>عرض (mm)</label><input type="number" id="psCustomW" value="80" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>ارتفاع (mm) — برای رول: خالی/۰ = پیوسته</label><input type="number" id="psCustomH" value="0" onchange="saveSetup()"></div>
+        </div>
+        <div class="att-note">💡 برای پرینتر حرارتی رولی، ارتفاع کاغذ «پیوسته» است و به اندازه محتوا چاپ می‌شود. در پنجره چاپ مرورگر هم پرینتر حرارتی خود را انتخاب کنید و Margins را روی None/Minimum بگذارید.</div>
+      </div>
+
+      <div class="card">
+        <h2>📏 حاشیه‌های کاغذ (میلی‌متر)</h2>
+        <div class="row">
+          <div class="field" style="flex:1"><label>بالا</label><input type="number" id="psMT" step="1" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>پایین</label><input type="number" id="psMB" step="1" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>راست</label><input type="number" id="psMR" step="1" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>چپ</label><input type="number" id="psML" step="1" onchange="saveSetup()"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🔤 فونت و اندازه</h2>
+        <div class="row">
+          <div class="field" style="flex:2">
+            <label>فونت</label>
+            <select id="psFont" onchange="saveSetup()">
+              <option value="Vazirmatn, Tahoma, sans-serif">وزیرمتن / تاهوما</option>
+              <option value="Tahoma, sans-serif">Tahoma</option>
+              <option value="'B Nazanin', Tahoma, sans-serif">ب نازنین</option>
+              <option value="'B Titr', Tahoma, sans-serif">ب تیتر</option>
+              <option value="'Iranian Sans', Tahoma, sans-serif">ایرانیان سنس</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="'Courier New', monospace">Courier (حرارتی)</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1"><label>اندازه فونت (pt)</label><input type="number" id="psFontSize" min="6" max="30" step="0.5" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>فاصله سطر</label><input type="number" id="psLineH" min="1" max="3" step="0.1" onchange="saveSetup()"></div>
+        </div>
+        <div class="row">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psBold" onchange="saveSetup()"> متن ضخیم (مناسب چاپ حرارتی)</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🧾 چیدمان لیست</h2>
+        <div class="row">
+          <div class="field" style="flex:1">
+            <label>قالب چاپ</label>
+            <select id="psLayout" onchange="saveSetup()">
+              <option value="units">جدول جدا برای هر واحد (پیش‌فرض)</option>
+              <option value="flat">جدول یکپارچه با ستون «واحد» (مثل فایل اکسل)</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1">
+            <label>تعداد ستون اسامی</label>
+            <select id="psCols" onchange="saveSetup()">
+              <option value="0">خودکار (بر اساس کاغذ)</option>
+              <option value="1">۱ ستون</option>
+              <option value="2">۲ ستون</option>
+              <option value="3">۳ ستون</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:2"><label>عنوان ستون نام</label><input type="text" id="psHeadName" onchange="saveHeads()" placeholder="نام و نام خانوادگی"></div>
+          <div class="field" style="flex:1"><label>عنوان ستون کد</label><input type="text" id="psHeadCode" onchange="saveHeads()" placeholder="کد پرسنلی"></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1"><label>عنوان ستون واحد</label><input type="text" id="psHeadUnit" onchange="saveHeads()" placeholder="واحد"></div>
+          <div class="field" style="flex:1"><label>عنوان ستون ردیف</label><input type="text" id="psHeadRowNo" onchange="saveHeads()" placeholder="ر"></div>
+          <div class="field" style="flex:1"><label>عنوان ستون امضا</label><input type="text" id="psHeadSign" onchange="saveHeads()" placeholder="امضا"></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1"><label>عرض ستون ردیف (٪)</label><input type="number" id="psWRowNo" min="3" max="60" step="1" onchange="saveColW()"></div>
+          <div class="field" style="flex:1"><label>عرض ستون کد پرسنلی (٪)</label><input type="number" id="psWCode" min="3" max="60" step="1" onchange="saveColW()"></div>
+          <div class="field" style="flex:1"><label>عرض ستون واحد (٪)</label><input type="number" id="psWUnit" min="3" max="60" step="1" onchange="saveColW()"></div>
+          <div class="field" style="flex:1"><label>عرض ستون امضا (٪)</label><input type="number" id="psWSign" min="3" max="60" step="1" onchange="saveColW()"></div>
+        </div>
+        <div class="att-note">📐 ستون «نام خانوادگی» عرض باقیمانده را خودش می‌گیرد — برای پهن‌تر شدنِ نام، بقیه ستون‌ها را کوچک‌تر کنید.</div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowCode" onchange="saveSetup()"> نمایش کد پرسنلی</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"> شماره ردیف</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowSign" onchange="saveSetup()"> ستون امضا</label>
+        </div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"> چاپ غایبین (خط‌خورده)</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowSummary" onchange="saveSetup()"> خلاصه آمار (حاضر/غایب)</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psNoFill" onchange="saveSetup()"> بدون پس‌زمینه مشکی (صرفه‌جویی جوهر)</label>
+        </div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"> هر واحد در صفحه جدید</label>
+        </div>
+      </div>
+
+    </div>
+    <div>
+
+      <div class="card">
+        <h2>🔝 سربرگ (Header)</h2>
+        <div class="row" style="margin-bottom:6px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderOn" onchange="saveSetup()"> نمایش سربرگ</label>
+        </div>
+        <div class="field"><label>عنوان اصلی</label><input type="text" id="psHeaderTitle" onchange="saveSetup()" placeholder="شرکت نمونه — آمار غذای پرسنل"></div>
+        <div class="field"><label>زیرعنوان</label><input type="text" id="psHeaderSub" onchange="saveSetup()" placeholder="واحد امور رفاهی"></div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderDate" onchange="saveSetup()"> نمایش تاریخ در سربرگ</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderMeal" onchange="saveSetup()"> نمایش وعده و غذا</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🔻 پاصفحه (Footer)</h2>
+        <div class="row" style="margin-bottom:6px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterOn" onchange="saveSetup()"> نمایش پاصفحه</label>
+        </div>
+        <div class="field"><label>متن پاصفحه</label><input type="text" id="psFooterText" onchange="saveSetup()" placeholder="لطفاً آمار تا ساعت ۱۰ صبح اعلام شود."></div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterSign" onchange="saveSetup()"> محل امضای مسئول و آشپزخانه</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterTime" onchange="saveSetup()"> ساعت چاپ</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>👁️ پیش‌نمایش زنده</h2>
+        <div class="row" style="margin-bottom:8px">
+          <span class="chip" id="paperInfo2"></span>
+          <button class="btn sm" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
+          <button class="btn sm secondary" onclick="resetSetup()">↩️ بازگشت به پیش‌فرض</button>
+          <button class="btn sm orange" onclick="openPrintDialog()">🖨️ چاپ</button>
+        </div>
+        <div class="preview-wrap" style="max-height:62vh">
+          <div id="previewPage2"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- مودال پرسنل -->
+<div class="modal-back" id="personModal">
+  <div class="modal">
+    <h3 id="personModalTitle">افزودن پرسنل</h3>
+    <input type="hidden" id="pmId">
+    <div class="field"><label>نام و نام خانوادگی *</label><input type="text" id="pmName"></div>
+    <div class="field"><label>کد پرسنلی</label><input type="text" id="pmCode"></div>
+    <div class="field"><label>واحد *</label><select id="pmUnit"></select></div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px">
+      <button class="btn secondary" onclick="closePersonModal()">انصراف</button>
+      <button class="btn" onclick="savePerson()">💾 ذخیره</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- تقویم شمسی -->
+<div class="jdp" id="jdp"></div>
+
+<!-- ناحیه واقعی چاپ -->
+<div id="printArea"></div>
+<style id="printPageStyle"></style>
+
+<script>
+(function () {
+  var files = [
+    'js/xlsx.full.min.js',
+    'js/store.js',
+    'js/jalali.js',
+    'js/sheet.js',
+    'js/manage.js',
+    'js/pagesetup.js',
+    'js/print.js',
+    'js/excel.js',
+    'js/updater.js',
+    'js/main.js'
+  ];
+  files.forEach(function (f) {
+    document.write('<scr' + 'ipt src="' + window.__ver(f) + '"></scr' + 'ipt>');
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+2026-09-02 08:09:44.358: [INFO] CurrentProfilePath: C:\AmarGhaza-v1.8.0\AppData\Default
+2026-09-02 08:09:44.358: [INFO] Profiles total count: 1
+2026-09-02 08:09:44.358: [INFO] Profile: name=Profile 1 path=C:\AmarGhaza-v1.8.0\AppData\Default lastActive=2026-09-02T08:09:44.344Z
+2026-09-02 08:09:44.358: [INFO] LastUsedProfileDir: C:\AmarGhaza-v1.8.0\AppData\Default
+2026-09-02 08:09:44.358: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=C:\AmarGhaza-v1.8.0\AppData\Default lastActive=2026-09-02T08:09:44.344Z
+2026-09-02 08:09:44.358: [INFO] OnDoneLoading sync enabled: 0
+2026-09-02 08:09:44.358: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-02 08:09:44.358: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-02 08:09:44.358: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-02 08:09:44.425: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-02 08:09:52.865: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1

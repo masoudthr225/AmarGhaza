@@ -1,0 +1,45 @@
+{
+  "name": "amar-ghaza",
+  "productName": "برنامه آمار غذا",
+  "version": "1.0.0",
+  "description": "ثبت و چاپ آمار ناهار، عصرانه و شام پرسنل — پشتیبانی از پرینتر حرارتی",
+  "author": "doreKarii",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "ir.dorekarii.amarghaza",
+    "productName": "AmarGhaza",
+    "directories": {
+      "output": "dist-win"
+    },
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "win": {
+      "icon": "app/assets/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "برنامه آمار غذا",
+      "installerLanguages": ["fa_IR", "en_US"]
+    },
+    "portable": {
+      "artifactName": "AmarGhaza-Portable-${version}.exe"
+    }
+  }
+}
