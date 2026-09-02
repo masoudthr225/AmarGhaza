@@ -1,5 +1,5 @@
 window.APP_MANIFEST = {
- "version": "1.9.0",
+ "version": "1.10.0",
  "date": "2026-09-02",
  "files": {
   "css/app.css": "d1f84fd05a",
@@ -13,6 +13,6 @@ window.APP_MANIFEST = {
   "js/updater.js": "e87974ff08",
   "js/main.js": "0454f2ae99",
   "js/xlsx.full.min.js": "31e9848e80",
-  "index.html": "6dbe103b65"
+  "index.html": "4b8acd9540"
  }
 };
