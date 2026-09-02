@@ -233,12 +233,6 @@
       <div class="field">
         <label>🍲 لیست غذا <span class="hint" id="hwFoodCount"></span></label>
         <select id="hwFood" onchange="saveHW()"></select>
-        <div class="row" style="margin-top:6px;gap:6px">
-          <input type="text" id="hwNewFood" placeholder="افزودن غذای جدید به منو..." style="flex:1;min-width:120px"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();hwAddFood();}">
-          <button class="btn sm" onclick="hwAddFood()">➕</button>
-          <button class="btn sm ghost" onclick="renderHWFood()" title="بازخوانی لیست غذا از منو">🔄</button>
-        </div>
       </div>
       <div class="field">
         <label>عنوان برگه</label>

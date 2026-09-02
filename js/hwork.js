@@ -36,24 +36,9 @@ function renderHWFood() {
   sel.value = h.foodId || '';
   const cnt = document.getElementById('hwFoodCount');
   if (cnt) cnt.textContent = foods.length
-    ? `— ${foods.length} غذا در منو`
-    : '— منوی غذا خالی است، از تب «وعده‌ها و منوی غذا» اضافه کنید';
+    ? `— ${foods.length} غذا از تب «وعده‌ها و منوی غذا»`
+    : '— منوی غذا خالی است؛ از تب «وعده‌ها و منوی غذا» اضافه کنید';
 }
-function hwAddFood() {
-  const inp = document.getElementById('hwNewFood');
-  const name = (inp.value||'').trim();
-  if (!name) { toast('نام غذا را وارد کنید'); return; }
-  if (!Array.isArray(S.foods)) S.foods = [];
-  let f = S.foods.find(x=>faSortNorm(x.name)===faSortNorm(name));
-  if (!f) { f = {id:uid(), name}; S.foods.push(f); }
-  HW().foodId = f.id;
-  inp.value = '';
-  save();
-  if (typeof renderFoods === 'function') renderFoods();
-  renderHWFood(); renderHWPreview();
-  toast('غذا به منو اضافه و انتخاب شد ✅');
-}
-
 /* ---------- نفرات ---------- */
 function hwTogglePerson(pid, on) {
   const h = HW();
