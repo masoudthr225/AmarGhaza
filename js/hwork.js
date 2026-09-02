@@ -1,13 +1,12 @@
 /* ================= تب «تعطیل کاری» ================= */
-/* لیست نفرات + لیست واحدها + لیست غذا + تاریخ + چاپ برگه */
+/* لیست نفرات + لیست غذا (کشویی) + تاریخ + چاپ برگه */
 
 function HW() {
   if (!S.hwork || typeof S.hwork !== 'object') {
-    S.hwork = { date: (typeof todayJalali==='function'?todayJalali():''), mealId:'', foodId:'',
-                title:'لیست غذای تعطیل کاری', note:'', unitIds:[], people:{} };
+    S.hwork = { date: (typeof todayJalali==='function'?todayJalali():''), foodId:'',
+                title:'لیست غذای تعطیل کاری', people:{} };
   }
   const h = S.hwork;
-  if (!Array.isArray(h.unitIds)) h.unitIds = [];
   if (!h.people || typeof h.people !== 'object') h.people = {};
   if (h.title == null) h.title = 'لیست غذای تعطیل کاری';
   return h;
@@ -18,72 +17,22 @@ function saveHW() {
   const h = HW();
   const g = id => document.getElementById(id);
   if (g('hwDate'))  h.date  = g('hwDate').value.trim();
-  if (g('hwMeal'))  h.mealId = g('hwMeal').value;
   if (g('hwFood'))  h.foodId = g('hwFood').value;
   if (g('hwTitle')) h.title = g('hwTitle').value.trim() || 'لیست غذای تعطیل کاری';
-  if (g('hwNote'))  h.note  = g('hwNote').value.trim();
   save();
-  renderHWFoods(); renderHWPreview();
-}
-
-/* ---------- واحدها ---------- */
-function hwToggleUnit(id) {
-  const h = HW();
-  const i = h.unitIds.indexOf(id);
-  if (i >= 0) h.unitIds.splice(i,1); else h.unitIds.push(id);
-  save(); renderHWUnits(); renderHWPeople(); renderHWPreview();
-}
-function hwAllUnits(on) {
-  HW().unitIds = on ? S.units.map(u=>u.id) : [];
-  save(); renderHWUnits(); renderHWPeople(); renderHWPreview();
-}
-function hwUnits() {
-  return S.units.filter(u=>HW().unitIds.includes(u.id));
-}
-function renderHWUnits() {
-  const box = document.getElementById('hwUnitChecks');
-  if (!box) return;
-  const h = HW();
-  box.innerHTML = S.units.map(u=>{
-    const on = h.unitIds.includes(u.id);
-    const total = S.people.filter(p=>p.unitId===u.id).length;
-    const sel = S.people.filter(p=>p.unitId===u.id && h.people[p.id]).length;
-    return `<label class="${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="hwToggleUnit('${u.id}')">
-      ${esc(u.name)} <span class="badge">${sel}/${total}</span></label>`;
-  }).join('') || '<span class="att-note">هنوز واحدی تعریف نشده — از تب «پرسنل و واحدها» اضافه کنید.</span>';
-}
-
-/* ---------- غذا ---------- */
-function hwPickFood(id) {
-  HW().foodId = (HW().foodId === id) ? '' : id;
-  save();
-  const sel = document.getElementById('hwFood');
-  if (sel) sel.value = HW().foodId;
-  renderHWFoods(); renderHWPreview();
-}
-function renderHWFoods() {
-  const box = document.getElementById('hwFoodList');
-  if (!box) return;
-  const q = ((document.getElementById('hwFoodSearch')||{}).value||'').trim().toLowerCase();
-  const list = S.foods.filter(f=>!q || String(f.name).toLowerCase().includes(q));
-  const cur = HW().foodId;
-  box.innerHTML = list.length
-    ? list.map(f=>`<button class="food-pick ${f.id===cur?'on':''}" onclick="hwPickFood('${f.id}')">${esc(f.name)}</button>`).join('')
-    : '<span class="att-note">غذایی یافت نشد.</span>';
+  renderHWPreview();
 }
 
 /* ---------- نفرات ---------- */
 function hwTogglePerson(pid, on) {
   const h = HW();
   if (on) h.people[pid] = true; else delete h.people[pid];
-  save(); renderHWUnits(); renderHWPeople(); renderHWPreview();
+  save(); renderHWPeople(); renderHWPreview();
 }
 function hwFilteredPeople() {
-  const h = HW();
   const uf = (document.getElementById('hwUnitFilter')||{}).value || '';
   const q  = ((document.getElementById('hwSearch')||{}).value || '').trim().toLowerCase();
-  const pool = h.unitIds.length ? S.people.filter(p=>h.unitIds.includes(p.unitId)) : S.people;
-  return pool
+  return S.people
     .filter(p => !uf || p.unitId === uf)
     .filter(p => !q || String(p.name).toLowerCase().includes(q) || String(p.code||'').includes(q))
     .sort((a,b)=>faCompare(a.name,b.name));
@@ -91,13 +40,12 @@ function hwFilteredPeople() {
 function hwAllPeople(on) {
   const h = HW();
   hwFilteredPeople().forEach(p=>{ if (on) h.people[p.id] = true; else delete h.people[p.id]; });
-  save(); renderHWUnits(); renderHWPeople(); renderHWPreview();
+  save(); renderHWPeople(); renderHWPreview();
 }
-/* نفرات انتخاب‌شده برای چاپ — گروه‌بندی بر اساس واحد */
+/* نفرات انتخاب‌شده برای چاپ */
 function hwSelected() {
   const h = HW();
-  const pool = h.unitIds.length ? S.people.filter(p=>h.unitIds.includes(p.unitId)) : S.people;
-  return pool.filter(p=>h.people[p.id]).sort((a,b)=>faCompare(a.name,b.name));
+  return S.people.filter(p=>h.people[p.id]).sort((a,b)=>faCompare(a.name,b.name));
 }
 
 function renderHWPeople() {
@@ -105,13 +53,12 @@ function renderHWPeople() {
   if (!tb) return;
   const h = HW();
 
-  // فیلتر واحد — فقط واحدهای انتخاب‌شده
+  // فیلتر واحد
   const uf = document.getElementById('hwUnitFilter');
   const cur = uf.value;
-  const opts = (h.unitIds.length ? hwUnits() : S.units);
-  uf.innerHTML = '<option value="">همه واحدهای انتخابی</option>' +
-    opts.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
-  uf.value = opts.some(u=>u.id===cur) ? cur : '';
+  uf.innerHTML = '<option value="">همه واحدها</option>' +
+    S.units.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  uf.value = S.units.some(u=>u.id===cur) ? cur : '';
 
   const list = hwFilteredPeople();
   const unitName = id => (S.units.find(u=>u.id===id)||{}).name || '—';
@@ -128,26 +75,25 @@ function renderHWPeople() {
           <td>${esc(unitName(p.unitId))}</td>
         </tr>`;
       }).join('') + '</tbody>'
-    : '<tbody><tr><td>نفری یافت نشد — ابتدا واحد را انتخاب کنید.</td></tr></tbody>';
+    : '<tbody><tr><td>نفری یافت نشد.</td></tr></tbody>';
 
   const sel = hwSelected().length;
   const st = document.getElementById('hwStats');
   if (st) st.innerHTML = `
     <div class="stat"><b>${sel}</b><span>تعطیل کار (پرس غذا)</span></div>
-    <div class="stat"><b>${list.length}</b><span>نفرات قابل انتخاب</span></div>
-    <div class="stat"><b>${hwUnits().length}</b><span>واحد انتخابی</span></div>`;
+    <div class="stat"><b>${list.length}</b><span>نفرات نمایش‌داده‌شده</span></div>
+    <div class="stat"><b>${S.people.length}</b><span>کل پرسنل</span></div>`;
 }
 
 /* ---------- ساخت سند چاپی ---------- */
 function buildHWDoc() {
   const st = S.setup;
   const h = HW();
-  const meal = S.meals.find(m=>m.id===h.mealId);
   const food = S.foods.find(f=>f.id===h.foodId);
   const rows = hwSelected();
   const rowH = +st.rowH || 0;
   const cellPad = (st.cellPad==null?1:+st.cellPad);
-  const multi = hwUnits().length > 1 || !h.unitIds.length;
+  const multi = new Set(rows.map(p=>p.unitId)).size > 1;
   const _h = { rowNo:'ر', name:'نام و نام خانوادگی', code:'کد پرسنلی', unit:'واحد', sign:'امضا', ...(st.heads||{}) };
   const _w = { rowNo:8, code:16, unit:20, sign:15, ...(st.colW||{}) };
   const unitName = id => (S.units.find(u=>u.id===id)||{}).name || '';
@@ -160,7 +106,6 @@ function buildHWDoc() {
 
   const metas = [];
   if (h.date) metas.push(`تاریخ: ${esc(h.date)}`);
-  if (meal) metas.push(`وعده: ${esc(meal.name)}`);
   metas.push(`تعداد: ${rows.length} نفر`);
   html += `<div class="meta-line">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
   if (food) html += `<div class="food-line">** ${esc(food.name)} **</div>`;
@@ -187,7 +132,6 @@ function buildHWDoc() {
   }
   html += `</tbody></table>`;
 
-  if (h.note) html += `<div class="note-line">${esc(h.note)}</div>`;
   html += `<div class="sum-line"><span>جمع تعطیل کار: ${rows.length} نفر</span><span>${rows.length} پرس</span></div>`;
 
   if (st.footerOn) {
@@ -242,15 +186,10 @@ function renderHWork() {
   if (!g('hwDate')) return;
   g('hwDate').value = h.date || '';
   g('hwTitle').value = h.title || '';
-  g('hwNote').value = h.note || '';
-
-  g('hwMeal').innerHTML = '<option value="">— بدون انتخاب —</option>' +
-    S.meals.map(m=>`<option value="${m.id}" ${m.id===h.mealId?'selected':''}>${esc(m.name)}</option>`).join('');
-  g('hwMeal').value = h.mealId || '';
 
   g('hwFood').innerHTML = '<option value="">— بدون انتخاب —</option>' +
     S.foods.map(f=>`<option value="${f.id}" ${f.id===h.foodId?'selected':''}>${esc(f.name)}</option>`).join('');
   g('hwFood').value = h.foodId || '';
 
-  renderHWUnits(); renderHWFoods(); renderHWPeople(); renderHWPreview();
+  renderHWPeople(); renderHWPreview();
 }
