@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📦 دانلود سنتر — پروژه آمار غذا</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --primary:#1a6b54; --dark:#114a3a; --light:#e3f2ed; --accent:#e67e22;
+          --danger:#c0392b; --bg:#f2f5f4; --border:#d8e2de; --muted:#6b7d76; }
+  body { font-family: Vazirmatn, Tahoma, 'Segoe UI', sans-serif; background: var(--bg);
+         color: #24322d; min-height: 100vh; padding-bottom: 40px; }
+  header { background: linear-gradient(135deg, var(--dark), var(--primary));
+           color: #fff; padding: 20px 22px; box-shadow: 0 3px 14px rgba(0,0,0,.18); }
+  header h1 { font-size: 1.4rem; }
+  header .sub { opacity: .9; font-size: .85rem; margin-top: 4px; }
+  main { max-width: 1000px; margin: 20px auto; padding: 0 14px; display: grid; gap: 16px; }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 14px;
+          padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+  .card h2 { color: var(--dark); font-size: 1.05rem; margin-bottom: 10px; }
+  .card p.hint { color: var(--muted); font-size: .85rem; margin-bottom: 12px; line-height: 1.7; }
+  .btn { border: none; border-radius: 10px; padding: 14px 20px; font-size: 1rem; font-weight: 700;
+         cursor: pointer; color: #fff; background: var(--primary); font-family: inherit;
+         display: inline-flex; align-items: center; gap: 8px; transition: .15s; }
+  .btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+  .btn.orange { background: var(--accent); }
+  .btn.blue { background: #0b5ed7; }
+  .btn.big { width: 100%; justify-content: center; padding: 18px; font-size: 1.05rem; }
+  .three { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 16px; }
+  .status { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: var(--light); color: var(--dark); border: 1px solid #cfe0d7;
+          border-radius: 20px; padding: 5px 12px; font-size: .82rem; font-weight: 700; }
+  .chip.red { background: #ffe3e3; color: #a11; border-color: #f3b1b1; }
+  table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  th, td { border-bottom: 1px solid var(--border); padding: 8px 6px; text-align: right; }
+  th { background: var(--light); color: var(--dark); }
+  td.c, th.c { text-align: center; }
+  .log { background: #10251d; color: #b8f0d6; border-radius: 10px; padding: 12px;
+         font-size: .8rem; max-height: 190px; overflow: auto; direction: ltr; text-align: left;
+         font-family: Consolas, monospace; white-space: pre-wrap; }
+  .drop { border: 2px dashed #b9d3c7; border-radius: 12px; padding: 22px; text-align: center;
+          color: var(--muted); cursor: pointer; transition: .15s; margin-bottom: 12px; }
+  .drop.over { background: var(--light); border-color: var(--primary); color: var(--dark); }
+  progress { width: 100%; height: 10px; margin-top: 10px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+           background: var(--dark); color: #fff; padding: 12px 24px; border-radius: 30px;
+           font-weight: 700; display: none; z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📦 دانلود سنتر — پروژه آمار غذا</h1>
+  <div class="sub">تبادل فایل فشرده بین شما و دستیار: آپلود پروژه، ساخت بسته از آخرین تغییرات، و دانلود آن</div>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>وضعیت فعلی</h2>
+    <div class="status" id="status"><span class="chip">در حال بارگذاری…</span></div>
+  </div>
+
+  <div class="three">
+
+    <!-- ۱ -->
+    <div class="card">
+      <h2>۱️⃣ آپلود فایل فشرده</h2>
+      <p class="hint">فایل zip خود را بفرستید. فایل در پوشه <code>_uploads</code> ذخیره و به‌صورت خودکار باز می‌شود تا دستیار محتوای آن را ببیند.</p>
+      <div class="drop" id="drop">فایل را اینجا رها کنید یا کلیک کنید</div>
+      <input type="file" id="file" accept=".zip,.rar,.7z,.tar,.gz,.tgz" style="display:none">
+      <button class="btn big" id="btnUpload">📤 آپلود فایل فشرده</button>
+      <progress id="prog" value="0" max="100" style="display:none"></progress>
+    </div>
+
+    <!-- ۲ -->
+    <div class="card">
+      <h2>۲️⃣ ساخت فایل فشرده از آخرین تغییرات</h2>
+      <p class="hint">یک بسته zip از وضعیت فعلی پروژه (همه فایل‌های تغییر‌یافته توسط دستیار) به‌همراه فایل <code>BUILD-INFO.txt</code> ساخته می‌شود.</p>
+      <button class="btn big orange" id="btnBuild">🗜️ ساخت بسته جدید</button>
+    </div>
+
+    <!-- ۳ -->
+    <div class="card">
+      <h2>۳️⃣ دانلود آخرین بسته</h2>
+      <p class="hint">آخرین فایل فشرده ساخته‌شده را دانلود کنید.</p>
+      <div id="latestInfo" class="status" style="margin-bottom:12px"></div>
+      <button class="btn big blue" id="btnDownload">⬇️ دانلود آخرین فایل فشرده</button>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h2>🗂️ بسته‌های ساخته‌شده</h2>
+    <table id="builds"><tbody><tr><td>—</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>📥 فایل‌های آپلودشده توسط شما</h2>
+    <table id="uploads"><tbody><tr><td>—</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>📝 گزارش</h2>
+    <div class="log" id="log">آماده.</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+function toast(m){ const t=$('toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none', 2800); }
+function log(m){ const l=$('log'); const ts=new Date().toLocaleTimeString('fa-IR');
+  l.textContent = `[${ts}] ${m}\n` + l.textContent; }
+
+async function refresh(){
+  try {
+    const r = await fetch('/api/status'); const d = await r.json();
+    $('status').innerHTML =
+      `<span class="chip">برنچ: ${d.branch||'—'}</span>` +
+      `<span class="chip">آخرین کامیت: ${d.commit||'—'}</span>` +
+      (d.dirty?`<span class="chip red">تغییرات ذخیره‌نشده دارد</span>`:`<span class="chip">همه‌چیز کامیت شده</span>`) +
+      `<span class="chip">${d.builds.length} بسته · ${d.uploads.length} آپلود</span>`;
+
+    $('latestInfo').innerHTML = d.latest
+      ? `<span class="chip">${d.latest.name}</span><span class="chip">${d.latest.sizeText}</span><span class="chip">${d.latest.time}</span>`
+      : `<span class="chip red">هنوز بسته‌ای ساخته نشده — ابتدا دکمه ۲ را بزنید</span>`;
+    $('btnDownload').disabled = !d.latest;
+
+    const rows = list => list.length
+      ? `<thead><tr><th>نام فایل</th><th class="c">حجم</th><th class="c">زمان</th><th class="c">دانلود</th></tr></thead><tbody>` +
+        list.map(b=>`<tr><td>${b.name}</td><td class="c">${b.sizeText}</td><td class="c">${b.time}</td>
+          <td class="c"><a href="/api/download?name=${encodeURIComponent(b.name)}">⬇️</a></td></tr>`).join('') + `</tbody>`
+      : `<tbody><tr><td>موردی نیست.</td></tr></tbody>`;
+    $('builds').innerHTML = rows(d.builds);
+    $('uploads').innerHTML = d.uploads.length
+      ? `<thead><tr><th>نام فایل</th><th class="c">حجم</th><th class="c">زمان</th></tr></thead><tbody>` +
+        d.uploads.map(b=>`<tr><td>${b.name}</td><td class="c">${b.sizeText}</td><td class="c">${b.time}</td></tr>`).join('')+`</tbody>`
+      : `<tbody><tr><td>موردی نیست.</td></tr></tbody>`;
+  } catch(e){ log('خطا در دریافت وضعیت: '+e); }
+}
+
+/* ---------- ۱) آپلود ---------- */
+let picked = null;
+$('drop').onclick = ()=> $('file').click();
+$('file').onchange = e => { picked = e.target.files[0]; if(picked) $('drop').textContent = '📎 ' + picked.name; };
+['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev, e=>{e.preventDefault();$('drop').classList.add('over');}));
+['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev, e=>{e.preventDefault();$('drop').classList.remove('over');}));
+$('drop').addEventListener('drop', e=>{ picked = e.dataTransfer.files[0]; if(picked) $('drop').textContent='📎 '+picked.name; });
+
+$('btnUpload').onclick = ()=>{
+  if(!picked){ $('file').click(); return; }
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST','/api/upload');
+  xhr.setRequestHeader('X-File-Name', encodeURIComponent(picked.name));
+  xhr.setRequestHeader('Content-Type','application/octet-stream');
+  $('prog').style.display='block'; $('btnUpload').disabled=true;
+  xhr.upload.onprogress = e => { if(e.lengthComputable) $('prog').value = e.loaded/e.total*100; };
+  xhr.onload = ()=>{
+    $('btnUpload').disabled=false; $('prog').style.display='none'; $('prog').value=0;
+    try { const d = JSON.parse(xhr.responseText); toast(d.message); log(d.message); }
+    catch(e){ toast('خطا در آپلود'); log('پاسخ نامعتبر: '+xhr.responseText.slice(0,200)); }
+    picked=null; $('drop').textContent='فایل را اینجا رها کنید یا کلیک کنید'; $('file').value='';
+    refresh();
+  };
+  xhr.onerror = ()=>{ $('btnUpload').disabled=false; $('prog').style.display='none'; toast('خطای شبکه'); };
+  xhr.send(picked);
+};
+
+/* ---------- ۲) ساخت بسته ---------- */
+$('btnBuild').onclick = async ()=>{
+  const b=$('btnBuild'); b.disabled=true; b.textContent='⏳ در حال ساخت…';
+  try {
+    const r = await fetch('/api/build', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+    const d = await r.json();
+    toast(d.message); log(d.ok ? `${d.message} — ${d.build.files} فایل، ${d.build.sizeText}` : d.message);
+  } catch(e){ toast('خطا در ساخت'); log('خطا: '+e); }
+  b.disabled=false; b.textContent='🗜️ ساخت بسته جدید';
+  refresh();
+};
+
+/* ---------- ۳) دانلود ---------- */
+$('btnDownload').onclick = ()=>{ log('دانلود آخرین بسته…'); window.location = '/api/download-latest'; };
+
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>
