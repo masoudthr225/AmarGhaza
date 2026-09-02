@@ -53,7 +53,7 @@ function buildDoc() {
     // ردیف‌ها: همه نفرات واحدهای انتخابی، به ترتیب واحد و بر اساس نام
     let rows = [];
     units.forEach(u=>{
-      let ppl = unitPeople(u.id); // از قبل بر اساس الفبای فارسی مرتب است
+      let ppl = (typeof printablePeople==='function' ? printablePeople(u.id) : unitPeople(u.id));
       const allAbs = ppl.filter(p=>S.sheet.absent[p.id]).length;
       grandTot += ppl.length; grandAbs += allAbs;
       if (!st.showAbsent) ppl = ppl.filter(p=>!S.sheet.absent[p.id]);
@@ -98,11 +98,12 @@ function buildDoc() {
     });
   } else {
   units.forEach((u, ui)=>{
-    let ppl = unitPeople(u.id);
+    const base = (typeof printablePeople==='function' ? printablePeople(u.id) : unitPeople(u.id));
+    let ppl = base;
     if (!st.showAbsent) ppl = ppl.filter(p=>!S.sheet.absent[p.id]);
     const abs = ppl.filter(p=>S.sheet.absent[p.id]).length;
-    const allAbs = unitPeople(u.id).filter(p=>S.sheet.absent[p.id]).length;
-    grandTot += unitPeople(u.id).length; grandAbs += allAbs;
+    const allAbs = base.filter(p=>S.sheet.absent[p.id]).length;
+    grandTot += base.length; grandAbs += allAbs;
 
     html += `<div class="unit-block" ${st.unitNewPage && ui>0 ? 'style="page-break-before:always"' : ''}>`;
     html += `<div class="unit-title"><span>واحد: ${esc(u.name)}</span></div>`;
@@ -184,7 +185,6 @@ function renderPreview() {
     if (hpx) el.style.height = (hpx*scale)+'px';
     else { el.style.height = 'auto'; }
   });
-  if (typeof renderHWPreview === 'function') renderHWPreview();
 }
 
 /* ================= چاپ ================= */

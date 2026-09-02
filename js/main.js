@@ -5,7 +5,7 @@ function renderAll() {
   if (typeof renderHeads==='function') renderHeads();
   renderSetupControls();
   if (typeof renderQuickSetup==='function') renderQuickSetup();
-  if (typeof renderHWork==='function') renderHWork();
+  if (typeof renderPickInfo==='function') renderPickInfo();
   renderPreview();
 }
 load();
@@ -13,5 +13,5 @@ renderAll();
 window.addEventListener('keydown', e=>{
   if ((e.ctrlKey||e.metaKey) && e.key==='p') { e.preventDefault(); openPrintDialog(); }
   if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveNow(); }
-  if (e.key==='Escape') closePersonModal();
+  if (e.key==='Escape') { closePersonModal(); if (typeof closePickModal==='function') closePickModal(); }
 });

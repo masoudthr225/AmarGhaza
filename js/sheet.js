@@ -3,7 +3,6 @@ function showTab(btn) {
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b===btn));
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active', p.id===btn.dataset.tab));
   if (btn.dataset.tab==='tab-sheet' || btn.dataset.tab==='tab-pagesetup') renderPreview();
-  if (btn.dataset.tab==='tab-hwork' && typeof renderHWork==='function') renderHWork();
 }
 function showTabById(id) {
   const btn = document.querySelector(`nav.tabs button[data-tab="${id}"]`);
@@ -45,10 +44,12 @@ function toggleUnit(id) {
   const i = S.sheet.unitIds.indexOf(id);
   if (i>=0) S.sheet.unitIds.splice(i,1); else S.sheet.unitIds.push(id);
   save(); renderUnitChecks(); renderAttendance(); renderPreview();
+  if (typeof renderPickInfo==='function') renderPickInfo();
 }
 function selectAllUnits(on) {
   S.sheet.unitIds = on ? S.units.map(u=>u.id) : [];
   save(); renderUnitChecks(); renderAttendance(); renderPreview();
+  if (typeof renderPickInfo==='function') renderPickInfo();
 }
 
 function selectedUnits() {
@@ -95,7 +96,7 @@ function renderAttendance() {
     return `<div class="att-unit">
       <h3><span>${esc(u.name)}</span><small>حاضر: ${ppl.length-abs} — غایب: ${abs}</small></h3>
       <div class="att-grid">${
-        ppl.map((p,i)=>`<div class="person ${S.sheet.absent[p.id]?'absent':''}" onclick="toggleAbsent('${p.id}')">
+        ppl.map((p,i)=>`<div class="person ${S.sheet.absent[p.id]?'absent':''} ${(pickModeOn()&&!picked()[p.id])?'notprint':''}" onclick="toggleAbsent('${p.id}')">
           <span class="num">${i+1}</span><span class="pname">${esc(p.name)}</span><span class="code">${esc(p.code||'')}</span>
         </div>`).join('') || '<span class="att-note">این واحد پرسنلی ندارد.</span>'
       }</div>
@@ -130,4 +131,107 @@ function renderStats() {
     <div class="stat"><b>${tot-abs}</b><span>حاضر (پرس غذا)</span></div>
     <div class="stat red"><b>${abs}</b><span>غایب</span></div>
     <div class="stat"><b>${units.length}</b><span>واحد انتخابی</span></div>`;
+}
+
+/* ================= انتخاب نفرات دلخواه برای چاپ ================= */
+function picked() {
+  if (!S.sheet.picked || typeof S.sheet.picked !== 'object') S.sheet.picked = {};
+  return S.sheet.picked;
+}
+/* آیا حالت «فقط نفرات انتخاب‌شده» فعال است؟ */
+function pickModeOn() { return !!S.sheet.pickMode; }
+
+/* نفرات قابل چاپ یک واحد — با اعمال فیلتر انتخاب دستی */
+function printablePeople(uId) {
+  const ppl = unitPeople(uId);
+  if (!pickModeOn()) return ppl;
+  return ppl.filter(p => picked()[p.id]);
+}
+
+function togglePickMode(on) {
+  S.sheet.pickMode = !!on;
+  if (on && !Object.keys(picked()).length) {
+    toast('هنوز کسی انتخاب نشده — از دکمه «انتخاب نفرات دلخواه» استفاده کنید');
+  }
+  save(); renderPickInfo(); renderAttendance(); renderPreview();
+}
+function clearPicked() {
+  S.sheet.picked = {}; S.sheet.pickMode = false;
+  const chk = document.getElementById('pickModeChk'); if (chk) chk.checked = false;
+  save(); renderPickInfo(); renderPickList(); renderAttendance(); renderPreview();
+  toast('انتخاب نفرات پاک شد');
+}
+function renderPickInfo() {
+  const chk = document.getElementById('pickModeChk');
+  if (chk) chk.checked = pickModeOn();
+  const el = document.getElementById('pickInfo');
+  if (!el) return;
+  const n = selectedUnits().reduce((a,u)=>a + unitPeople(u.id).filter(p=>picked()[p.id]).length, 0);
+  el.textContent = pickModeOn()
+    ? `🖨️ فقط ${n} نفر انتخاب‌شده چاپ می‌شود`
+    : `${n} نفر انتخاب شده (غیرفعال — همه چاپ می‌شوند)`;
+  el.className = 'chip' + (pickModeOn() ? ' red' : '');
+}
+
+/* ---- مودال ---- */
+function openPickModal() {
+  if (!selectedUnits().length) { toast('ابتدا حداقل یک واحد را انتخاب کنید'); return; }
+  document.getElementById('pickModal').classList.add('open');
+  renderPickList();
+}
+function closePickModal() {
+  document.getElementById('pickModal').classList.remove('open');
+}
+function pickPool() {
+  const uf = (document.getElementById('pickUnitFilter')||{}).value || '';
+  const q  = ((document.getElementById('pickSearch')||{}).value || '').trim().toLowerCase();
+  let list = [];
+  selectedUnits().forEach(u=>{ if (!uf || u.id===uf) list = list.concat(unitPeople(u.id)); });
+  return list.filter(p => !q || String(p.name).toLowerCase().includes(q) || String(p.code||'').includes(q));
+}
+function togglePick(pid, on) {
+  if (on) picked()[pid] = true; else delete picked()[pid];
+  save(); renderPickList(); renderPickInfo();
+  if (pickModeOn()) { renderAttendance(); renderPreview(); }
+}
+function pickAll(on) {
+  pickPool().forEach(p=>{ if (on) picked()[p.id] = true; else delete picked()[p.id]; });
+  save(); renderPickList(); renderPickInfo();
+  if (pickModeOn()) { renderAttendance(); renderPreview(); }
+}
+function applyPick() {
+  const n = Object.keys(picked()).length;
+  if (!n) { toast('حداقل یک نفر را انتخاب کنید'); return; }
+  S.sheet.pickMode = true;
+  save(); closePickModal(); renderPickInfo(); renderAttendance(); renderPreview();
+  toast(`فقط ${n} نفر انتخاب‌شده در چاپ می‌آیند ✅`);
+}
+function renderPickList() {
+  const tb = document.getElementById('pickTable');
+  if (!tb) return;
+  const uf = document.getElementById('pickUnitFilter');
+  const cur = uf.value;
+  uf.innerHTML = '<option value="">همه واحدهای انتخابی</option>' +
+    selectedUnits().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  uf.value = selectedUnits().some(u=>u.id===cur) ? cur : '';
+
+  const list = pickPool();
+  const unitName = id => (S.units.find(u=>u.id===id)||{}).name || '—';
+  tb.innerHTML = list.length
+    ? `<thead><tr><th style="width:36px">#</th><th style="width:56px">چاپ</th>
+        <th>نام و نام خانوادگی</th><th style="width:100px">کد پرسنلی</th><th style="width:150px">واحد</th></tr></thead><tbody>` +
+      list.map((p,i)=>{
+        const on = !!picked()[p.id];
+        return `<tr class="${on?'pick-on':''}">
+          <td class="c">${i+1}</td>
+          <td class="c"><input type="checkbox" ${on?'checked':''} onchange="togglePick('${p.id}', this.checked)"></td>
+          <td>${esc(p.name)}</td>
+          <td class="c">${esc(p.code||'')}</td>
+          <td>${esc(unitName(p.unitId))}</td>
+        </tr>`;
+      }).join('') + '</tbody>'
+    : '<tbody><tr><td>نفری یافت نشد.</td></tr></tbody>';
+
+  const cnt = document.getElementById('pickModalCount');
+  if (cnt) cnt.textContent = `${list.filter(p=>picked()[p.id]).length} از ${list.length} نفر انتخاب شده`;
 }
