@@ -184,6 +184,7 @@ function renderPreview() {
     if (hpx) el.style.height = (hpx*scale)+'px';
     else { el.style.height = 'auto'; }
   });
+  if (typeof renderHWPreview === 'function') renderHWPreview();
 }
 
 /* ================= چاپ ================= */

@@ -5,8 +5,7 @@ function renderAll() {
   if (typeof renderHeads==='function') renderHeads();
   renderSetupControls();
   if (typeof renderQuickSetup==='function') renderQuickSetup();
-  if (typeof renderHolidays==='function') renderHolidays();
-  if (typeof renderHolidayBadge==='function') renderHolidayBadge();
+  if (typeof renderHWork==='function') renderHWork();
   renderPreview();
 }
 load();

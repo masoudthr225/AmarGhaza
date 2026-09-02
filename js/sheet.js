@@ -3,6 +3,7 @@ function showTab(btn) {
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b===btn));
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active', p.id===btn.dataset.tab));
   if (btn.dataset.tab==='tab-sheet' || btn.dataset.tab==='tab-pagesetup') renderPreview();
+  if (btn.dataset.tab==='tab-hwork' && typeof renderHWork==='function') renderHWork();
 }
 function showTabById(id) {
   const btn = document.querySelector(`nav.tabs button[data-tab="${id}"]`);
@@ -29,7 +30,6 @@ function saveSheet() {
   S.sheet.foodId = document.getElementById('sheetFood').value;
   S.sheet.note = document.getElementById('sheetNote').value.trim();
   save();
-  if (typeof renderHolidayBadge==='function') renderHolidayBadge();
   renderPreview();
 }
 

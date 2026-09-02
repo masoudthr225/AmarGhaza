@@ -39,7 +39,7 @@
   <button class="active" data-tab="tab-sheet" onclick="showTab(this)">📋 آمار روز و چاپ</button>
   <button data-tab="tab-people" onclick="showTab(this)">👥 پرسنل و واحدها</button>
   <button data-tab="tab-menu" onclick="showTab(this)">🍲 وعده‌ها و منوی غذا</button>
-  <button data-tab="tab-holidays" onclick="showTab(this)">📅 روزهای تعطیل و آمار</button>
+  <button data-tab="tab-hwork" onclick="showTab(this)">🛠️ تعطیل کاری</button>
   <button data-tab="tab-pagesetup" onclick="showTab(this)">⚙️ تنظیمات صفحه (Page Setup)</button>
 </nav>
 
@@ -54,10 +54,6 @@
       <div class="field">
         <label>تاریخ (شمسی) — برای باز شدن تقویم کلیک کنید 📅</label>
         <input type="text" id="sheetDate" class="has-jdp" onchange="saveSheet()" placeholder="1405/06/04" autocomplete="off">
-        <div class="row" style="margin-top:6px;gap:8px">
-          <span class="chip red" id="sheetHolidayBadge" style="display:none"></span>
-          <button class="btn sm ghost" onclick="markSheetDateHoliday()">📅 تعطیل/غیرتعطیل کردن این روز</button>
-        </div>
       </div>
       <div class="field">
         <label>وعده غذایی</label>
@@ -224,47 +220,85 @@
 </section>
 
 
-<!-- ============ تب: روزهای تعطیل ============ -->
-<section id="tab-holidays" class="tabpane">
+<!-- ============ تب: تعطیل کاری ============ -->
+<section id="tab-hwork" class="tabpane">
+
+  <div class="card">
+    <h2>🛠️ تعطیل کاری <span class="hint">— ثبت و چاپ لیست نفراتی که در روز تعطیل کار می‌کنند</span></h2>
+    <div class="grid3">
+      <div class="field">
+        <label>تاریخ روز تعطیل (شمسی) 📅</label>
+        <input type="text" id="hwDate" class="has-jdp" onchange="saveHW()" placeholder="1405/06/04" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>وعده غذایی</label>
+        <select id="hwMeal" onchange="saveHW()"></select>
+      </div>
+      <div class="field">
+        <label>غذای روز تعطیل (از منو)</label>
+        <select id="hwFood" onchange="saveHW()"></select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>عنوان برگه</label>
+        <input type="text" id="hwTitle" onchange="saveHW()" placeholder="لیست غذای تعطیل کاری">
+      </div>
+      <div class="field">
+        <label>توضیحات (اختیاری)</label>
+        <input type="text" id="hwNote" onchange="saveHW()" placeholder="مثال: شیفت صبح — اضافه‌کاری">
+      </div>
+    </div>
+  </div>
+
   <div class="grid2">
 
     <div class="card">
-      <h2>📅 روزهای تعطیل <span class="hint">— تاریخ‌هایی که غذا سرو نمی‌شود</span></h2>
-      <div class="row" style="margin-bottom:8px">
-        <input type="text" id="hdDate" class="has-jdp" placeholder="تاریخ تعطیل (1405/01/01)" style="max-width:170px" autocomplete="off">
-        <input type="text" id="hdTitle" placeholder="مناسبت (اختیاری — مثال: عید نوروز)" style="flex:1;min-width:170px">
-        <button class="btn" onclick="addHoliday()">➕ افزودن روز تعطیل</button>
-      </div>
+      <h2>🏭 لیست واحدها <span class="hint">— واحدهای دارای تعطیل کاری</span></h2>
       <div class="row" style="margin-bottom:10px">
-        <div class="field" style="max-width:110px"><label>سال</label><select id="hdStatYear"></select></div>
-        <div class="field" style="max-width:130px"><label>ماه</label><select id="hdStatMonth"></select></div>
-        <button class="btn sm ghost" onclick="addFridays()">🕌 افزودن همه جمعه‌های ماه انتخابی</button>
-        <button class="btn sm secondary" onclick="clearHolidays()">🗑️ پاک کردن همه</button>
+        <button class="btn sm ghost" onclick="hwAllUnits(true)">انتخاب همه</button>
+        <button class="btn sm ghost" onclick="hwAllUnits(false)">هیچکدام</button>
       </div>
-      <div class="att-note">💡 تاریخ‌ها قابل ویرایش‌اند — روی تاریخ کلیک کنید تا تقویم شمسی باز شود.</div>
-      <div class="mini-list" id="holidayList"></div>
+      <div class="unit-checks" id="hwUnitChecks"></div>
     </div>
 
     <div class="card">
-      <h2>👥 لیست نفرات <span class="hint">— نفراتی که در روزهای تعطیل کار می‌کنند را تیک بزنید</span></h2>
+      <h2>🍲 لیست غذا <span class="hint">— انتخاب سریع غذای روز</span></h2>
       <div class="row" style="margin-bottom:10px">
-        <select id="hdUnitFilter" onchange="renderHolidayPeople()" style="max-width:200px">
-          <option value="">همه واحدها</option>
-        </select>
-        <input type="text" id="hdSearch" placeholder="جستجوی نام یا کد..." oninput="renderHolidayPeople()" style="flex:1;min-width:140px">
+        <input type="text" id="hwFoodSearch" placeholder="جستجوی غذا..." oninput="renderHWFoods()" style="flex:1;min-width:140px">
       </div>
-      <div class="row" style="margin-bottom:10px">
-        <button class="btn sm ghost" onclick="hdSelectAll(true)">✅ انتخاب همه</button>
-        <button class="btn sm ghost" onclick="hdSelectAll(false)">⬜ هیچکدام</button>
-        <span class="chip" id="hdPeopleCount"></span>
-      </div>
-      <div class="att-note">💡 این لیست نفرات شیفت روزهای تعطیل است؛ تعداد انتخاب‌شده مبنای آمار غذای روز تعطیل قرار می‌گیرد.</div>
-      <div style="max-height:460px;overflow:auto">
-        <table class="list" id="hdPeopleTable"></table>
-      </div>
+      <div class="food-picks" id="hwFoodList"></div>
     </div>
 
   </div>
+
+  <div class="card">
+    <h2>👥 لیست نفرات <span class="hint">— نفراتی که در روز تعطیل کار می‌کنند را تیک بزنید</span></h2>
+    <div class="row" style="margin-bottom:10px">
+      <select id="hwUnitFilter" onchange="renderHWPeople()" style="max-width:200px"><option value="">همه واحدهای انتخابی</option></select>
+      <input type="text" id="hwSearch" placeholder="جستجوی نام یا کد..." oninput="renderHWPeople()" style="flex:1;min-width:140px">
+      <button class="btn sm ghost" onclick="hwAllPeople(true)">✅ انتخاب همه</button>
+      <button class="btn sm ghost" onclick="hwAllPeople(false)">⬜ هیچکدام</button>
+    </div>
+    <div class="stats" id="hwStats"></div>
+    <div style="max-height:460px;overflow:auto;margin-top:10px">
+      <table class="list" id="hwPeopleTable"></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🖨️ چاپ برگه تعطیل کاری</h2>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn big orange" onclick="printHW()">🖨️ چاپ برگه</button>
+      <button class="btn big" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
+      <span class="chip" id="hwPaperInfo"></span>
+      <button class="btn sm ghost" onclick="showTabById('tab-pagesetup')">تنظیمات صفحه</button>
+    </div>
+    <div class="preview-wrap">
+      <div id="hwPreview"></div>
+    </div>
+  </div>
+
 </section>
 
 <!-- ============ تب ۴: Page Setup ============ -->
@@ -458,7 +492,7 @@
     'js/sheet.js',
     'js/manage.js',
     'js/pagesetup.js',
-    'js/holidays.js',
+    'js/hwork.js',
     'js/print.js',
     'js/excel.js',
     'js/updater.js',

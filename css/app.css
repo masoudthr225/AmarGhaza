@@ -331,8 +331,17 @@
   .quick-setup input[type=number] { width: 78px; padding: 4px 6px; }
   .quick-setup select { padding: 4px 6px; }
 
-  /* ---------- روزهای تعطیل ---------- */
+  /* ---------- تعطیل کاری ---------- */
   .chip.red { background: #ffe3e3; color: #a11; border-color: #f3b1b1; }
-  #hdPeopleTable td.c, #hdPeopleTable th { text-align: center; }
-  #hdPeopleTable tr.hd-on { background: #eef7f1; font-weight: 700; }
-  #hdPeopleTable input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
+  #hwPeopleTable td.c, #hwPeopleTable th { text-align: center; }
+  #hwPeopleTable tr.hw-on { background: #eef7f1; font-weight: 700; }
+  #hwPeopleTable input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
+  #hwPreview { background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.4); flex-shrink: 0; overflow: hidden; }
+  .food-picks { display: flex; flex-wrap: wrap; gap: 6px; max-height: 260px; overflow: auto; }
+  .food-pick {
+    border: 1px solid var(--border); background: #fff; color: var(--text);
+    border-radius: 20px; padding: 6px 14px; cursor: pointer; font-family: inherit;
+    font-size: .85rem; font-weight: 600; transition: .12s;
+  }
+  .food-pick:hover { background: var(--primary-light); border-color: var(--primary); }
+  .food-pick.on { background: var(--primary); color: #fff; border-color: var(--primary); }
