@@ -179,3 +179,24 @@ function resetQuick() {
   if (qsEl('psMT')) renderSetupControls();
   renderPreview();
 }
+
+/* ============ نوار منوی چاپ (کشویی) ============ */
+function toggleMenu(btn, id) {
+  const drop = document.getElementById(id);
+  if (!drop) return;
+  const wasOpen = drop.classList.contains('open');
+  closeAllMenus();
+  if (!wasOpen) {
+    drop.classList.add('open');
+    btn.classList.add('active');
+  }
+}
+function closeAllMenus() {
+  document.querySelectorAll('.menu-drop.open').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.menu-btn.active').forEach(b=>b.classList.remove('active'));
+}
+/* بستن منو با کلیک بیرون یا Escape */
+document.addEventListener('click', e=>{
+  if (!e.target.closest || !e.target.closest('.menu-item')) closeAllMenus();
+});
+document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeAllMenus(); });
