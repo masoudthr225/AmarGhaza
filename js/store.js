@@ -48,7 +48,16 @@ let S; // state
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) { S = JSON.parse(raw); S.setup = {...DEFAULT_SETUP, ...S.setup}; return; }
+    if (raw) {
+      S = JSON.parse(raw);
+      S.setup = {...DEFAULT_SETUP, ...S.setup};
+      // سازگاری با نسخه‌های قدیمی‌تر: نبود هر یک از لیست‌ها برنامه را خراب نکند
+      const seed = seedData();
+      ['units','people','meals','foods'].forEach(k=>{ if (!Array.isArray(S[k])) S[k] = seed[k]; });
+      if (!S.sheet) S.sheet = seed.sheet;
+      if (!S.foods.length) S.foods = seed.foods;
+      return;
+    }
   } catch(e){}
   S = seedData();
   save();

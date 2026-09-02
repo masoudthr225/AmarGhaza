@@ -23,6 +23,37 @@ function saveHW() {
   renderHWPreview();
 }
 
+/* ---------- لیست غذا (کشویی از منوی غذا) ---------- */
+function renderHWFood() {
+  const sel = document.getElementById('hwFood');
+  if (!sel) return;
+  const h = HW();
+  const foods = Array.isArray(S.foods) ? S.foods : [];
+  sel.innerHTML = '<option value="">— بدون انتخاب —</option>' +
+    foods.map(f=>`<option value="${f.id}">${esc(f.name)}</option>`).join('');
+  // اگر غذای ذخیره‌شده دیگر در منو نیست، پاک شود
+  if (h.foodId && !foods.some(f=>f.id===h.foodId)) h.foodId = '';
+  sel.value = h.foodId || '';
+  const cnt = document.getElementById('hwFoodCount');
+  if (cnt) cnt.textContent = foods.length
+    ? `— ${foods.length} غذا در منو`
+    : '— منوی غذا خالی است، از تب «وعده‌ها و منوی غذا» اضافه کنید';
+}
+function hwAddFood() {
+  const inp = document.getElementById('hwNewFood');
+  const name = (inp.value||'').trim();
+  if (!name) { toast('نام غذا را وارد کنید'); return; }
+  if (!Array.isArray(S.foods)) S.foods = [];
+  let f = S.foods.find(x=>faSortNorm(x.name)===faSortNorm(name));
+  if (!f) { f = {id:uid(), name}; S.foods.push(f); }
+  HW().foodId = f.id;
+  inp.value = '';
+  save();
+  if (typeof renderFoods === 'function') renderFoods();
+  renderHWFood(); renderHWPreview();
+  toast('غذا به منو اضافه و انتخاب شد ✅');
+}
+
 /* ---------- نفرات ---------- */
 function hwTogglePerson(pid, on) {
   const h = HW();
@@ -187,9 +218,6 @@ function renderHWork() {
   g('hwDate').value = h.date || '';
   g('hwTitle').value = h.title || '';
 
-  g('hwFood').innerHTML = '<option value="">— بدون انتخاب —</option>' +
-    S.foods.map(f=>`<option value="${f.id}" ${f.id===h.foodId?'selected':''}>${esc(f.name)}</option>`).join('');
-  g('hwFood').value = h.foodId || '';
-
+  renderHWFood();
   renderHWPeople(); renderHWPreview();
 }
