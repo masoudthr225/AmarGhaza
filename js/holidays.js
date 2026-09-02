@@ -68,20 +68,13 @@ function isHoliday(dateStr) {
   return holidays().find(h=>h.date===s) || null;
 }
 
-/* ---------- آمار ---------- */
-function holidayStats(y, m) {
-  const total = jMonthLen(y, m);
-  const pref = `${y}/${String(m).padStart(2,'0')}/`;
-  const list = holidays().filter(h=>String(h.date).startsWith(pref));
-  const off = list.length;
-  return { total, off, work: total - off, list };
-}
+const J_DOWS_FULL = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
 
 function renderHolidays() {
   const box = document.getElementById('holidayList');
   if (!box) return;
 
-  // پرکردن سال/ماه در اولین اجرا
+  // پرکردن سال/ماه در اولین اجرا (برای دکمه «افزودن جمعه‌های ماه»)
   const ySel = document.getElementById('hdStatYear');
   const mSel = document.getElementById('hdStatMonth');
   if (ySel && !ySel.options.length) {
@@ -108,44 +101,61 @@ function renderHolidays() {
     </div>`;
   }).join('') : '<div class="att-note">هنوز روز تعطیلی ثبت نشده است.</div>';
 
-  renderHolidayStats();
+  renderHolidayPeople();
 }
 
-const J_DOWS_FULL = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+/* ================= لیست نفرات روزهای تعطیل ================= */
+function holidayStaff() {
+  if (!S.holidayStaff || typeof S.holidayStaff !== 'object') S.holidayStaff = {};
+  return S.holidayStaff;
+}
+function toggleHolidayStaff(pid, on) {
+  if (on) holidayStaff()[pid] = true; else delete holidayStaff()[pid];
+  save(); renderHolidayPeople();
+}
+function hdSelectAll(on) {
+  hdFilteredPeople().forEach(p=>{ if (on) holidayStaff()[p.id] = true; else delete holidayStaff()[p.id]; });
+  save(); renderHolidayPeople();
+}
+function hdFilteredPeople() {
+  const uf = (document.getElementById('hdUnitFilter')||{}).value || '';
+  const q  = ((document.getElementById('hdSearch')||{}).value || '').trim().toLowerCase();
+  return S.people
+    .filter(p => !uf || p.unitId === uf)
+    .filter(p => !q || String(p.name).toLowerCase().includes(q) || String(p.code||'').includes(q))
+    .sort((a,b)=>faCompare(a.name,b.name));
+}
+function renderHolidayPeople() {
+  const tb = document.getElementById('hdPeopleTable');
+  if (!tb) return;
 
-function renderHolidayStats() {
-  const el = document.getElementById('holidayStats');
-  if (!el) return;
-  const y = +document.getElementById('hdStatYear').value || todayJ()[0];
-  const m = +document.getElementById('hdStatMonth').value || todayJ()[1];
-  const st = holidayStats(y, m);
+  // پرکردن فیلتر واحدها
+  const uf = document.getElementById('hdUnitFilter');
+  const cur = uf.value;
+  uf.innerHTML = '<option value="">همه واحدها</option>' +
+    S.units.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  uf.value = S.units.some(u=>u.id===cur) ? cur : '';
 
-  // آمار سالانه
-  let yTotal = 0, yOff = 0;
-  for (let mm=1; mm<=12; mm++) { const s = holidayStats(y, mm); yTotal += s.total; yOff += s.off; }
+  const list = hdFilteredPeople();
+  const sel = list.filter(p=>holidayStaff()[p.id]).length;
+  const cnt = document.getElementById('hdPeopleCount');
+  if (cnt) cnt.textContent = `${sel} نفر از ${list.length} نفر انتخاب شده`;
 
-  // تعداد نفرات حاضر فعلی برای برآورد پرس
-  let people = 0;
-  try { selectedUnits().forEach(u=>{ unitPeople(u.id).forEach(p=>{ if(!S.sheet.absent[p.id]) people++; }); }); } catch(e){}
-
-  el.innerHTML = `
-    <div class="stat"><b>${st.total}</b><span>کل روزهای ${J_MONTHS[m-1]}</span></div>
-    <div class="stat red"><b>${st.off}</b><span>روز تعطیل</span></div>
-    <div class="stat"><b>${st.work}</b><span>روز کاری</span></div>
-    <div class="stat"><b>${st.work * people}</b><span>برآورد کل پرس ماه (${people} نفر)</span></div>
-    <div class="stat"><b>${yOff}</b><span>تعطیلات سال ${y}</span></div>
-    <div class="stat"><b>${yTotal - yOff}</b><span>روزهای کاری سال ${y}</span></div>`;
-
-  // جدول ماه‌های سال
-  const tb = document.getElementById('holidayYearTable');
-  if (tb) {
-    tb.innerHTML = `<thead><tr><th>ماه</th><th>کل روزها</th><th>تعطیل</th><th>روز کاری</th></tr></thead><tbody>` +
-      J_MONTHS.map((n,i)=>{
-        const s = holidayStats(y, i+1);
-        return `<tr class="${(i+1)===m?'hl':''}"><td>${n}</td><td class="c">${s.total}</td><td class="c">${s.off}</td><td class="c">${s.work}</td></tr>`;
-      }).join('') +
-      `<tr class="tot"><td>جمع سال</td><td class="c">${yTotal}</td><td class="c">${yOff}</td><td class="c">${yTotal-yOff}</td></tr></tbody>`;
-  }
+  const unitName = id => (S.units.find(u=>u.id===id)||{}).name || '—';
+  tb.innerHTML = list.length
+    ? `<thead><tr><th style="width:36px">#</th><th style="width:52px">شیفت تعطیل</th>
+        <th>نام و نام خانوادگی</th><th style="width:90px">کد پرسنلی</th><th style="width:140px">واحد</th></tr></thead><tbody>` +
+      list.map((p,i)=>{
+        const on = !!holidayStaff()[p.id];
+        return `<tr class="${on?'hd-on':''}">
+          <td class="c">${i+1}</td>
+          <td class="c"><input type="checkbox" ${on?'checked':''} onchange="toggleHolidayStaff('${p.id}', this.checked)"></td>
+          <td>${esc(p.name)}</td>
+          <td class="c">${esc(p.code||'')}</td>
+          <td>${esc(unitName(p.unitId))}</td>
+        </tr>`;
+      }).join('') + '</tbody>'
+    : '<tbody><tr><td>نفری یافت نشد.</td></tr></tbody>';
 }
 
 /* نشان دادن وضعیت تعطیل بودن تاریخ آمار روز */

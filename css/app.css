@@ -333,6 +333,6 @@
 
   /* ---------- روزهای تعطیل ---------- */
   .chip.red { background: #ffe3e3; color: #a11; border-color: #f3b1b1; }
-  table.holiday-year tr.hl { background: #eef7f1; font-weight: 700; }
-  table.holiday-year tr.tot { background: #14563c; color: #fff; font-weight: 800; }
-  table.holiday-year td.c, table.holiday-year th { text-align: center; }
+  #hdPeopleTable td.c, #hdPeopleTable th { text-align: center; }
+  #hdPeopleTable tr.hd-on { background: #eef7f1; font-weight: 700; }
+  #hdPeopleTable input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }

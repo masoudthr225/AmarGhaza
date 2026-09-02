@@ -236,6 +236,8 @@
         <button class="btn" onclick="addHoliday()">➕ افزودن روز تعطیل</button>
       </div>
       <div class="row" style="margin-bottom:10px">
+        <div class="field" style="max-width:110px"><label>سال</label><select id="hdStatYear"></select></div>
+        <div class="field" style="max-width:130px"><label>ماه</label><select id="hdStatMonth"></select></div>
         <button class="btn sm ghost" onclick="addFridays()">🕌 افزودن همه جمعه‌های ماه انتخابی</button>
         <button class="btn sm secondary" onclick="clearHolidays()">🗑️ پاک کردن همه</button>
       </div>
@@ -244,14 +246,21 @@
     </div>
 
     <div class="card">
-      <h2>📊 آمار روزهای کاری و تعطیل</h2>
+      <h2>👥 لیست نفرات <span class="hint">— نفراتی که در روزهای تعطیل کار می‌کنند را تیک بزنید</span></h2>
       <div class="row" style="margin-bottom:10px">
-        <div class="field" style="flex:1"><label>سال</label><select id="hdStatYear" onchange="renderHolidayStats()"></select></div>
-        <div class="field" style="flex:1"><label>ماه</label><select id="hdStatMonth" onchange="renderHolidayStats()"></select></div>
+        <select id="hdUnitFilter" onchange="renderHolidayPeople()" style="max-width:200px">
+          <option value="">همه واحدها</option>
+        </select>
+        <input type="text" id="hdSearch" placeholder="جستجوی نام یا کد..." oninput="renderHolidayPeople()" style="flex:1;min-width:140px">
       </div>
-      <div class="stats" id="holidayStats"></div>
-      <div style="max-height:420px;overflow:auto;margin-top:12px">
-        <table class="list holiday-year" id="holidayYearTable"></table>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn sm ghost" onclick="hdSelectAll(true)">✅ انتخاب همه</button>
+        <button class="btn sm ghost" onclick="hdSelectAll(false)">⬜ هیچکدام</button>
+        <span class="chip" id="hdPeopleCount"></span>
+      </div>
+      <div class="att-note">💡 این لیست نفرات شیفت روزهای تعطیل است؛ تعداد انتخاب‌شده مبنای آمار غذای روز تعطیل قرار می‌گیرد.</div>
+      <div style="max-height:460px;overflow:auto">
+        <table class="list" id="hdPeopleTable"></table>
       </div>
     </div>
 
