@@ -232,12 +232,15 @@ function renderPreview() {
     if (!el) return;
     const wpx = d.w * 3.7795;
     const hpx = d.h ? d.h * 3.7795 : 0;
-    el.style.width = (wpx*scale) + 'px';
-    if (hpx) el.style.minHeight = (hpx*scale)+'px'; else el.style.minHeight = 'auto';
-    el.innerHTML = `<div style="transform:scale(${scale});transform-origin:top right;width:${wpx}px;${hpx?`min-height:${hpx}px;`:''}
-      padding:${st.mt*3.7795*1}px ${st.mr*3.7795}px ${st.mb*3.7795}px ${st.ml*3.7795}px;">${html}</div>`;
-    if (hpx) el.style.height = (hpx*scale)+'px';
-    else { el.style.height = 'auto'; }
+    /* به‌جای transform (که ارتفاع واقعی را از جریان صفحه حذف می‌کند و روی
+       کاغذ رول باعث بریده شدن اسامی می‌شود) از zoom استفاده می‌کنیم؛
+       zoom ارتفاع را در چیدمان لحاظ می‌کند، پس ظرف خودش کشیده می‌شود. */
+    el.style.width = (wpx * scale) + 'px';
+    el.style.height = hpx ? (hpx * scale) + 'px' : 'auto';
+    el.style.minHeight = hpx ? (hpx * scale) + 'px' : '0';
+    el.innerHTML = `<div class="pv-sheet" style="width:${wpx}px;${hpx?`min-height:${hpx}px;`:''}
+      padding:${st.mt*3.7795}px ${st.mr*3.7795}px ${st.mb*3.7795}px ${st.ml*3.7795}px;
+      zoom:${scale};">${html}</div>`;
   });
 }
 

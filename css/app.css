@@ -205,7 +205,11 @@
   }
   #previewPage {
     background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.4);
-    flex-shrink: 0; overflow: hidden;
+    flex-shrink: 0; overflow: visible; height: auto;
+  }
+  /* fallback برای مرورگرهایی که zoom ندارند */
+  @supports not (zoom: 1) {
+    .pv-sheet { transform-origin: top right; }
   }
 
   /* ---------- ناحیه چاپ ---------- */
