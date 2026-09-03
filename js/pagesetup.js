@@ -231,3 +231,42 @@ document.addEventListener('click', e=>{
   if (!e.target.closest || !e.target.closest('.menu-item')) closeAllMenus();
 });
 document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeAllMenus(); });
+
+
+/* ============ ناوبری بخش‌های تنظیمات صفحه ============ */
+function psGo(secId, btn) {
+  document.querySelectorAll('#tab-pagesetup .ps-sec').forEach(x => x.classList.toggle('show', x.id === secId));
+  document.querySelectorAll('#tab-pagesetup .ps-nav-btn').forEach(b => b.classList.toggle('active', b === btn));
+}
+
+/* ============ قالب‌های آماده ============ */
+const PS_PRESETS = {
+  thermal58: { paper:'T58', mt:2, mb:2, mr:2, ml:2, fontSize:8.5, lineH:1.2, bold:true,
+               cols:1, layout:'units', showSign:false, showCode:true, noFill:true,
+               rowH:0, cellPad:0.6, headerOn:true, footerOn:false },
+  thermal80: { paper:'T80', mt:2, mb:2, mr:2, ml:2, fontSize:9.5, lineH:1.3, bold:true,
+               cols:1, layout:'units', showSign:false, showCode:true, noFill:true,
+               rowH:0, cellPad:0.8, headerOn:true, footerOn:false },
+  a4:        { paper:'A4P', mt:10, mb:10, mr:8, ml:8, fontSize:11, lineH:1.5, bold:false,
+               cols:2, layout:'units', showSign:true, showCode:true, noFill:false,
+               rowH:0, cellPad:1, headerOn:true, footerOn:true },
+  excel:     { paper:'A4P', mt:8, mb:8, mr:6, ml:6, fontSize:11, lineH:1.4, bold:false,
+               cols:2, layout:'excel', showSign:false, showCode:true, noFill:false,
+               rowH:7, cellPad:1, headerOn:false, footerOn:false }
+};
+function applyPreset(name) {
+  const pre = PS_PRESETS[name];
+  if (!pre) return;
+  Object.assign(S.setup, pre);
+  save();
+  renderSetupControls();
+  renderPreview();
+  if (typeof toast === 'function') toast('قالب آماده اعمال شد');
+}
+
+/* ============ یکسان کردن حاشیه‌ها ============ */
+function marginAll() {
+  const v = parseFloat(document.getElementById('psMT').value) || 0;
+  ['psMT','psMB','psMR','psML'].forEach(id => { const e = document.getElementById(id); if (e) e.value = v; });
+  saveSetup();
+}
