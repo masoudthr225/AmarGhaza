@@ -3,7 +3,7 @@ const LS_KEY = 'foodStatApp_v1';
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 const DEFAULT_SETUP = {
-  paper: 'A4P', customW: 80, customH: 0,
+  paper: 'T58', customW: 80, customH: 0,
   mt: 10, mb: 10, mr: 8, ml: 8,
   font: 'Vazirmatn, Tahoma, sans-serif', fontSize: 11, lineH: 1.5, bold: false,
   layout: 'units',
@@ -12,7 +12,7 @@ const DEFAULT_SETUP = {
   rowH: 0, cellPad: 1,
   alignName: 'right', alignRowNo: 'center', alignCode: 'center',
   alignHeader: 'center', alignPage: 'center',
-  cols: 0, showCode: true, showRowNo: true, showSign: false,
+  cols: 2, showCode: true, showRowNo: true, showSign: false,
   showAbsent: true, showSummary: true, noFill: false, unitNewPage: false,
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',
   headerDate: true, headerMeal: true,
@@ -59,12 +59,24 @@ function load() {
       if (!S.sheet) S.sheet = seed.sheet;
       if (!S.foods.length) S.foods = seed.foods;
       migrateExtras();
+      migrateDefaults();
       return;
     }
   } catch(e){}
   S = seedData();
   save();
 }
+/* یک‌بار: پیش‌فرض‌های جدید (پرینتر حرارتی ۵۸، جدول جدا برای هر واحد، ۲ ستون) */
+function migrateDefaults() {
+  if (S.__defaultsV3) return;
+  S.setup = S.setup || {};
+  S.setup.paper  = 'T58';
+  S.setup.layout = 'units';
+  S.setup.cols   = 2;
+  S.__defaultsV3 = true;
+  save();
+}
+
 /* اقلام زیر جدول: ردیف «50%» جدا شود و مقدار «تخم مرغ» خالی بماند */
 function migrateExtras() {
   if (S.__extrasV2) return;

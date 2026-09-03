@@ -332,10 +332,13 @@ function cellTrio(p, no, CS, isLeft) {
   const AN = `text-align:${(S.setup && S.setup.alignName) || 'right'};`;
   const AR = `text-align:${(S.setup && S.setup.alignRowNo) || 'center'};`;
   const AC = `text-align:${(S.setup && S.setup.alignCode) || 'center'};`;
-  if (!p) return `<td class="xls-no${sep}" style="${CS}${AR}"></td><td class="xls-code" style="${CS}${AC}"></td><td class="xls-name" style="${CS}${AN}"></td>`;
+  const W = cw();                                   // عرض ستون‌ها از تنظیمات کاربر
+  const WR = `width:${(W.rowNo / 2).toFixed(2)}%;`;  // دو بلوک کنار هم → نصف عرض
+  const WC = `width:${(W.code / 2).toFixed(2)}%;`;
+  if (!p) return `<td class="xls-no${sep}" style="${CS}${AR}${WR}"></td><td class="xls-code" style="${CS}${AC}${WC}"></td><td class="xls-name" style="${CS}${AN}"></td>`;
   const ab = !!S.sheet.absent[p.id];
-  return `<td class="xls-no${sep}" style="${CS}${AR}">${no}</td>` +
-         `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}${AC}">${esc(p.code || '')}</td>` +
+  return `<td class="xls-no${sep}" style="${CS}${AR}${WR}">${no}</td>` +
+         `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}${AC}${WC}">${esc(p.code || '')}</td>` +
          `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${AN}"><span class="nm">${esc(p.name)}</span></td>`;
 }
 

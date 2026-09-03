@@ -236,14 +236,14 @@
     display: flex; justify-content: space-between;
   }
   .doc.no-fill .unit-title { background: #fff; color: #000; border: 1.5px solid #000; }
-  .doc table.ptab { width: 100%; border-collapse: collapse; margin-top: 3px; }
+  .doc table.ptab { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
   .doc table.ptab th, .doc table.ptab td {
     border: 1px solid #000; text-align: right;
     padding: var(--cell-pad, 1mm) calc(var(--cell-pad, 1mm) + 1mm);
   }
   .doc table.ptab tbody tr { height: var(--row-h, auto); }
   .doc table.ptab th { text-align: center; font-weight: 800; }
-  .doc td.c { text-align: center; }
+
   .doc .ab .nm { text-decoration: line-through; text-decoration-thickness: 1.6px; }
   .doc .ab-tag { font-size: .8em; font-weight: 800; }
   .doc .cols { display: grid; gap: 6px; }
@@ -385,9 +385,9 @@
     padding: var(--cell-pad, 1mm) 0.6mm; height: var(--row-h, auto);
     overflow: hidden; white-space: nowrap;
   }
-  .doc.xls .xls-no   { width: 11%; font-weight: 800; }
-  .doc.xls .xls-code { width: 16%; direction: ltr; }
-  .doc.xls .xls-name { width: 23%; text-align: right; padding-right: 1.4mm; font-weight: 700; }
+  .doc.xls .xls-no   { font-weight: 800; }
+  .doc.xls .xls-code { direction: ltr; }
+  .doc.xls .xls-name { text-align: right; padding-right: 1.4mm; font-weight: 700; }
   .doc.xls .xls-sep  { border-right-width: 2px; }
   .doc.xls .xls-tab .ab .nm,
   .doc.xls .xls-tab td.ab { text-decoration: line-through; text-decoration-thickness: 1.6px; }

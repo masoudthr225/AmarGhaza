@@ -49,10 +49,10 @@ function renderPeople() {
     const u = S.units.find(x=>x.id===p.unitId);
     return `<tr><td>${i+1}</td>
       <td class="edit-cell" contenteditable="true" title="برای ویرایش کلیک کنید"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();nextEditCell(this);}"
           onblur="updPersonInline('${p.id}','name',this)">${esc(p.name)}</td>
       <td class="edit-cell" contenteditable="true" title="برای ویرایش کلیک کنید"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();nextEditCell(this);}"
           onblur="updPersonInline('${p.id}','code',this)">${esc(p.code||'')}</td>
       <td>${esc(u?u.name:'—')}</td>
       <td><button class="icon-btn" title="حذف نام کوچک (تبدیل به نام خانوادگی)" onclick="dropFirstName('${p.id}')">✂️</button>
@@ -207,4 +207,19 @@ function delFood(id) {
   S.foods = S.foods.filter(f=>f.id!==id);
   if (S.sheet.foodId===id) S.sheet.foodId='';
   save(); renderAll();
+}
+
+
+/* Enter در سلول‌های ویرایش‌شونده: ذخیره و رفتن به سلول بعدی */
+function nextEditCell(cell) {
+  const cells = Array.from(document.querySelectorAll('.edit-cell[contenteditable="true"]'))
+    .filter(c => c.offsetParent !== null);
+  const i = cells.indexOf(cell);
+  cell.blur();                       // ذخیره از طریق onblur
+  if (i > -1 && i + 1 < cells.length) {
+    const nxt = cells[i + 1];
+    nxt.focus();
+    const r = document.createRange(); r.selectNodeContents(nxt);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }
 }
