@@ -8,7 +8,7 @@ window.APP_MANIFEST = {
   "js/sheet.js": "719ed67e5d",
   "js/manage.js": "42031245cf",
   "js/pagesetup.js": "81d543dee6",
-  "js/print.js": "d5a53f8e0d",
+  "js/print.js": "0ca5d8a96f",
   "js/excel.js": "cdbf2354ac",
   "js/updater.js": "e87974ff08",
   "js/main.js": "d2fff194d0",

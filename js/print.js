@@ -55,6 +55,28 @@ function cw() {
   const def = { rowNo:8, code:16, unit:20, sign:15 };
   const w = { ...def, ...(S.setup.colW||{}) };
   ['rowNo','code','unit','sign'].forEach(k=>{ w[k] = Math.max(3, Math.min(60, +w[k]||def[k])); });
+
+  /* روی کاغذ باریک، درصدها به میلی‌متر خیلی کوچکی ترجمه می‌شوند و متن جا نمی‌شود.
+     حداقلِ عرض بر حسب میلی‌متر تضمین می‌شود تا شماره و کد خوانا بمانند. */
+  const st = S.setup;
+  const pw = (typeof paperDims === 'function') ? paperDims().w : 210;
+  const usable = pw - (+st.mr || 0) - (+st.ml || 0);
+  if (usable > 0 && usable < 100) {
+    const minPct = (mm) => (mm / usable) * 100;
+    w.rowNo = Math.max(w.rowNo, minPct(6));    // دست‌کم ۶ میلی‌متر برای شماره ردیف
+    w.code  = Math.max(w.code,  minPct(13));   // دست‌کم ۱۳ میلی‌متر برای کد پرسنلی
+    w.unit  = Math.max(w.unit,  minPct(13));
+    w.sign  = Math.max(w.sign,  minPct(12));
+    // مجموع ستون‌های ثابت نباید فضایی برای «نام» باقی نگذارد
+    let fixed = (st.showRowNo ? w.rowNo : 0) + (st.showCode ? w.code : 0) + (st.showSign ? w.sign : 0);
+    if (fixed > 60) {
+      const k = 60 / fixed;
+      if (st.showRowNo) w.rowNo *= k;
+      if (st.showCode)  w.code  *= k;
+      if (st.showSign)  w.sign  *= k;
+    }
+  }
+  ['rowNo','code','unit','sign'].forEach(k=>{ w[k] = Math.round(w[k] * 100) / 100; });
   return w;
 }
 
@@ -401,7 +423,13 @@ function cellTrio(p, no, CS, isLeft) {
 /* استایل مستقیم سلول: ارتفاع سطر و فاصله داخلی — روی همه مرورگرها و در چاپ قابل اتکاست */
 function cellStyle(rowH, cellPad) {
   const pad = (cellPad == null ? 1 : +cellPad);
-  let css = `padding:${pad}mm ${(pad + 1).toFixed(2)}mm;`;
+  /* پدینگ افقی نباید روی کاغذ باریک (رول حرارتی) کل عرض ستون را ببلعد.
+     روی رول ۵۸ ستون «ردیف» فقط ~۴mm عرض دارد؛ ۲mm پدینگ در هر طرف
+     یعنی صفر فضا برای متن و محتوا محو می‌شود. */
+  const w = (typeof paperDims === 'function') ? paperDims().w : 210;
+  const maxH = w <= 60 ? 0.6 : (w <= 90 ? 1 : pad + 1);
+  const padH = Math.min(pad + 1, maxH);
+  let css = `padding:${pad}mm ${padH.toFixed(2)}mm;`;
   if (rowH > 0) css += `height:${rowH}mm;`;
   return css;
 }
