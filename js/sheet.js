@@ -68,7 +68,8 @@ function unitExtras(uId) {
   if (!S.sheet.extras[uId]) S.sheet.extras[uId] = [
     {id:uid(), label:'خوراک',   qty:''},
     {id:uid(), label:'حاضری',   qty:''},
-    {id:uid(), label:'تخم مرغ', qty:'50%'},
+    {id:uid(), label:'50%',     qty:''},
+    {id:uid(), label:'تخم مرغ', qty:''},
   ];
   return S.sheet.extras[uId];
 }

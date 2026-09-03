@@ -246,14 +246,14 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
       </div>
 
       <div class="card">
-        <h2>🧾 چیدمان لیست</h2>
+        <h2>🧾 قالب و چیدمان چاپ</h2>
         <div class="row">
           <div class="field" style="flex:1">
             <label>قالب چاپ</label>
             <select id="psLayout" onchange="saveSetup()">
               <option value="units">جدول جدا برای هر واحد (پیش‌فرض)</option>
               <option value="flat">جدول یکپارچه با ستون «واحد»</option>
-              <option value="excel">📄 قالب برگه اکسل — دو ستونه با کادر غذا (فایل آمار غذا.xlsx)</option>
+              <option value="excel">📄 قالب برگه اکسل — دو ستونه با کادر غذا</option>
             </select>
           </div>
           <div class="field" style="flex:1">
@@ -263,9 +263,17 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <option value="1">۱ ستون</option>
               <option value="2">۲ ستون</option>
               <option value="3">۳ ستون</option>
+              <option value="4">۴ ستون</option>
             </select>
           </div>
         </div>
+      </div>
+
+    </div>
+    <div>
+
+      <div class="card">
+        <h2>🔠 عنوان و عرض ستون‌ها</h2>
         <div class="row">
           <div class="field" style="flex:2"><label>عنوان ستون نام</label><input type="text" id="psHeadName" onchange="saveHeads()" placeholder="نام و نام خانوادگی"></div>
           <div class="field" style="flex:1"><label>عنوان ستون کد</label><input type="text" id="psHeadCode" onchange="saveHeads()" placeholder="کد پرسنلی"></div>
@@ -282,6 +290,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <div class="field" style="flex:1"><label>عرض ستون امضا (٪)</label><input type="number" id="psWSign" min="3" max="60" step="1" onchange="saveColW()"></div>
         </div>
         <div class="att-note">📐 ستون «نام خانوادگی» عرض باقیمانده را خودش می‌گیرد — برای پهن‌تر شدنِ نام، بقیه ستون‌ها را کوچک‌تر کنید.</div>
+      </div>
+
+      <div class="card">
+        <h2>👁️ نمایش و گزینه‌های چاپ</h2>
         <div class="row" style="gap:16px">
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowCode" onchange="saveSetup()"> نمایش کد پرسنلی</label>
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"> شماره ردیف</label>
@@ -296,9 +308,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"> هر واحد در صفحه جدید</label>
         </div>
       </div>
-
-    </div>
-    <div>
 
       <div class="card">
         <h2>🔝 سربرگ (Header)</h2>
@@ -324,7 +333,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterTime" onchange="saveSetup()"> ساعت چاپ</label>
         </div>
       </div>
-
 
     </div>
   </div>

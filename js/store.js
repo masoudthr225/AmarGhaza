@@ -56,12 +56,33 @@ function load() {
       ['units','people','meals','foods'].forEach(k=>{ if (!Array.isArray(S[k])) S[k] = seed[k]; });
       if (!S.sheet) S.sheet = seed.sheet;
       if (!S.foods.length) S.foods = seed.foods;
+      migrateExtras();
       return;
     }
   } catch(e){}
   S = seedData();
   save();
 }
+/* اقلام زیر جدول: ردیف «50%» جدا شود و مقدار «تخم مرغ» خالی بماند */
+function migrateExtras() {
+  if (S.__extrasV2) return;
+  const ex = S.sheet && S.sheet.extras;
+  if (ex) {
+    Object.keys(ex).forEach(uId => {
+      const list = ex[uId];
+      if (!Array.isArray(list)) return;
+      const egg = list.find(x => String(x.label).trim() === 'تخم مرغ');
+      if (egg && String(egg.qty).trim() === '50%') egg.qty = '';
+      if (!list.some(x => String(x.label).trim() === '50%')) {
+        const i = list.indexOf(egg);
+        const row = { id: uid(), label: '50%', qty: '' };
+        if (i >= 0) list.splice(i, 0, row); else list.push(row);
+      }
+    });
+  }
+  S.__extrasV2 = true;
+}
+
 function save() {
   localStorage.setItem(LS_KEY, JSON.stringify(S));
   const el = document.getElementById('saveStatus');
