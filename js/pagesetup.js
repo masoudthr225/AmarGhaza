@@ -24,6 +24,10 @@ function renderSetupControls() {
   document.getElementById('psFont').value = st.font;
   document.getElementById('psFontSize').value = st.fontSize;
   document.getElementById('psLineH').value = st.lineH;
+  const _rh = document.getElementById('psRowH');
+  if (_rh) _rh.value = (st.rowH != null ? st.rowH : 0);
+  const _cp = document.getElementById('psCellPad');
+  if (_cp) _cp.value = (st.cellPad != null ? st.cellPad : 1);
   document.getElementById('psBold').checked = st.bold;
   document.getElementById('psCols').value = String(st.cols);
   document.getElementById('psShowCode').checked = st.showCode;
@@ -77,6 +81,10 @@ function saveSetup() {
   st.font = document.getElementById('psFont').value;
   st.fontSize = +document.getElementById('psFontSize').value || 11;
   st.lineH = +document.getElementById('psLineH').value || 1.5;
+  const _rh = document.getElementById('psRowH');
+  if (_rh) st.rowH = Math.max(0, Math.min(20, parseFloat(_rh.value) || 0));
+  const _cp = document.getElementById('psCellPad');
+  if (_cp) { const v = parseFloat(_cp.value); st.cellPad = isNaN(v) ? 1 : Math.max(0, Math.min(10, v)); }
   st.bold = document.getElementById('psBold').checked;
   st.cols = +document.getElementById('psCols').value;
   st.showCode = document.getElementById('psShowCode').checked;
@@ -131,7 +139,7 @@ function resetSetup() {
 function qsEl(id){ return document.getElementById(id); }
 function renderQuickSetup() {
   const st = S.setup;
-  if (!qsEl('qsMT')) return;
+  if (!qsEl('qsMT')) return;   // نوار منوی قدیمی حذف شده است
   const _w = { rowNo:8, code:16, unit:20, sign:15, ...(st.colW||{}) };
   qsEl('qsMT').value = st.mt; qsEl('qsMB').value = st.mb;
   qsEl('qsMR').value = st.mr; qsEl('qsML').value = st.ml;
@@ -144,6 +152,7 @@ function renderQuickSetup() {
   qsEl('qsCols').value = String(st.cols);
 }
 function saveQuick() {
+  if (!qsEl('qsMT')) return;
   const st = S.setup;
   const num = (id, def) => { const v = parseFloat(qsEl(id).value); return isNaN(v) ? def : v; };
   const clampW = v => Math.max(3, Math.min(60, v));
@@ -166,6 +175,7 @@ function saveQuick() {
   renderPreview();
 }
 function quickMarginAll() {
+  if (!qsEl('qsMT')) return;
   const v = parseFloat(qsEl('qsMT').value) || 0;
   ['qsMB','qsMR','qsML'].forEach(id=>qsEl(id).value = v);
   saveQuick();
@@ -175,8 +185,9 @@ function resetQuick() {
   ['mt','mb','mr','ml','fontSize','lineH','cols'].forEach(k=> st[k] = DEFAULT_SETUP[k]);
   st.colW = {...DEFAULT_SETUP.colW};
   st.rowH = DEFAULT_SETUP.rowH; st.cellPad = DEFAULT_SETUP.cellPad;
-  save(); renderQuickSetup();
-  if (qsEl('psMT')) renderSetupControls();
+  save();
+  renderQuickSetup();
+  renderSetupControls();
   renderPreview();
 }
 

@@ -400,3 +400,8 @@
   }
   .doc.xls .xls-ex-label { width: 60%; }
   .doc.xls .xls-ex-qty   { width: 40%; }
+
+  /* ---------- جدول ستون‌ها در تنظیمات صفحه ---------- */
+  table.cols-tab td, table.cols-tab th { padding: 6px 8px; vertical-align: middle; }
+  table.cols-tab td.c { text-align: center; color: var(--muted); font-size: .82rem; }
+  table.cols-tab input { width: 100%; padding: 6px 8px; }

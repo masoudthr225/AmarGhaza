@@ -200,22 +200,18 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         </div>
         <div class="row" id="customSizeRow" style="display:none">
           <div class="field" style="flex:1"><label>عرض (mm)</label><input type="number" id="psCustomW" value="80" onchange="saveSetup()"></div>
-          <div class="field" style="flex:1"><label>ارتفاع (mm) — برای رول: خالی/۰ = پیوسته</label><input type="number" id="psCustomH" value="0" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>ارتفاع (mm) — ۰ = پیوسته</label><input type="number" id="psCustomH" value="0" onchange="saveSetup()"></div>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>📏 حاشیه‌های کاغذ (میلی‌متر)</h2>
         <div class="row">
-          <div class="field" style="flex:1"><label>بالا</label><input type="number" id="psMT" step="1" onchange="saveSetup()"></div>
-          <div class="field" style="flex:1"><label>پایین</label><input type="number" id="psMB" step="1" onchange="saveSetup()"></div>
-          <div class="field" style="flex:1"><label>راست</label><input type="number" id="psMR" step="1" onchange="saveSetup()"></div>
-          <div class="field" style="flex:1"><label>چپ</label><input type="number" id="psML" step="1" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>حاشیه بالا (mm)</label><input type="number" id="psMT" step="1" min="0" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>پایین</label><input type="number" id="psMB" step="1" min="0" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>راست</label><input type="number" id="psMR" step="1" min="0" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>چپ</label><input type="number" id="psML" step="1" min="0" onchange="saveSetup()"></div>
         </div>
       </div>
 
       <div class="card">
-        <h2>🔤 فونت و اندازه</h2>
+        <h2>🔤 فونت و اندازه سلول‌ها</h2>
         <div class="row">
           <div class="field" style="flex:2">
             <label>فونت</label>
@@ -231,6 +227,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           </div>
           <div class="field" style="flex:1"><label>اندازه فونت (pt)</label><input type="number" id="psFontSize" min="6" max="30" step="0.5" onchange="saveSetup()"></div>
           <div class="field" style="flex:1"><label>فاصله سطر</label><input type="number" id="psLineH" min="1" max="3" step="0.1" onchange="saveSetup()"></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1"><label>ارتفاع سطر (mm) — ۰ = خودکار</label><input type="number" id="psRowH" min="0" max="20" step="0.5" onchange="saveSetup()"></div>
+          <div class="field" style="flex:1"><label>فاصله داخلی سلول (mm)</label><input type="number" id="psCellPad" min="0" max="10" step="0.2" onchange="saveSetup()"></div>
         </div>
         <div class="row">
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psBold" onchange="saveSetup()"> متن ضخیم (مناسب چاپ حرارتی)</label>
@@ -259,70 +259,64 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             </select>
           </div>
         </div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowCode" onchange="saveSetup()"> کد پرسنلی</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"> شماره ردیف</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowSign" onchange="saveSetup()"> ستون امضا</label>
+        </div>
+        <div class="row" style="gap:16px">
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"> چاپ غایبین</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowSummary" onchange="saveSetup()"> خلاصه آمار</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psNoFill" onchange="saveSetup()"> بدون پس‌زمینه مشکی</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"> هر واحد صفحه جدید</label>
+        </div>
       </div>
 
     </div>
     <div>
 
       <div class="card">
-        <h2>🔠 عنوان و عرض ستون‌ها</h2>
-        <div class="row">
-          <div class="field" style="flex:2"><label>عنوان ستون نام</label><input type="text" id="psHeadName" onchange="saveHeads()" placeholder="نام و نام خانوادگی"></div>
-          <div class="field" style="flex:1"><label>عنوان ستون کد</label><input type="text" id="psHeadCode" onchange="saveHeads()" placeholder="کد پرسنلی"></div>
-        </div>
-        <div class="row">
-          <div class="field" style="flex:1"><label>عنوان ستون واحد</label><input type="text" id="psHeadUnit" onchange="saveHeads()" placeholder="واحد"></div>
-          <div class="field" style="flex:1"><label>عنوان ستون ردیف</label><input type="text" id="psHeadRowNo" onchange="saveHeads()" placeholder="ر"></div>
-          <div class="field" style="flex:1"><label>عنوان ستون امضا</label><input type="text" id="psHeadSign" onchange="saveHeads()" placeholder="امضا"></div>
-        </div>
-        <div class="row">
-          <div class="field" style="flex:1"><label>عرض ستون ردیف (٪)</label><input type="number" id="psWRowNo" min="3" max="60" step="1" onchange="saveColW()"></div>
-          <div class="field" style="flex:1"><label>عرض ستون کد پرسنلی (٪)</label><input type="number" id="psWCode" min="3" max="60" step="1" onchange="saveColW()"></div>
-          <div class="field" style="flex:1"><label>عرض ستون واحد (٪)</label><input type="number" id="psWUnit" min="3" max="60" step="1" onchange="saveColW()"></div>
-          <div class="field" style="flex:1"><label>عرض ستون امضا (٪)</label><input type="number" id="psWSign" min="3" max="60" step="1" onchange="saveColW()"></div>
-        </div>
+        <h2>🔠 ستون‌ها — عنوان و عرض</h2>
+        <table class="list cols-tab">
+          <thead><tr><th>ستون</th><th>عنوان چاپی</th><th style="width:110px">عرض (٪)</th></tr></thead>
+          <tbody>
+            <tr><td>ردیف</td>
+              <td><input type="text" id="psHeadRowNo" onchange="saveHeads()" placeholder="ر"></td>
+              <td><input type="number" id="psWRowNo" min="3" max="60" step="1" onchange="saveColW()"></td></tr>
+            <tr><td>نام</td>
+              <td><input type="text" id="psHeadName" onchange="saveHeads()" placeholder="نام و نام خانوادگی"></td>
+              <td class="c">باقیمانده</td></tr>
+            <tr><td>کد پرسنلی</td>
+              <td><input type="text" id="psHeadCode" onchange="saveHeads()" placeholder="کد پرسنلی"></td>
+              <td><input type="number" id="psWCode" min="3" max="60" step="1" onchange="saveColW()"></td></tr>
+            <tr><td>واحد</td>
+              <td><input type="text" id="psHeadUnit" onchange="saveHeads()" placeholder="واحد"></td>
+              <td><input type="number" id="psWUnit" min="3" max="60" step="1" onchange="saveColW()"></td></tr>
+            <tr><td>امضا</td>
+              <td><input type="text" id="psHeadSign" onchange="saveHeads()" placeholder="امضا"></td>
+              <td><input type="number" id="psWSign" min="3" max="60" step="1" onchange="saveColW()"></td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="card">
-        <h2>👁️ نمایش و گزینه‌های چاپ</h2>
-        <div class="row" style="gap:16px">
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowCode" onchange="saveSetup()"> نمایش کد پرسنلی</label>
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"> شماره ردیف</label>
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowSign" onchange="saveSetup()"> ستون امضا</label>
-        </div>
-        <div class="row" style="gap:16px">
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"> چاپ غایبین (خط‌خورده)</label>
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psShowSummary" onchange="saveSetup()"> خلاصه آمار (حاضر/غایب)</label>
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psNoFill" onchange="saveSetup()"> بدون پس‌زمینه مشکی (صرفه‌جویی جوهر)</label>
-        </div>
-        <div class="row" style="gap:16px">
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"> هر واحد در صفحه جدید</label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>🔝 سربرگ (Header)</h2>
-        <div class="row" style="margin-bottom:6px">
+        <h2>🔝 سربرگ و پاصفحه</h2>
+        <div class="row" style="gap:16px;margin-bottom:6px">
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderOn" onchange="saveSetup()"> نمایش سربرگ</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderDate" onchange="saveSetup()"> تاریخ</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderMeal" onchange="saveSetup()"> وعده و غذا</label>
         </div>
-        <div class="field"><label>عنوان اصلی</label><input type="text" id="psHeaderTitle" onchange="saveSetup()" placeholder="شرکت نمونه — آمار غذای پرسنل"></div>
-        <div class="field"><label>زیرعنوان</label><input type="text" id="psHeaderSub" onchange="saveSetup()" placeholder="واحد امور رفاهی"></div>
-        <div class="row" style="gap:16px">
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderDate" onchange="saveSetup()"> نمایش تاریخ در سربرگ</label>
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psHeaderMeal" onchange="saveSetup()"> نمایش وعده و غذا</label>
+        <div class="row">
+          <div class="field" style="flex:1"><label>عنوان اصلی</label><input type="text" id="psHeaderTitle" onchange="saveSetup()" placeholder="آمار غذای پرسنل"></div>
+          <div class="field" style="flex:1"><label>زیرعنوان</label><input type="text" id="psHeaderSub" onchange="saveSetup()" placeholder="واحد امور رفاهی"></div>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>🔻 پاصفحه (Footer)</h2>
-        <div class="row" style="margin-bottom:6px">
+        <div class="menu-sep"></div>
+        <div class="row" style="gap:16px;margin-bottom:6px">
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterOn" onchange="saveSetup()"> نمایش پاصفحه</label>
-        </div>
-        <div class="field"><label>متن پاصفحه</label><input type="text" id="psFooterText" onchange="saveSetup()" placeholder="لطفاً آمار تا ساعت ۱۰ صبح اعلام شود."></div>
-        <div class="row" style="gap:16px">
-          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterSign" onchange="saveSetup()"> محل امضای مسئول و آشپزخانه</label>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterSign" onchange="saveSetup()"> محل امضا</label>
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psFooterTime" onchange="saveSetup()"> ساعت چاپ</label>
         </div>
+        <div class="field"><label>متن پاصفحه</label><input type="text" id="psFooterText" onchange="saveSetup()" placeholder="لطفاً آمار تا ساعت ۱۰ صبح اعلام شود."></div>
       </div>
 
     </div>
@@ -331,57 +325,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   <div class="card">
     <h2>👁️ پیش‌نمایش چاپ</h2>
 
-    <!-- نوار منوی چاپ -->
-    <div class="menubar" id="printMenubar">
+    <div class="menubar">
       <button class="menu-btn primary" onclick="openPrintDialog()">🖨️ چاپ لیست</button>
-
-      <div class="menu-item">
-        <button class="menu-btn" onclick="toggleMenu(this,'mnuMargin')">📐 حاشیه‌ها <span class="caret">▾</span></button>
-        <div class="menu-drop" id="mnuMargin">
-          <div class="menu-title">حاشیه کاغذ (میلی‌متر)</div>
-          <label>بالا <input type="number" id="qsMT" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>پایین <input type="number" id="qsMB" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>راست <input type="number" id="qsMR" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>چپ <input type="number" id="qsML" step="1" min="0" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <div class="menu-sep"></div>
-          <button class="btn sm ghost" onclick="quickMarginAll()">↔️ یکسان‌سازی همه</button>
-        </div>
-      </div>
-
-      <div class="menu-item">
-        <button class="menu-btn" onclick="toggleMenu(this,'mnuCols')">📏 عرض ستون‌ها <span class="caret">▾</span></button>
-        <div class="menu-drop" id="mnuCols">
-          <div class="menu-title">عرض ستون‌ها (درصد)</div>
-          <label>ردیف <input type="number" id="qsWRowNo" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>کد پرسنلی <input type="number" id="qsWCode" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>واحد <input type="number" id="qsWUnit" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>امضا <input type="number" id="qsWSign" min="3" max="60" step="1" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <div class="menu-note">ستون «نام» عرض باقیمانده را می‌گیرد.</div>
-        </div>
-      </div>
-
-      <div class="menu-item">
-        <button class="menu-btn" onclick="toggleMenu(this,'mnuRows')">🔤 اندازه رکوردها <span class="caret">▾</span></button>
-        <div class="menu-drop" id="mnuRows">
-          <div class="menu-title">اندازه رکوردها</div>
-          <label>فونت (pt) <input type="number" id="qsFontSize" min="6" max="30" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>فاصله سطر <input type="number" id="qsLineH" min="1" max="3" step="0.05" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>ارتفاع سطر (mm) <input type="number" id="qsRowH" min="0" max="20" step="0.5" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>فاصله سلول (mm) <input type="number" id="qsCellPad" min="0" max="10" step="0.2" onchange="saveQuick()" oninput="saveQuick()"></label>
-          <label>تعداد ستون
-            <select id="qsCols" onchange="saveQuick()">
-              <option value="0">خودکار</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option>
-            </select>
-          </label>
-          <div class="menu-sep"></div>
-          <button class="btn sm secondary" onclick="resetQuick()">↩️ بازگشت به پیش‌فرض</button>
-        </div>
-      </div>
-
       <button class="menu-btn" onclick="showTabById('tab-sheet')">📋 بازگشت به آمار روز</button>
-
       <button class="menu-btn" onclick="resetSetup()">↩️ بازگشت به پیش‌فرض</button>
-
       <span class="spacer"></span>
       <span class="chip" id="paperInfo"></span>
     </div>

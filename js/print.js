@@ -32,6 +32,7 @@ function buildDoc() {
   const cols = autoCols();
   const rowH = +st.rowH || 0;
   const cellPad = (st.cellPad==null?1:+st.cellPad);
+  const CS = cellStyle(rowH, cellPad);   // استایل مستقیم سلول‌ها (ارتفاع سطر و فاصله داخلی)
   if (st.layout === 'excel') return buildExcelDoc();
 
   let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;" dir="rtl">`;
@@ -67,20 +68,20 @@ function buildDoc() {
     for (let ci=0; ci<cols; ci++) {
       const chunk = rows.slice(ci*per,(ci+1)*per);
       html += `<table class="ptab"><thead><tr>`;
-      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%">${esc(hd().rowNo)}</th>`;
-      html += `<th>${esc(hd().name)}</th>`;
-      if (st.showCode) html += `<th style="width:${cw().code}%">${esc(hd().code)}</th>`;
-      html += `<th style="width:${cw().unit}%">${esc(hd().unit)}</th>`;
-      if (st.showSign) html += `<th style="width:${cw().sign}%">${esc(hd().sign)}</th>`;
+      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}">${esc(hd().rowNo)}</th>`;
+      html += `<th style="${CS}">${esc(hd().name)}</th>`;
+      if (st.showCode) html += `<th style="width:${cw().code}%;${CS}">${esc(hd().code)}</th>`;
+      html += `<th style="width:${cw().unit}%;${CS}">${esc(hd().unit)}</th>`;
+      if (st.showSign) html += `<th style="width:${cw().sign}%;${CS}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
       chunk.forEach((r, i)=>{
         const isAb = !!S.sheet.absent[r.p.id];
         html += `<tr class="${isAb?'ab':''}">`;
-        if (st.showRowNo) html += `<td class="c">${ci*per+i+1}</td>`;
-        html += `<td><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
-        if (st.showCode) html += `<td class="c">${esc(r.p.code||'')}</td>`;
-        html += `<td class="c">${esc(r.u.name)}</td>`;
-        if (st.showSign) html += `<td></td>`;
+        if (st.showRowNo) html += `<td class="c" style="${CS}">${ci*per+i+1}</td>`;
+        html += `<td style="${CS}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        if (st.showCode) html += `<td class="c" style="${CS}">${esc(r.p.code||'')}</td>`;
+        html += `<td class="c" style="${CS}">${esc(r.u.name)}</td>`;
+        if (st.showSign) html += `<td style="${CS}"></td>`;
         html += `</tr>`;
       });
       html += `</tbody></table>`;
@@ -93,7 +94,7 @@ function buildDoc() {
       if (exs.length) {
         html += `<table class="ptab extras-ptab"><tbody>`;
         exs.forEach(x=>{
-          html += `<tr><td style="width:28%">${units.length>1?esc(u.name):''}</td><td>${esc(x.label)}</td><td class="c" style="width:22%">${esc(x.qty||'')}</td></tr>`;
+          html += `<tr><td style="width:28%;${CS}">${units.length>1?esc(u.name):''}</td><td style="${CS}">${esc(x.label)}</td><td class="c" style="width:22%;${CS}">${esc(x.qty||'')}</td></tr>`;
         });
         html += `</tbody></table>`;
       }
@@ -117,18 +118,18 @@ function buildDoc() {
     html += `<div class="cols" style="grid-template-columns:repeat(${cols},1fr)">`;
     chunks.forEach((chunk, ci)=>{
       html += `<table class="ptab"><thead><tr>`;
-      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%">${esc(hd().rowNo)}</th>`;
-      html += `<th>${esc(hd().name)}</th>`;
-      if (st.showCode) html += `<th style="width:${cw().code}%">${esc(hd().code)}</th>`;
-      if (st.showSign) html += `<th style="width:${cw().sign}%">${esc(hd().sign)}</th>`;
+      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}">${esc(hd().rowNo)}</th>`;
+      html += `<th style="${CS}">${esc(hd().name)}</th>`;
+      if (st.showCode) html += `<th style="width:${cw().code}%;${CS}">${esc(hd().code)}</th>`;
+      if (st.showSign) html += `<th style="width:${cw().sign}%;${CS}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
       chunk.forEach((p, i)=>{
         const isAb = !!S.sheet.absent[p.id];
         html += `<tr class="${isAb?'ab':''}">`;
-        if (st.showRowNo) html += `<td class="c">${ci*per+i+1}</td>`;
-        html += `<td><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
-        if (st.showCode) html += `<td class="c">${esc(p.code||'')}</td>`;
-        if (st.showSign) html += `<td></td>`;
+        if (st.showRowNo) html += `<td class="c" style="${CS}">${ci*per+i+1}</td>`;
+        html += `<td style="${CS}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        if (st.showCode) html += `<td class="c" style="${CS}">${esc(p.code||'')}</td>`;
+        if (st.showSign) html += `<td style="${CS}"></td>`;
         html += `</tr>`;
       });
       html += `</tbody></table>`;
@@ -140,7 +141,7 @@ function buildDoc() {
     if (exs.length) {
       html += `<table class="ptab extras-ptab"><tbody>`;
       exs.forEach(x=>{
-        html += `<tr><td>${esc(x.label)}</td><td class="c" style="width:30%">${esc(x.qty||'')}</td></tr>`;
+        html += `<tr><td style="${CS}">${esc(x.label)}</td><td class="c" style="width:30%;${CS}">${esc(x.qty||'')}</td></tr>`;
       });
       html += `</tbody></table>`;
     }
@@ -246,6 +247,7 @@ function buildExcelDoc() {
   const food = S.foods.find(f => f.id === S.sheet.foodId);
   const rowH = +st.rowH || 0;
   const cellPad = (st.cellPad == null ? 1 : +st.cellPad);
+  const CS = cellStyle(rowH, cellPad);
   const dateTxt = S.sheet.date || '';
 
   let html = `<div class="doc xls ${st.noFill ? 'no-fill' : ''}" dir="rtl" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold ? 'font-weight:700;' : ''}--row-h:${rowH ? rowH + 'mm' : 'auto'};--cell-pad:${cellPad}mm;">`;
@@ -264,8 +266,8 @@ function buildExcelDoc() {
 
     /* --- سربرگ: تاریخ + نام واحد --- */
     html += `<table class="xls-head"><tr>
-      <td class="xls-date">${esc(dateTxt)}</td>
-      <td class="xls-unit">${esc(u.name)}</td>
+      <td class="xls-date" style="${CS}">${esc(dateTxt)}</td>
+      <td class="xls-unit" style="${CS}">${esc(u.name)}</td>
     </tr></table>`;
 
     /* --- نام غذا در یک کادر تمام‌عرض --- */
@@ -281,8 +283,8 @@ function buildExcelDoc() {
     for (let i = 0; i < lines; i++) {
       const a = right[i], b = left[i];
       html += `<tr>`;
-      html += cellTrio(a, i + 1, st);
-      html += cellTrio(b, half + i + 1, st, true);
+      html += cellTrio(a, i + 1, CS);
+      html += cellTrio(b, half + i + 1, CS, true);
       html += `</tr>`;
     }
     html += `</tbody></table>`;
@@ -292,7 +294,7 @@ function buildExcelDoc() {
     if (exs.length) {
       html += `<table class="xls-extras"><tbody>`;
       exs.forEach(x => {
-        html += `<tr><td class="xls-ex-label">${esc(x.label)}</td><td class="xls-ex-qty">${esc(x.qty || '')}</td></tr>`;
+        html += `<tr><td class="xls-ex-label" style="${CS}">${esc(x.label)}</td><td class="xls-ex-qty" style="${CS}">${esc(x.qty || '')}</td></tr>`;
       });
       html += `</tbody></table>`;
     }
@@ -317,11 +319,19 @@ function buildExcelDoc() {
 }
 
 /* یک گروه سه‌سلولی — مطابق فایل اکسل: شماره ردیف | کد | نام */
-function cellTrio(p, no, st, isLeft) {
+function cellTrio(p, no, CS, isLeft) {
   const sep = isLeft ? ' xls-sep' : '';
-  if (!p) return `<td class="xls-no${sep}"></td><td class="xls-code"></td><td class="xls-name"></td>`;
+  if (!p) return `<td class="xls-no${sep}" style="${CS}"></td><td class="xls-code" style="${CS}"></td><td class="xls-name" style="${CS}"></td>`;
   const ab = !!S.sheet.absent[p.id];
-  return `<td class="xls-no${sep}">${no}</td>` +
-         `<td class="xls-code ${ab ? 'ab' : ''}">${esc(p.code || '')}</td>` +
-         `<td class="xls-name ${ab ? 'ab' : ''}"><span class="nm">${esc(p.name)}</span></td>`;
+  return `<td class="xls-no${sep}" style="${CS}">${no}</td>` +
+         `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}">${esc(p.code || '')}</td>` +
+         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}"><span class="nm">${esc(p.name)}</span></td>`;
+}
+
+/* استایل مستقیم سلول: ارتفاع سطر و فاصله داخلی — روی همه مرورگرها و در چاپ قابل اتکاست */
+function cellStyle(rowH, cellPad) {
+  const pad = (cellPad == null ? 1 : +cellPad);
+  let css = `padding:${pad}mm ${(pad + 1).toFixed(2)}mm;`;
+  if (rowH > 0) css += `height:${rowH}mm;`;
+  return css;
 }
