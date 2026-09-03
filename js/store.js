@@ -4,8 +4,8 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 const DEFAULT_SETUP = {
   paper: 'T58', customW: 80, customH: 0,
-  mt: 10, mb: 10, mr: 8, ml: 8,
-  font: 'Vazirmatn, Tahoma, sans-serif', fontSize: 11, lineH: 1.5, bold: false,
+  mt: 3, mb: 3, mr: 2, ml: 2,
+  font: 'Vazirmatn, Tahoma, sans-serif', fontSize: 9, lineH: 1.3, bold: true,
   layout: 'units',
   heads: { rowNo:'ر', name:'نام و نام خانوادگی', code:'کد پرسنلی', unit:'واحد', sign:'امضا' },
   colW: { rowNo:8, code:16, unit:20, sign:15 },
@@ -18,7 +18,7 @@ const DEFAULT_SETUP = {
   /* اقلام زیر جدول: خوراک / حاضری / 50% / تخم مرغ */
   extraAlignLabel: 'center', extraAlignQty: 'center',
   extraWidth: 100, extraQtyW: 40, extraAlignPage: 'center', extraBold: true,
-  cols: 2, showCode: true, showRowNo: true, showSign: false,
+  cols: 1, showCode: true, showRowNo: true, showSign: false,
   showAbsent: true, showSummary: true, noFill: false, unitNewPage: false,
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',
   headerDate: true, headerMeal: true,
@@ -67,12 +67,14 @@ function load() {
       migrateExtras();
       migrateDefaults();
       migrateAlign();
+      migrateRollFit();
       return;
     }
   } catch(e){}
   S = seedData();
   S.__extrasV2 = true;
   S.__defaultsV3 = true;   // پیش‌فرض‌ها از قبل اعمال‌اند؛ مهاجرت نباید بعداً تنظیمات کاربر را بازنویسی کند
+  S.__rollFitV1 = true;
   save();
 }
 /* یک‌بار: انتقال چیدمان‌های تکی قدیمی به مدل جدید colAlign */
@@ -100,8 +102,25 @@ function migrateDefaults() {
   S.setup = S.setup || {};
   if (S.setup.paper  == null) S.setup.paper  = 'T58';
   if (S.setup.layout == null) S.setup.layout = 'units';
-  if (S.setup.cols   == null) S.setup.cols   = 2;
+  if (S.setup.cols   == null) S.setup.cols   = 1;
   S.__defaultsV3 = true;
+  save();
+}
+
+/* یک‌بار: اصلاح حاشیه/ستون ناسازگار با کاغذ رول باریک
+   (حاشیه ۸ میلی‌متری A4 روی رول ۵۸ حدود ۳۰٪ عرض را می‌خورد و اسامی محو می‌شوند) */
+function migrateRollFit() {
+  if (S.__rollFitV1) return;
+  const st = S.setup;
+  if (st && (st.paper === 'T58' || st.paper === 'T80')) {
+    if ((+st.mr || 0) > 4) st.mr = 2;
+    if ((+st.ml || 0) > 4) st.ml = 2;
+    if ((+st.mt || 0) > 6) st.mt = 3;
+    if ((+st.mb || 0) > 6) st.mb = 3;
+    const usable = (st.paper === 'T58' ? 58 : 80) - (+st.mr || 0) - (+st.ml || 0);
+    if (usable < 70 && (+st.cols || 0) > 1) st.cols = 1;
+  }
+  S.__rollFitV1 = true;
   save();
 }
 

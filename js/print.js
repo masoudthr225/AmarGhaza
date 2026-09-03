@@ -60,12 +60,14 @@ function cw() {
 
 function autoCols() {
   const st = S.setup;
-  if (st.cols > 0) return st.cols;
-  const w = paperDims().w;
-  if (w <= 100) return 1;
-  if (w <= 160) return 1;
-  if (w <= 230) return 2;
-  return 3;
+  const d = paperDims();
+  const usable = d.w - (+st.mr || 0) - (+st.ml || 0);   // عرض واقعی قابل استفاده
+  // حداکثر ستونی که با عرض مفید جا می‌شود (هر ستون دست‌کم ۳۵ میلی‌متر)
+  const maxFit = Math.max(1, Math.floor(usable / 35));
+  if (st.cols > 0) return Math.min(st.cols, maxFit);
+  if (usable <= 160) return Math.min(1, maxFit);
+  if (usable <= 230) return Math.min(2, maxFit);
+  return Math.min(3, maxFit);
 }
 
 function buildDoc() {
