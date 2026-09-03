@@ -248,7 +248,7 @@
   .doc .ab-tag { font-size: .8em; font-weight: 800; }
   .doc .cols { display: grid; gap: 6px; }
   .doc .extras-ptab { margin-top: 4px; }
-  .doc .extras-ptab td { font-weight: 700; }
+
   .doc .sum-line { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; font-weight: 700; }
   .doc .sum-line span { border: 1px solid #000; border-radius: 4px; padding: 2px 8px; }
   .doc .doc-footer { margin-top: 8px; border-top: 1px dashed #000; padding-top: 4px; text-align: center; }
@@ -391,15 +391,8 @@
   .doc.xls .xls-sep  { border-right-width: 2px; }
   .doc.xls .xls-tab .ab .nm,
   .doc.xls .xls-tab td.ab { text-decoration: line-through; text-decoration-thickness: 1.6px; }
-  .doc.xls .xls-extras {
-    width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: -1px;
-  }
-  .doc.xls .xls-extras td {
-    border: 1px solid #000; text-align: center; font-weight: 800;
-    padding: var(--cell-pad, 1mm) 1mm; height: var(--row-h, auto);
-  }
-  .doc.xls .xls-ex-label { width: 60%; }
-  .doc.xls .xls-ex-qty   { width: 40%; }
+  .doc.xls .xls-extras { border-collapse: collapse; table-layout: fixed; margin-top: -1px; }
+  .doc.xls .xls-extras td { border: 1px solid #000; }
 
   /* ---------- جدول ستون‌ها در تنظیمات صفحه ---------- */
   table.cols-tab td, table.cols-tab th { padding: 6px 8px; vertical-align: middle; }
@@ -411,16 +404,16 @@
   .doc .cols,
   .doc table.ptab,
   .doc table.xls-head,
-  .doc table.xls-extras { margin-inline: 0; }
+
   .doc[style*="--align-page:center"] table.ptab,
   .doc[style*="--align-page:center"] table.xls-head,
-  .doc[style*="--align-page:center"] table.xls-extras { margin-inline: auto; }
+
   .doc[style*="--align-page:left"] table.ptab,
   .doc[style*="--align-page:left"] table.xls-head,
-  .doc[style*="--align-page:left"] table.xls-extras { margin-inline: 0 auto; }
+
   .doc[style*="--align-page:right"] table.ptab,
   .doc[style*="--align-page:right"] table.xls-head,
-  .doc[style*="--align-page:right"] table.xls-extras { margin-inline: auto 0; }
+
 
   /* ==================== تنظیمات صفحه — طراحی حرفه‌ای ==================== */
   .ps-app {

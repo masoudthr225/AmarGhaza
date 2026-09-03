@@ -15,6 +15,9 @@ const DEFAULT_SETUP = {
   colAlign:  { rowNo:'center', name:'right',  code:'center', unit:'center', sign:'center' },
   colHAlign: { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' },
   headRowH: 0, headBold: true, extraRowH: 0,
+  /* اقلام زیر جدول: خوراک / حاضری / 50% / تخم مرغ */
+  extraAlignLabel: 'center', extraAlignQty: 'center',
+  extraWidth: 100, extraQtyW: 40, extraAlignPage: 'center', extraBold: true,
   cols: 2, showCode: true, showRowNo: true, showSign: false,
   showAbsent: true, showSummary: true, noFill: false, unitNewPage: false,
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',
@@ -78,6 +81,12 @@ function migrateAlign() {
   if (st.alignName)  { st.colAlign.name  = st.alignName;  delete st.alignName; }
   if (st.alignRowNo) { st.colAlign.rowNo = st.alignRowNo; delete st.alignRowNo; }
   if (st.alignCode)  { st.colAlign.code  = st.alignCode;  delete st.alignCode; }
+  if (st.extraAlignLabel == null) st.extraAlignLabel = 'center';
+  if (st.extraAlignQty   == null) st.extraAlignQty   = 'center';
+  if (st.extraWidth      == null) st.extraWidth      = 100;
+  if (st.extraQtyW       == null) st.extraQtyW       = 40;
+  if (st.extraAlignPage  == null) st.extraAlignPage  = 'center';
+  if (st.extraBold       == null) st.extraBold       = true;
   if (st.headRowH == null)  st.headRowH = 0;
   if (st.extraRowH == null) st.extraRowH = 0;
   if (st.headBold == null)  st.headBold = true;

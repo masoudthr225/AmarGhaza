@@ -7,6 +7,29 @@ function hd() {
   return { ...def, ...(S.setup.heads||{}) };
 }
 /* عرض ستون‌ها به درصد (قابل ویرایش توسط کاربر) — ستون نام باقیمانده را می‌گیرد */
+/* جدول اقلام زیر جدول: عرض و جای‌گیری در صفحه */
+function extraTableStyle() {
+  const st = S.setup;
+  const w = Math.max(20, Math.min(100, +st.extraWidth || 100));
+  const a = st.extraAlignPage || 'center';
+  let css = `width:${w}%;`;
+  if (a === 'center')     css += 'margin-inline:auto;';
+  else if (a === 'left')  css += 'margin-inline:0 auto;';
+  else                    css += 'margin-inline:auto 0;';
+  return css;
+}
+function extraLabelStyle() {
+  const st = S.setup;
+  return `text-align:${st.extraAlignLabel || 'center'};` +
+         (st.extraBold === false ? 'font-weight:400;' : 'font-weight:800;');
+}
+function extraQtyStyle() {
+  const st = S.setup;
+  const w = Math.max(10, Math.min(80, +st.extraQtyW || 40));
+  return `width:${w}%;text-align:${st.extraAlignQty || 'center'};` +
+         (st.extraBold === false ? 'font-weight:400;' : 'font-weight:800;');
+}
+
 /* چیدمان بدنه و سرستون برای هر ستون، جداگانه */
 function ca(k) {
   const d = { rowNo:'center', name:'right', code:'center', unit:'center', sign:'center' };
@@ -56,6 +79,7 @@ function buildDoc() {
   const CS = cellStyle(rowH, cellPad);   // استایل مستقیم سلول‌ها (ارتفاع سطر و فاصله داخلی)
   const HS = headStyle();                                   // استایل سرستون‌ها
   const XS = cellStyle(+st.extraRowH || rowH, cellPad);     // اقلام زیر جدول
+  const ETS = extraTableStyle(), ELS = extraLabelStyle(), EQS = extraQtyStyle();
   const AH = st.alignHeader || 'center';                    // چیدمان سربرگ
   const AP = st.alignPage || 'center';                      // چیدمان جدول در صفحه
   if (st.layout === 'excel') return buildExcelDoc();
@@ -117,9 +141,9 @@ function buildDoc() {
     units.forEach(u=>{
       const exs = (typeof unitExtras==='function' ? unitExtras(u.id) : []).filter(x=>x.label);
       if (exs.length) {
-        html += `<table class="ptab extras-ptab"><tbody>`;
+        html += `<table class="ptab extras-ptab" style="${ETS}"><tbody>`;
         exs.forEach(x=>{
-          html += `<tr><td style="width:28%;${XS}">${units.length>1?esc(u.name):''}</td><td style="${XS}">${esc(x.label)}</td><td style="width:22%;${XS}text-align:center;">${esc(x.qty||'')}</td></tr>`;
+          html += `<tr><td style="width:28%;${XS}${ELS}">${units.length>1?esc(u.name):''}</td><td style="${XS}${ELS}">${esc(x.label)}</td><td style="${XS}${EQS}">${esc(x.qty||'')}</td></tr>`;
         });
         html += `</tbody></table>`;
       }
@@ -164,9 +188,9 @@ function buildDoc() {
     // اقلام زیر جدول (خوراک، حاضری، تخم مرغ و …)
     const exs = (typeof unitExtras==='function' ? unitExtras(u.id) : []).filter(x=>x.label);
     if (exs.length) {
-      html += `<table class="ptab extras-ptab"><tbody>`;
+      html += `<table class="ptab extras-ptab" style="${ETS}"><tbody>`;
       exs.forEach(x=>{
-        html += `<tr><td style="${XS}">${esc(x.label)}</td><td style="width:30%;${XS}text-align:center;">${esc(x.qty||'')}</td></tr>`;
+        html += `<tr><td style="${XS}${ELS}">${esc(x.label)}</td><td style="${XS}${EQS}">${esc(x.qty||'')}</td></tr>`;
       });
       html += `</tbody></table>`;
     }
@@ -274,6 +298,7 @@ function buildExcelDoc() {
   const cellPad = (st.cellPad == null ? 1 : +st.cellPad);
   const CS = cellStyle(rowH, cellPad);
   const XS = cellStyle(+st.extraRowH || rowH, cellPad);
+  const ETS = extraTableStyle(), ELS = extraLabelStyle(), EQS = extraQtyStyle();
   const AH = st.alignHeader || 'center';
   const AP = st.alignPage || 'center';
   const dateTxt = S.sheet.date || '';
@@ -320,9 +345,9 @@ function buildExcelDoc() {
     /* --- اقلام زیر جدول (خوراک، نون پنیر، تخم مرغ …) --- */
     const exs = (typeof unitExtras === 'function' ? unitExtras(u.id) : []).filter(x => x.label);
     if (exs.length) {
-      html += `<table class="xls-extras"><tbody>`;
+      html += `<table class="xls-extras" style="${ETS}"><tbody>`;
       exs.forEach(x => {
-        html += `<tr><td class="xls-ex-label" style="${CS}">${esc(x.label)}</td><td class="xls-ex-qty" style="${CS}">${esc(x.qty || '')}</td></tr>`;
+        html += `<tr><td class="xls-ex-label" style="${XS}${ELS}">${esc(x.label)}</td><td class="xls-ex-qty" style="${XS}${EQS}">${esc(x.qty || '')}</td></tr>`;
       });
       html += `</tbody></table>`;
     }

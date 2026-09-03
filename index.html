@@ -192,6 +192,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         <button class="ps-nav-btn" data-sec="sec-type"   onclick="psGo('sec-type',this)">🔤 تایپوگرافی</button>
         <button class="ps-nav-btn" data-sec="sec-layout" onclick="psGo('sec-layout',this)">🧾 چیدمان</button>
         <button class="ps-nav-btn" data-sec="sec-cols"   onclick="psGo('sec-cols',this)">🔠 ستون‌ها</button>
+        <button class="ps-nav-btn" data-sec="sec-extras" onclick="psGo('sec-extras',this)">🍳 اقلام</button>
         <button class="ps-nav-btn" data-sec="sec-hf"     onclick="psGo('sec-hf',this)">🔝 سربرگ</button>
       </nav>
 
@@ -254,10 +255,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <label class="ps-check"><input type="checkbox" id="psBold" onchange="saveSetup()"><span>متن ضخیم (مناسب چاپ حرارتی)</span></label>
 
           <h4 class="ps-sub">اندازهٔ سطرها (mm) — ۰ = خودکار</h4>
-          <div class="ps-grid2">
-            <div class="ps-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>ارتفاع سطر اقلام زیر جدول</label><input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
-          </div>
+          <div class="ps-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
           <label class="ps-check"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم باشد</span></label>
 
           <h4 class="ps-sub">چیدمان کلی</h4>
@@ -356,6 +354,48 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             </table>
           </div>
           <p class="ps-note">عرض ستون «نام» خودکار از باقیماندهٔ عرض جدول پر می‌شود.</p>
+        </section>
+
+        <!-- ---------- اقلام زیر جدول ---------- -->
+        <section class="ps-sec" id="sec-extras">
+          <h3 class="ps-h">🍳 اقلام زیر جدول</h3>
+          <p class="ps-note" style="margin:0 2px 12px">ردیف‌های خوراک، حاضری، ۵۰٪ و تخم مرغ که زیر لیست اسامی چاپ می‌شوند.</p>
+
+          <div class="ps-grid2">
+            <div class="ps-f">
+              <label>عرض جدول (٪ از عرض صفحه)</label>
+              <input type="number" id="psExtraWidth" min="20" max="100" step="1" onchange="saveSetup()">
+            </div>
+            <div class="ps-f">
+              <label>عرض ستون مقدار (٪)</label>
+              <input type="number" id="psExtraQtyW" min="10" max="80" step="1" onchange="saveSetup()">
+            </div>
+          </div>
+
+          <div class="ps-align">
+            <span>جای‌گیری جدول</span>
+            <select id="psExtraAlignPage" onchange="saveSetup()">
+              <option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option>
+            </select>
+          </div>
+          <div class="ps-align">
+            <span>چیدمان نام قلم</span>
+            <select id="psExtraAlignLabel" onchange="saveSetup()">
+              <option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option>
+            </select>
+          </div>
+          <div class="ps-align">
+            <span>چیدمان مقدار</span>
+            <select id="psExtraAlignQty" onchange="saveSetup()">
+              <option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option>
+            </select>
+          </div>
+
+          <div class="ps-f" style="margin-top:10px">
+            <label>ارتفاع سطر اقلام (mm) — ۰ = مثل بقیه</label>
+            <input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()">
+          </div>
+          <label class="ps-check"><input type="checkbox" id="psExtraBold" onchange="saveSetup()"><span>متن اقلام ضخیم باشد</span></label>
         </section>
 
         <!-- ---------- سربرگ و پاصفحه ---------- -->
