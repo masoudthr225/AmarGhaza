@@ -235,6 +235,33 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         <div class="row">
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="psBold" onchange="saveSetup()"> متن ضخیم (مناسب چاپ حرارتی)</label>
         </div>
+        <div class="menu-sep"></div>
+        <div class="row">
+          <div class="field" style="flex:1">
+            <label>چیدمان ستون نام</label>
+            <select id="psAlignName" onchange="saveSetup()">
+              <option value="right">راست‌چین</option>
+              <option value="center">وسط‌چین</option>
+              <option value="left">چپ‌چین</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1">
+            <label>چیدمان سربرگ</label>
+            <select id="psAlignHeader" onchange="saveSetup()">
+              <option value="right">راست‌چین</option>
+              <option value="center">وسط‌چین</option>
+              <option value="left">چپ‌چین</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1">
+            <label>چیدمان جدول در صفحه</label>
+            <select id="psAlignPage" onchange="saveSetup()">
+              <option value="right">راست</option>
+              <option value="center">وسط</option>
+              <option value="left">چپ</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="card">

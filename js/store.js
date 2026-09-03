@@ -10,6 +10,7 @@ const DEFAULT_SETUP = {
   heads: { rowNo:'ر', name:'نام و نام خانوادگی', code:'کد پرسنلی', unit:'واحد', sign:'امضا' },
   colW: { rowNo:8, code:16, unit:20, sign:15 },
   rowH: 0, cellPad: 1,
+  alignName: 'right', alignHeader: 'center', alignPage: 'center',
   cols: 0, showCode: true, showRowNo: true, showSign: false,
   showAbsent: true, showSummary: true, noFill: false, unitNewPage: false,
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',

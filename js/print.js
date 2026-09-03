@@ -33,20 +33,23 @@ function buildDoc() {
   const rowH = +st.rowH || 0;
   const cellPad = (st.cellPad==null?1:+st.cellPad);
   const CS = cellStyle(rowH, cellPad);   // استایل مستقیم سلول‌ها (ارتفاع سطر و فاصله داخلی)
+  const AN = `text-align:${st.alignName || 'right'};`;      // چیدمان ستون نام
+  const AH = st.alignHeader || 'center';                    // چیدمان سربرگ
+  const AP = st.alignPage || 'center';                      // چیدمان جدول در صفحه
   if (st.layout === 'excel') return buildExcelDoc();
 
-  let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;" dir="rtl">`;
+  let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;--align-page:${AP};" dir="rtl">`;
 
   if (st.headerOn) {
-    html += `<div class="doc-header">`;
+    html += `<div class="doc-header" style="text-align:${AH}">`;
     if (st.headerTitle) html += `<div class="htitle" style="font-size:${st.fontSize*1.35}pt">${esc(st.headerTitle)}</div>`;
     if (st.headerSub) html += `<div class="hsub" style="font-size:${st.fontSize*0.95}pt">${esc(st.headerSub)}</div>`;
     html += `</div>`;
     const metas = [];
     if (st.headerDate && S.sheet.date) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
-    if (metas.length) html += `<div class="meta-line">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
-    if (st.headerMeal && food) html += `<div class="food-line">** ${esc(food.name)} **</div>`;
+    if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
+    if (st.headerMeal && food) html += `<div class="food-line" style="text-align:${AH}">** ${esc(food.name)} **</div>`;
   }
 
   let grandTot=0, grandAbs=0;
@@ -69,7 +72,7 @@ function buildDoc() {
       const chunk = rows.slice(ci*per,(ci+1)*per);
       html += `<table class="ptab"><thead><tr>`;
       if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}">${esc(hd().rowNo)}</th>`;
-      html += `<th style="${CS}">${esc(hd().name)}</th>`;
+      html += `<th style="${CS}${AN}">${esc(hd().name)}</th>`;
       if (st.showCode) html += `<th style="width:${cw().code}%;${CS}">${esc(hd().code)}</th>`;
       html += `<th style="width:${cw().unit}%;${CS}">${esc(hd().unit)}</th>`;
       if (st.showSign) html += `<th style="width:${cw().sign}%;${CS}">${esc(hd().sign)}</th>`;
@@ -78,7 +81,7 @@ function buildDoc() {
         const isAb = !!S.sheet.absent[r.p.id];
         html += `<tr class="${isAb?'ab':''}">`;
         if (st.showRowNo) html += `<td class="c" style="${CS}">${ci*per+i+1}</td>`;
-        html += `<td style="${CS}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        html += `<td style="${CS}${AN}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
         if (st.showCode) html += `<td class="c" style="${CS}">${esc(r.p.code||'')}</td>`;
         html += `<td class="c" style="${CS}">${esc(r.u.name)}</td>`;
         if (st.showSign) html += `<td style="${CS}"></td>`;
@@ -119,7 +122,7 @@ function buildDoc() {
     chunks.forEach((chunk, ci)=>{
       html += `<table class="ptab"><thead><tr>`;
       if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}">${esc(hd().rowNo)}</th>`;
-      html += `<th style="${CS}">${esc(hd().name)}</th>`;
+      html += `<th style="${CS}${AN}">${esc(hd().name)}</th>`;
       if (st.showCode) html += `<th style="width:${cw().code}%;${CS}">${esc(hd().code)}</th>`;
       if (st.showSign) html += `<th style="width:${cw().sign}%;${CS}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
@@ -127,7 +130,7 @@ function buildDoc() {
         const isAb = !!S.sheet.absent[p.id];
         html += `<tr class="${isAb?'ab':''}">`;
         if (st.showRowNo) html += `<td class="c" style="${CS}">${ci*per+i+1}</td>`;
-        html += `<td style="${CS}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        html += `<td style="${CS}${AN}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
         if (st.showCode) html += `<td class="c" style="${CS}">${esc(p.code||'')}</td>`;
         if (st.showSign) html += `<td style="${CS}"></td>`;
         html += `</tr>`;
@@ -248,9 +251,12 @@ function buildExcelDoc() {
   const rowH = +st.rowH || 0;
   const cellPad = (st.cellPad == null ? 1 : +st.cellPad);
   const CS = cellStyle(rowH, cellPad);
+  const AN = `text-align:${st.alignName || 'right'};`;
+  const AH = st.alignHeader || 'center';
+  const AP = st.alignPage || 'center';
   const dateTxt = S.sheet.date || '';
 
-  let html = `<div class="doc xls ${st.noFill ? 'no-fill' : ''}" dir="rtl" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold ? 'font-weight:700;' : ''}--row-h:${rowH ? rowH + 'mm' : 'auto'};--cell-pad:${cellPad}mm;">`;
+  let html = `<div class="doc xls ${st.noFill ? 'no-fill' : ''}" dir="rtl" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold ? 'font-weight:700;' : ''}--row-h:${rowH ? rowH + 'mm' : 'auto'};--cell-pad:${cellPad}mm;--align-page:${AP};">`;
 
   let grandTot = 0, grandAbs = 0;
 
@@ -271,7 +277,7 @@ function buildExcelDoc() {
     </tr></table>`;
 
     /* --- نام غذا در یک کادر تمام‌عرض --- */
-    if (food) html += `<div class="xls-food" style="font-size:${st.fontSize * 1.7}pt">** ${esc(food.name)} **</div>`;
+    if (food) html += `<div class="xls-food" style="font-size:${st.fontSize * 1.7}pt;text-align:${AH}">** ${esc(food.name)} **</div>`;
 
     /* --- جدول اسامی در دو ستون کنار هم --- */
     const half = Math.ceil(ppl.length / 2) || 1;
@@ -321,11 +327,12 @@ function buildExcelDoc() {
 /* یک گروه سه‌سلولی — مطابق فایل اکسل: شماره ردیف | کد | نام */
 function cellTrio(p, no, CS, isLeft) {
   const sep = isLeft ? ' xls-sep' : '';
-  if (!p) return `<td class="xls-no${sep}" style="${CS}"></td><td class="xls-code" style="${CS}"></td><td class="xls-name" style="${CS}"></td>`;
+  const AN = `text-align:${(S.setup && S.setup.alignName) || 'right'};`;
+  if (!p) return `<td class="xls-no${sep}" style="${CS}"></td><td class="xls-code" style="${CS}"></td><td class="xls-name" style="${CS}${AN}"></td>`;
   const ab = !!S.sheet.absent[p.id];
   return `<td class="xls-no${sep}" style="${CS}">${no}</td>` +
          `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}">${esc(p.code || '')}</td>` +
-         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}"><span class="nm">${esc(p.name)}</span></td>`;
+         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${AN}"><span class="nm">${esc(p.name)}</span></td>`;
 }
 
 /* استایل مستقیم سلول: ارتفاع سطر و فاصله داخلی — روی همه مرورگرها و در چاپ قابل اتکاست */

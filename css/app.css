@@ -405,3 +405,19 @@
   table.cols-tab td, table.cols-tab th { padding: 6px 8px; vertical-align: middle; }
   table.cols-tab td.c { text-align: center; color: var(--muted); font-size: .82rem; }
   table.cols-tab input { width: 100%; padding: 6px 8px; }
+
+  /* ---------- چیدمان جدول در عرض صفحه (راست/وسط/چپ) ---------- */
+  .doc { --align-page: center; }
+  .doc .cols,
+  .doc table.ptab,
+  .doc table.xls-head,
+  .doc table.xls-extras { margin-inline: 0; }
+  .doc[style*="--align-page:center"] table.ptab,
+  .doc[style*="--align-page:center"] table.xls-head,
+  .doc[style*="--align-page:center"] table.xls-extras { margin-inline: auto; }
+  .doc[style*="--align-page:left"] table.ptab,
+  .doc[style*="--align-page:left"] table.xls-head,
+  .doc[style*="--align-page:left"] table.xls-extras { margin-inline: 0 auto; }
+  .doc[style*="--align-page:right"] table.ptab,
+  .doc[style*="--align-page:right"] table.xls-head,
+  .doc[style*="--align-page:right"] table.xls-extras { margin-inline: auto 0; }

@@ -28,6 +28,12 @@ function renderSetupControls() {
   if (_rh) _rh.value = (st.rowH != null ? st.rowH : 0);
   const _cp = document.getElementById('psCellPad');
   if (_cp) _cp.value = (st.cellPad != null ? st.cellPad : 1);
+  const _an = document.getElementById('psAlignName');
+  if (_an) _an.value = st.alignName || 'right';
+  const _ah = document.getElementById('psAlignHeader');
+  if (_ah) _ah.value = st.alignHeader || 'center';
+  const _ap = document.getElementById('psAlignPage');
+  if (_ap) _ap.value = st.alignPage || 'center';
   document.getElementById('psBold').checked = st.bold;
   document.getElementById('psCols').value = String(st.cols);
   document.getElementById('psShowCode').checked = st.showCode;
@@ -85,6 +91,12 @@ function saveSetup() {
   if (_rh) st.rowH = Math.max(0, Math.min(20, parseFloat(_rh.value) || 0));
   const _cp = document.getElementById('psCellPad');
   if (_cp) { const v = parseFloat(_cp.value); st.cellPad = isNaN(v) ? 1 : Math.max(0, Math.min(10, v)); }
+  const _an = document.getElementById('psAlignName');
+  if (_an) st.alignName = _an.value || 'right';
+  const _ah = document.getElementById('psAlignHeader');
+  if (_ah) st.alignHeader = _ah.value || 'center';
+  const _ap = document.getElementById('psAlignPage');
+  if (_ap) st.alignPage = _ap.value || 'center';
   st.bold = document.getElementById('psBold').checked;
   st.cols = +document.getElementById('psCols').value;
   st.showCode = document.getElementById('psShowCode').checked;
