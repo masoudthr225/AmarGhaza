@@ -151,10 +151,19 @@ function picked() {
 /* آیا حالت «فقط نفرات انتخاب‌شده» فعال است؟ */
 function pickModeOn() { return !!S.sheet.pickMode; }
 
+/* آیا اصلاً کسی انتخاب شده است؟ */
+function anyPicked() {
+  const pk = picked();
+  return Object.keys(pk).some(k => pk[k]);
+}
+
 /* نفرات قابل چاپ یک واحد — با اعمال فیلتر انتخاب دستی */
 function printablePeople(uId) {
   const ppl = unitPeople(uId);
   if (!pickModeOn()) return ppl;
+  // اگر حالت انتخاب روشن است ولی در هیچ واحدی کسی تیک نخورده،
+  // به‌جای چاپ لیست خالی، همه نفرات چاپ شوند.
+  if (!anyPicked()) return ppl;
   return ppl.filter(p => picked()[p.id]);
 }
 

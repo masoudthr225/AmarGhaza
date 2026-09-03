@@ -242,6 +242,14 @@ function renderPreview() {
 /* ================= چاپ ================= */
 function openPrintDialog() {
   if (!selectedUnits().length) { toast('حداقل یک واحد را انتخاب کنید'); showTabById('tab-sheet'); return; }
+  // جلوگیری از چاپ برگه بدون هیچ اسمی
+  const total = selectedUnits().reduce((n, u) => n + printablePeople(u.id)
+    .filter(p => S.setup.showAbsent || !S.sheet.absent[p.id]).length, 0);
+  if (!total) {
+    toast('هیچ نفری برای چاپ وجود ندارد — تیک «نمایش غایبان» یا انتخاب نفرات را بررسی کنید');
+    showTabById('tab-sheet');
+    return;
+  }
   const d = paperDims();
   const st = S.setup;
   const sizeRule = d.h ? `size: ${d.w}mm ${d.h}mm;` : `size: ${d.w}mm auto;`;
