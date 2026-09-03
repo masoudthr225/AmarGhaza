@@ -15,7 +15,8 @@ function createWindow() {
     minHeight: 600,
     title: 'برنامه آمار غذا',
     icon: path.join(__dirname, 'app', 'assets', 'icon.ico'),
-    autoHideMenuBar: false,
+    autoHideMenuBar: true,      // نوار منو مخفی است؛ با کلید Alt ظاهر می‌شود
+    show: false,                // تا کامل آماده نشود نمایش داده نمی‌شود (بدون فلش سفید)
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -24,6 +25,8 @@ function createWindow() {
   });
 
   win.loadFile(path.join(__dirname, 'app', 'index.html'));
+
+  win.once('ready-to-show', () => { win.maximize(); win.show(); });
 
   // لینک‌های خارجی در مرورگر باز شوند نه داخل برنامه
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -53,9 +56,7 @@ function createWindow() {
       submenu: [
         { label: 'بزرگ‌نمایی', role: 'zoomIn' },
         { label: 'کوچک‌نمایی', role: 'zoomOut' },
-        { label: 'اندازه واقعی', role: 'resetZoom' },
-        { type: 'separator' },
-        { label: 'ابزار توسعه', role: 'toggleDevTools' }
+        { label: 'اندازه واقعی', role: 'resetZoom' }
       ]
     },
     {
@@ -76,6 +77,15 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(createWindow);
+// فقط یک نسخه از برنامه اجرا شود
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (win) { if (win.isMinimized()) win.restore(); win.focus(); }
+  });
+  app.whenReady().then(createWindow);
+}
 app.on('window-all-closed', () => app.quit());
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

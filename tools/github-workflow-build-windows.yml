@@ -3,7 +3,7 @@ name: ساخت نسخه ویندوز (exe)
 on:
   workflow_dispatch:
   push:
-    branches: [ "arena/01a03e92-dorekarii", "main" ]
+    branches: [ "arena/01a06187-amarghaza", "master", "main" ]
     paths:
       - "index.html"
       - "css/**"
@@ -11,6 +11,9 @@ on:
       - "assets/**"
       - "desktop/**"
       - ".github/workflows/build-windows.yml"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -32,6 +35,14 @@ jobs:
           cp index.html desktop/app/
           cp -r css js assets desktop/app/
 
+      - name: هم‌سان‌سازی شماره نسخه با manifest
+        shell: bash
+        run: |
+          V=$(grep -m1 '"version"' js/manifest.js | sed 's/[^0-9.]//g')
+          echo "نسخه: $V"
+          cd desktop
+          npm version "$V" --no-git-tag-version --allow-same-version
+
       - name: نصب وابستگی‌ها
         working-directory: desktop
         run: npm install
@@ -46,8 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AmarGhaza-Windows
-          path: |
-            desktop/dist-win/*.exe
+          path: desktop/dist-win/*.exe
           if-no-files-found: error
 
       - name: انتشار در Releases
@@ -56,13 +66,14 @@ jobs:
           tag_name: windows-v${{ github.run_number }}
           name: "برنامه آمار غذا — نسخه ویندوز (build ${{ github.run_number }})"
           body: |
-            🍽️ **برنامه آمار غذا — نسخه ویندوز ۱۱**
+            🍽️ **برنامه آمار غذا — نسخه ویندوز**
 
-            دو فایل ضمیمه شده است:
+            برنامه کاملاً مستقل است: نه CMD باز می‌شود، نه مرورگر، نه Node.js لازم دارد.
+
             - **AmarGhaza Setup *.exe** → نصب‌کننده (پیشنهادی): نصب کنید، میان‌بر دسکتاپ ساخته می‌شود
             - **AmarGhaza-Portable-*.exe** → پرتابل: بدون نصب، دابل‌کلیک و اجرا
 
-            💾 اطلاعات برنامه (پرسنل، منو، تنظیمات) روی سیستم شما ذخیره می‌شود.
+            💾 اطلاعات برنامه (پرسنل، منو، تنظیمات) روی همین سیستم ذخیره می‌شود.
           files: desktop/dist-win/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

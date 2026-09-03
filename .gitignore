@@ -1,2 +1,6 @@
 _downloads/
 _uploads/
+desktop/app/
+desktop/node_modules/
+desktop/dist-win/
+AppData/
