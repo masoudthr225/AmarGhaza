@@ -49,6 +49,9 @@ KEEP_ARCHIVES = 10
 KEEP_UPLOADS = 5
 CHUNK = 1 << 20
 
+# پوشه‌های حجیم/زائد که در آرشیو و شمارش فایل‌ها لحاظ نمی‌شوند
+EXCLUDE_DIRS = {"node_modules", ".next", ".git", "__pycache__"}
+
 LOCK = threading.RLock()
 
 ARCHIVE_SUFFIXES = (".zip", ".tar", ".gz", ".tgz", ".bz2", ".tbz2", ".xz", ".txz", ".rar", ".7z")
@@ -126,11 +129,15 @@ def sanitize_filename(name: str) -> str:
 
 
 def iter_files(root: Path):
+    """فایل‌های یک پوشه — بدون پوشه‌های حجیم/زائد (node_modules و ...)"""
     if not root.exists():
         return
     for p in sorted(root.rglob("*")):
-        if p.is_file():
-            yield p
+        if not p.is_file():
+            continue
+        if any(part in EXCLUDE_DIRS for part in p.relative_to(root).parts):
+            continue
+        yield p
 
 
 def files_stat(root: Path):
