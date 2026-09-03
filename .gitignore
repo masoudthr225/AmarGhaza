@@ -1,0 +1,5 @@
+
+# Download Center data (user files, archives, uploads)
+download-center/data/
+__pycache__/
+*.pyc
