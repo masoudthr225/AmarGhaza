@@ -71,6 +71,8 @@ function load() {
     }
   } catch(e){}
   S = seedData();
+  S.__extrasV2 = true;
+  S.__defaultsV3 = true;   // پیش‌فرض‌ها از قبل اعمال‌اند؛ مهاجرت نباید بعداً تنظیمات کاربر را بازنویسی کند
   save();
 }
 /* یک‌بار: انتقال چیدمان‌های تکی قدیمی به مدل جدید colAlign */
@@ -96,9 +98,9 @@ function migrateAlign() {
 function migrateDefaults() {
   if (S.__defaultsV3) return;
   S.setup = S.setup || {};
-  S.setup.paper  = 'T58';
-  S.setup.layout = 'units';
-  S.setup.cols   = 2;
+  if (S.setup.paper  == null) S.setup.paper  = 'T58';
+  if (S.setup.layout == null) S.setup.layout = 'units';
+  if (S.setup.cols   == null) S.setup.cols   = 2;
   S.__defaultsV3 = true;
   save();
 }

@@ -46,3 +46,24 @@ window.addEventListener('keydown', e => {
     if (nxt.select) { try { nxt.select(); } catch (_) {} }
   }
 });
+
+
+/* ---------- تضمین ذخیره شدن تغییرات هنگام بستن/ترک صفحه ---------- */
+function flushPendingEdits() {
+  try {
+    const a = document.activeElement;
+    if (a && a !== document.body) {
+      const tag = (a.tagName || '').toLowerCase();
+      // اگر کاربر وسط تایپ است، ابتدا رویداد change شلیک شود
+      if (tag === 'input' || tag === 'select' || tag === 'textarea' || a.isContentEditable) {
+        a.blur();
+      }
+    }
+    if (typeof save === 'function') save();
+  } catch (e) {}
+}
+window.addEventListener('beforeunload', flushPendingEdits);
+window.addEventListener('pagehide', flushPendingEdits);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushPendingEdits();
+});
