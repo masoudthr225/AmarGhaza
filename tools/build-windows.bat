@@ -1,35 +1,40 @@
-﻿@echo off
-chcp 65001 >nul
+@echo off
+setlocal
+
 REM ============================================================
-REM  ساخت نسخه ویندوز (exe) — این فایل را روی ویندوز اجرا کنید
-REM  پیش‌نیاز: Node.js  (از nodejs.org نصب کنید)
-REM  خروجی: desktop\dist-win\*.exe
+REM  Build the Windows desktop app (.exe) - run this on Windows.
+REM  Requires Node.js (install from nodejs.org).
+REM  Output: desktop\dist-win\*.exe
+REM  NOTE: keep this file ASCII-only + CRLF, otherwise CMD breaks.
 REM ============================================================
+
 cd /d "%~dp0.."
 
-echo == همگام‌سازی فایل‌های وب ==
+echo == Syncing web files ==
 if exist desktop\app rmdir /s /q desktop\app
 mkdir desktop\app
 copy index.html desktop\app\ >nul
 xcopy /e /i /q css desktop\app\css >nul
 xcopy /e /i /q js desktop\app\js >nul
-xcopy /e /i /q assets desktop\app\assets >nul
+if exist assets xcopy /e /i /q assets desktop\app\assets >nul
 
-echo == نصب وابستگی‌ها ==
+echo == Installing dependencies ==
 cd desktop
 call npm install
-if errorlevel 1 goto :err
+if errorlevel 1 goto err
 
-echo == ساخت exe ==
+echo == Building exe ==
 call npm run dist
-if errorlevel 1 goto :err
+if errorlevel 1 goto err
 
 echo.
-echo ✅ آماده شد! فایل‌ها در پوشه desktop\dist-win :
+echo [OK] Done. Files are in desktop\dist-win :
 dir /b dist-win\*.exe
 pause
-exit /b
+exit /b 0
 
 :err
-echo ❌ خطا! مطمئن شوید Node.js نصب است (nodejs.org)
+echo.
+echo [ERROR] Build failed. Make sure Node.js is installed (nodejs.org).
 pause
+exit /b 1
