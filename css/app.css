@@ -552,3 +552,17 @@
     .ps-panel, .ps-preview { max-height: none; position: static; }
     .ps-pv-stage { min-height: 420px; }
   }
+
+  /* --- ماتریس ستون‌ها --- */
+  .ps-tablewrap { overflow-x: auto; }
+  .ps-matrix { min-width: 430px; }
+  .ps-matrix th { font-size: .7rem; white-space: nowrap; text-align: center; }
+  .ps-matrix th:first-child, .ps-matrix th:nth-child(2) { text-align: right; }
+  .ps-matrix td { padding: 4px 3px; }
+  .ps-matrix input[type="number"] { width: 62px; text-align: center; }
+  .ps-matrix select {
+    border: 1px solid var(--border); border-radius: 7px; padding: 5px 6px;
+    font-size: .78rem; background: #fff; width: 100%; cursor: pointer;
+  }
+  .ps-matrix select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .ps-note { font-size: .74rem; color: var(--muted); margin: 10px 2px 0; line-height: 1.7; }

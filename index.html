@@ -185,15 +185,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     <!-- ============ ستون تنظیمات ============ -->
     <div class="ps-panel">
 
-      <div class="ps-toolbar">
-        <div class="ps-presets">
-          <span class="ps-presets-lbl">قالب آماده:</span>
-          <button class="ps-chip" onclick="applyPreset('thermal58')">🧾 حرارتی ۵۸</button>
-          <button class="ps-chip" onclick="applyPreset('thermal80')">🧾 حرارتی ۸۰</button>
-          <button class="ps-chip" onclick="applyPreset('a4')">📄 A4 اداری</button>
-          <button class="ps-chip" onclick="applyPreset('excel')">📊 فرم اکسل</button>
-        </div>
-      </div>
+      
 
       <nav class="ps-nav">
         <button class="ps-nav-btn active" data-sec="sec-paper"  onclick="psGo('sec-paper',this)">📄 کاغذ</button>
@@ -261,27 +253,23 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           </div>
           <label class="ps-check"><input type="checkbox" id="psBold" onchange="saveSetup()"><span>متن ضخیم (مناسب چاپ حرارتی)</span></label>
 
-          <h4 class="ps-sub">چیدمان متن</h4>
-          <div class="ps-align">
-            <span>ستون نام</span>
-            <select id="psAlignName" onchange="saveSetup()"><option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option></select>
+          <h4 class="ps-sub">اندازهٔ سطرها (mm) — ۰ = خودکار</h4>
+          <div class="ps-grid2">
+            <div class="ps-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
+            <div class="ps-f"><label>ارتفاع سطر اقلام زیر جدول</label><input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
           </div>
+          <label class="ps-check"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم باشد</span></label>
+
+          <h4 class="ps-sub">چیدمان کلی</h4>
           <div class="ps-align">
-            <span>ستون ردیف</span>
-            <select id="psAlignRowNo" onchange="saveSetup()"><option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option></select>
-          </div>
-          <div class="ps-align">
-            <span>ستون کد پرسنلی</span>
-            <select id="psAlignCode" onchange="saveSetup()"><option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option></select>
-          </div>
-          <div class="ps-align">
-            <span>سربرگ</span>
+            <span>سربرگ صفحه</span>
             <select id="psAlignHeader" onchange="saveSetup()"><option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option></select>
           </div>
           <div class="ps-align">
             <span>جدول در صفحه</span>
             <select id="psAlignPage" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select>
           </div>
+          <p class="ps-note">چیدمان تک‌تک ستون‌ها در بخش «🔠 ستون‌ها» تنظیم می‌شود.</p>
         </section>
 
         <!-- ---------- چیدمان ---------- -->
@@ -321,17 +309,53 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 
         <!-- ---------- ستون‌ها ---------- -->
         <section class="ps-sec" id="sec-cols">
-          <h3 class="ps-h">🔠 عنوان و عرض ستون‌ها</h3>
-          <table class="ps-table">
-            <thead><tr><th>ستون</th><th>عنوان چاپی</th><th style="width:110px">عرض ٪</th></tr></thead>
-            <tbody>
-              <tr><td class="ps-td-lbl">ردیف</td><td><input type="text" id="psHeadRowNo" onchange="saveSetup()"></td><td><input type="number" id="psWRowNo" min="3" max="60" onchange="saveSetup()"></td></tr>
-              <tr><td class="ps-td-lbl">نام</td><td><input type="text" id="psHeadName" onchange="saveSetup()"></td><td class="ps-auto">باقیمانده</td></tr>
-              <tr><td class="ps-td-lbl">کد پرسنلی</td><td><input type="text" id="psHeadCode" onchange="saveSetup()"></td><td><input type="number" id="psWCode" min="3" max="60" onchange="saveSetup()"></td></tr>
-              <tr><td class="ps-td-lbl">واحد</td><td><input type="text" id="psHeadUnit" onchange="saveSetup()"></td><td><input type="number" id="psWUnit" min="3" max="60" onchange="saveSetup()"></td></tr>
-              <tr><td class="ps-td-lbl">امضا</td><td><input type="text" id="psHeadSign" onchange="saveSetup()"></td><td><input type="number" id="psWSign" min="3" max="60" onchange="saveSetup()"></td></tr>
-            </tbody>
-          </table>
+          <h3 class="ps-h">🔠 ستون‌ها — عنوان، عرض و چیدمان</h3>
+          <div class="ps-tablewrap">
+            <table class="ps-table ps-matrix">
+              <thead><tr>
+                <th>ستون</th><th>عنوان چاپی</th><th>عرض ٪</th>
+                <th>چیدمان عنوان</th><th>چیدمان محتوا</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td class="ps-td-lbl">ردیف</td>
+                  <td><input type="text" id="psHeadRowNo" onchange="saveSetup()"></td>
+                  <td><input type="number" id="psWRowNo" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                  <td><select id="psHARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                  <td><select id="psCARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                </tr>
+                <tr>
+                  <td class="ps-td-lbl">نام</td>
+                  <td><input type="text" id="psHeadName" onchange="saveSetup()"></td>
+                  <td class="ps-auto">باقیمانده</td>
+                  <td><select id="psHAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                  <td><select id="psCAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                </tr>
+                <tr>
+                  <td class="ps-td-lbl">کد پرسنلی</td>
+                  <td><input type="text" id="psHeadCode" onchange="saveSetup()"></td>
+                  <td><input type="number" id="psWCode" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                  <td><select id="psHACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                  <td><select id="psCACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                </tr>
+                <tr>
+                  <td class="ps-td-lbl">واحد</td>
+                  <td><input type="text" id="psHeadUnit" onchange="saveSetup()"></td>
+                  <td><input type="number" id="psWUnit" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                  <td><select id="psHAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                  <td><select id="psCAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                </tr>
+                <tr>
+                  <td class="ps-td-lbl">امضا</td>
+                  <td><input type="text" id="psHeadSign" onchange="saveSetup()"></td>
+                  <td><input type="number" id="psWSign" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                  <td><select id="psHASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                  <td><select id="psCASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="ps-note">عرض ستون «نام» خودکار از باقیماندهٔ عرض جدول پر می‌شود.</p>
         </section>
 
         <!-- ---------- سربرگ و پاصفحه ---------- -->

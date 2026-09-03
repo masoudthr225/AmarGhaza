@@ -10,8 +10,11 @@ const DEFAULT_SETUP = {
   heads: { rowNo:'ر', name:'نام و نام خانوادگی', code:'کد پرسنلی', unit:'واحد', sign:'امضا' },
   colW: { rowNo:8, code:16, unit:20, sign:15 },
   rowH: 0, cellPad: 1,
-  alignName: 'right', alignRowNo: 'center', alignCode: 'center',
   alignHeader: 'center', alignPage: 'center',
+  /* چیدمان هر ستون: بدنه (align) و سرستون (halign) جداگانه */
+  colAlign:  { rowNo:'center', name:'right',  code:'center', unit:'center', sign:'center' },
+  colHAlign: { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' },
+  headRowH: 0, headBold: true, extraRowH: 0,
   cols: 2, showCode: true, showRowNo: true, showSign: false,
   showAbsent: true, showSummary: true, noFill: false, unitNewPage: false,
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',
@@ -60,12 +63,26 @@ function load() {
       if (!S.foods.length) S.foods = seed.foods;
       migrateExtras();
       migrateDefaults();
+      migrateAlign();
       return;
     }
   } catch(e){}
   S = seedData();
   save();
 }
+/* یک‌بار: انتقال چیدمان‌های تکی قدیمی به مدل جدید colAlign */
+function migrateAlign() {
+  const st = S.setup; if (!st) return;
+  if (!st.colAlign)  st.colAlign  = { rowNo:'center', name:'right',  code:'center', unit:'center', sign:'center' };
+  if (!st.colHAlign) st.colHAlign = { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' };
+  if (st.alignName)  { st.colAlign.name  = st.alignName;  delete st.alignName; }
+  if (st.alignRowNo) { st.colAlign.rowNo = st.alignRowNo; delete st.alignRowNo; }
+  if (st.alignCode)  { st.colAlign.code  = st.alignCode;  delete st.alignCode; }
+  if (st.headRowH == null)  st.headRowH = 0;
+  if (st.extraRowH == null) st.extraRowH = 0;
+  if (st.headBold == null)  st.headBold = true;
+}
+
 /* یک‌بار: پیش‌فرض‌های جدید (پرینتر حرارتی ۵۸، جدول جدا برای هر واحد، ۲ ستون) */
 function migrateDefaults() {
   if (S.__defaultsV3) return;

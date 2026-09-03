@@ -28,12 +28,17 @@ function renderSetupControls() {
   if (_rh) _rh.value = (st.rowH != null ? st.rowH : 0);
   const _cp = document.getElementById('psCellPad');
   if (_cp) _cp.value = (st.cellPad != null ? st.cellPad : 1);
-  const _an = document.getElementById('psAlignName');
-  if (_an) _an.value = st.alignName || 'right';
-  const _ar = document.getElementById('psAlignRowNo');
-  if (_ar) _ar.value = st.alignRowNo || 'center';
-  const _ac = document.getElementById('psAlignCode');
-  if (_ac) _ac.value = st.alignCode || 'center';
+  const _dCA = { rowNo:'center', name:'right',  code:'center', unit:'center', sign:'center' };
+  const _dHA = { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' };
+  const _ca = { ..._dCA, ...(st.colAlign  || {}) };
+  const _ha = { ..._dHA, ...(st.colHAlign || {}) };
+  [['RowNo','rowNo'],['Name','name'],['Code','code'],['Unit','unit'],['Sign','sign']].forEach(([sfx,k]) => {
+    const a = document.getElementById('psCA'+sfx); if (a) a.value = _ca[k];
+    const b = document.getElementById('psHA'+sfx); if (b) b.value = _ha[k];
+  });
+  const _hrh = document.getElementById('psHeadRowH');  if (_hrh) _hrh.value = st.headRowH || 0;
+  const _erh = document.getElementById('psExtraRowH'); if (_erh) _erh.value = st.extraRowH || 0;
+  const _hb  = document.getElementById('psHeadBold');  if (_hb)  _hb.checked = st.headBold !== false;
   const _ah = document.getElementById('psAlignHeader');
   if (_ah) _ah.value = st.alignHeader || 'center';
   const _ap = document.getElementById('psAlignPage');
@@ -95,12 +100,18 @@ function saveSetup() {
   if (_rh) st.rowH = Math.max(0, Math.min(20, parseFloat(_rh.value) || 0));
   const _cp = document.getElementById('psCellPad');
   if (_cp) { const v = parseFloat(_cp.value); st.cellPad = isNaN(v) ? 1 : Math.max(0, Math.min(10, v)); }
-  const _an = document.getElementById('psAlignName');
-  if (_an) st.alignName = _an.value || 'right';
-  const _ar = document.getElementById('psAlignRowNo');
-  if (_ar) st.alignRowNo = _ar.value || 'center';
-  const _ac = document.getElementById('psAlignCode');
-  if (_ac) st.alignCode = _ac.value || 'center';
+  if (!st.colAlign)  st.colAlign  = {};
+  if (!st.colHAlign) st.colHAlign = {};
+  [['RowNo','rowNo'],['Name','name'],['Code','code'],['Unit','unit'],['Sign','sign']].forEach(([sfx,k]) => {
+    const a = document.getElementById('psCA'+sfx); if (a) st.colAlign[k]  = a.value;
+    const b = document.getElementById('psHA'+sfx); if (b) st.colHAlign[k] = b.value;
+  });
+  const _hrh = document.getElementById('psHeadRowH');
+  if (_hrh) st.headRowH = Math.max(0, Math.min(30, parseFloat(_hrh.value) || 0));
+  const _erh = document.getElementById('psExtraRowH');
+  if (_erh) st.extraRowH = Math.max(0, Math.min(30, parseFloat(_erh.value) || 0));
+  const _hb = document.getElementById('psHeadBold');
+  if (_hb) st.headBold = _hb.checked;
   const _ah = document.getElementById('psAlignHeader');
   if (_ah) st.alignHeader = _ah.value || 'center';
   const _ap = document.getElementById('psAlignPage');
@@ -124,6 +135,24 @@ function saveSetup() {
   st.footerText = document.getElementById('psFooterText').value;
   st.footerSign = document.getElementById('psFooterSign').checked;
   st.footerTime = document.getElementById('psFooterTime').checked;
+
+  /* عنوان‌ها و عرض ستون‌ها هم از همین‌جا ذخیره شوند */
+  const dh = { rowNo:'ر', name:'نام و نام خانوادگی', code:'کد پرسنلی', unit:'واحد', sign:'امضا' };
+  if (!st.heads) st.heads = {};
+  [['psHeadRowNo','rowNo'],['psHeadName','name'],['psHeadCode','code'],
+   ['psHeadUnit','unit'],['psHeadSign','sign']].forEach(([id,k]) => {
+    const e = document.getElementById(id);
+    if (e) st.heads[k] = (e.value || '').trim() || dh[k];
+  });
+
+  const dw = { rowNo:8, code:16, unit:20, sign:15 };
+  const clampW = v => Math.max(2, Math.min(60, parseFloat(v) || 0));
+  if (!st.colW) st.colW = {};
+  [['psWRowNo','rowNo'],['psWCode','code'],['psWUnit','unit'],['psWSign','sign']].forEach(([id,k]) => {
+    const e = document.getElementById(id);
+    if (e) st.colW[k] = clampW(e.value) || dw[k];
+  });
+
   save(); renderPreview();
 }
 function saveHeads() {
@@ -237,31 +266,6 @@ document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeAllMenus(
 function psGo(secId, btn) {
   document.querySelectorAll('#tab-pagesetup .ps-sec').forEach(x => x.classList.toggle('show', x.id === secId));
   document.querySelectorAll('#tab-pagesetup .ps-nav-btn').forEach(b => b.classList.toggle('active', b === btn));
-}
-
-/* ============ قالب‌های آماده ============ */
-const PS_PRESETS = {
-  thermal58: { paper:'T58', mt:2, mb:2, mr:2, ml:2, fontSize:8.5, lineH:1.2, bold:true,
-               cols:1, layout:'units', showSign:false, showCode:true, noFill:true,
-               rowH:0, cellPad:0.6, headerOn:true, footerOn:false },
-  thermal80: { paper:'T80', mt:2, mb:2, mr:2, ml:2, fontSize:9.5, lineH:1.3, bold:true,
-               cols:1, layout:'units', showSign:false, showCode:true, noFill:true,
-               rowH:0, cellPad:0.8, headerOn:true, footerOn:false },
-  a4:        { paper:'A4P', mt:10, mb:10, mr:8, ml:8, fontSize:11, lineH:1.5, bold:false,
-               cols:2, layout:'units', showSign:true, showCode:true, noFill:false,
-               rowH:0, cellPad:1, headerOn:true, footerOn:true },
-  excel:     { paper:'A4P', mt:8, mb:8, mr:6, ml:6, fontSize:11, lineH:1.4, bold:false,
-               cols:2, layout:'excel', showSign:false, showCode:true, noFill:false,
-               rowH:7, cellPad:1, headerOn:false, footerOn:false }
-};
-function applyPreset(name) {
-  const pre = PS_PRESETS[name];
-  if (!pre) return;
-  Object.assign(S.setup, pre);
-  save();
-  renderSetupControls();
-  renderPreview();
-  if (typeof toast === 'function') toast('قالب آماده اعمال شد');
 }
 
 /* ============ یکسان کردن حاشیه‌ها ============ */
