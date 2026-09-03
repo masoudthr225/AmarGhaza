@@ -205,8 +205,11 @@
   }
   #previewPage {
     background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.4);
-    flex-shrink: 0; overflow: visible; height: auto;
+    flex-shrink: 0; overflow: hidden; height: auto;
   }
+  /* برگه پیش‌نمایش: محتوا هرگز نباید از عرض کاغذ بیرون بزند */
+  .pv-sheet { box-sizing: border-box; overflow: hidden; }
+  .pv-sheet > .doc { max-width: 100%; }
   /* fallback برای مرورگرهایی که zoom ندارند */
   @supports not (zoom: 1) {
     .pv-sheet { transform-origin: top right; }
@@ -224,7 +227,7 @@
   }
 
   /* استایل مشترک سند چاپی (هم پیش‌نمایش هم چاپ) */
-  .doc { color: #000; }
+  .doc { color: #000; max-width: 100%; overflow-wrap: anywhere; }
   .doc .doc-header { text-align: center; }
   .doc .doc-header .htitle { font-weight: 800; }
   .doc .doc-header .hsub { }
@@ -240,10 +243,14 @@
     display: flex; justify-content: space-between;
   }
   .doc.no-fill .unit-title { background: #fff; color: #000; border: 1.5px solid #000; }
-  .doc table.ptab { width: 100%; border-collapse: collapse; margin-top: 3px; table-layout: fixed; }
+  .doc table.ptab {
+    width: 100%; max-width: 100%; min-width: 0;
+    border-collapse: collapse; margin-top: 3px; table-layout: fixed;
+  }
   .doc table.ptab th, .doc table.ptab td {
     border: 1px solid #000; text-align: right;
     padding: var(--cell-pad, 1mm) calc(var(--cell-pad, 1mm) + 1mm);
+    overflow-wrap: anywhere; word-break: break-word;
   }
   .doc table.ptab tbody tr { height: var(--row-h, auto); }
   .doc table.ptab th { text-align: center; font-weight: 800; }
@@ -251,6 +258,9 @@
   .doc .ab .nm { text-decoration: line-through; text-decoration-thickness: 1.6px; }
   .doc .ab-tag { font-size: .8em; font-weight: 800; }
   .doc .cols { display: grid; gap: 6px; }
+  /* آیتم‌های گرید به‌صورت پیش‌فرض کوچک‌تر از محتوای خود نمی‌شوند و روی
+     کاغذ باریک از لبه کاغذ بیرون می‌زنند؛ این اجازه را می‌دهیم. */
+  .doc .cols > * { min-width: 0; }
   .doc .extras-ptab { margin-top: 4px; }
 
   .doc .sum-line { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; font-weight: 700; }
