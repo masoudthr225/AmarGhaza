@@ -32,6 +32,8 @@ function buildDoc() {
   const cols = autoCols();
   const rowH = +st.rowH || 0;
   const cellPad = (st.cellPad==null?1:+st.cellPad);
+  if (st.layout === 'excel') return buildExcelDoc();
+
   let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;" dir="rtl">`;
 
   if (st.headerOn) {
@@ -228,4 +230,98 @@ function importData(inp) {
     inp.value = '';
   };
   r.readAsText(f);
+}
+
+
+/* ================= قالب برگه اکسل (مطابق فایل «آمار غذا.xlsx») =================
+   ساختار هر واحد:
+     ردیف ۱ : تاریخ  |  نام واحد
+     ردیف ۲ : ** نام غذا **  (تمام عرض، درشت)
+     جدول   : دو ستون کنار هم — هر ستون = نام | کد | شماره ردیف
+     پایین  : اقلام (خوراک / نون پنیر / تخم مرغ ...) با مقدار
+================================================================= */
+function buildExcelDoc() {
+  const st = S.setup;
+  const units = selectedUnits();
+  const food = S.foods.find(f => f.id === S.sheet.foodId);
+  const rowH = +st.rowH || 0;
+  const cellPad = (st.cellPad == null ? 1 : +st.cellPad);
+  const dateTxt = S.sheet.date || '';
+
+  let html = `<div class="doc xls ${st.noFill ? 'no-fill' : ''}" dir="rtl" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold ? 'font-weight:700;' : ''}--row-h:${rowH ? rowH + 'mm' : 'auto'};--cell-pad:${cellPad}mm;">`;
+
+  let grandTot = 0, grandAbs = 0;
+
+  units.forEach((u, ui) => {
+    const all = (typeof printablePeople === 'function' ? printablePeople(u.id) : unitPeople(u.id));
+    const allAbs = all.filter(p => S.sheet.absent[p.id]).length;
+    grandTot += all.length; grandAbs += allAbs;
+
+    let ppl = all;
+    if (!st.showAbsent) ppl = ppl.filter(p => !S.sheet.absent[p.id]);
+
+    html += `<div class="xls-block" ${st.unitNewPage && ui > 0 ? 'style="page-break-before:always"' : ''}>`;
+
+    /* --- سربرگ: تاریخ + نام واحد --- */
+    html += `<table class="xls-head"><tr>
+      <td class="xls-date">${esc(dateTxt)}</td>
+      <td class="xls-unit">${esc(u.name)}</td>
+    </tr></table>`;
+
+    /* --- نام غذا در یک کادر تمام‌عرض --- */
+    if (food) html += `<div class="xls-food" style="font-size:${st.fontSize * 1.7}pt">** ${esc(food.name)} **</div>`;
+
+    /* --- جدول اسامی در دو ستون کنار هم --- */
+    const half = Math.ceil(ppl.length / 2) || 1;
+    const right = ppl.slice(0, half);          // ستون راست: نفر ۱ تا نیمه
+    const left  = ppl.slice(half);             // ستون چپ: بقیه
+    const lines = Math.max(right.length, left.length);
+
+    html += `<table class="xls-tab"><tbody>`;
+    for (let i = 0; i < lines; i++) {
+      const a = right[i], b = left[i];
+      html += `<tr>`;
+      html += cellTrio(a, i + 1, st);
+      html += cellTrio(b, half + i + 1, st, true);
+      html += `</tr>`;
+    }
+    html += `</tbody></table>`;
+
+    /* --- اقلام زیر جدول (خوراک، نون پنیر، تخم مرغ …) --- */
+    const exs = (typeof unitExtras === 'function' ? unitExtras(u.id) : []).filter(x => x.label);
+    if (exs.length) {
+      html += `<table class="xls-extras"><tbody>`;
+      exs.forEach(x => {
+        html += `<tr><td class="xls-ex-label">${esc(x.label)}</td><td class="xls-ex-qty">${esc(x.qty || '')}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+
+    html += `</div>`;
+  });
+
+  if (S.sheet.note) html += `<div class="note-line">${esc(S.sheet.note)}</div>`;
+  if (st.showSummary) {
+    html += `<div class="sum-line"><span>کل: ${grandTot}</span><span>حاضر: ${grandTot - grandAbs} پرس</span><span>غایب: ${grandAbs}</span></div>`;
+  }
+  if (st.footerOn) {
+    html += `<div class="doc-footer" style="font-size:${st.fontSize * 0.9}pt">`;
+    if (st.footerText) html += `<div>${esc(st.footerText)}</div>`;
+    if (st.footerTime) html += `<div>ساعت چاپ: ${new Date().toLocaleTimeString('fa-IR', {hour:'2-digit',minute:'2-digit'})}</div>`;
+    if (st.footerSign) html += `<div class="sig-row"><span>مسئول واحد: <span class="dots">..............</span></span><span>آشپزخانه: <span class="dots">..............</span></span></div>`;
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+/* یک گروه سه‌سلولی — مطابق فایل اکسل: شماره ردیف | کد | نام */
+function cellTrio(p, no, st, isLeft) {
+  const sep = isLeft ? ' xls-sep' : '';
+  if (!p) return `<td class="xls-no${sep}"></td><td class="xls-code"></td><td class="xls-name"></td>`;
+  const ab = !!S.sheet.absent[p.id];
+  return `<td class="xls-no${sep}">${no}</td>` +
+         `<td class="xls-code ${ab ? 'ab' : ''}">${esc(p.code || '')}</td>` +
+         `<td class="xls-name ${ab ? 'ab' : ''}"><span class="nm">${esc(p.name)}</span></td>`;
 }
