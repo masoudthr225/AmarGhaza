@@ -407,6 +407,7 @@ def create_archive(only_changed: bool) -> dict:
         "name": name,
         "size": path.stat().st_size,
         "created_at": now_iso(),
+        "created_ts": time.time(),
         "mode": "only_changed" if only_changed else "full",
         "files_in_archive": len(include),
         "changed": len(changed),
@@ -469,6 +470,9 @@ header p{color:var(--muted);margin-top:6px;font-size:.95rem}
 .btn.primary:hover{filter:brightness(1.13)}
 .btn.big{padding:14px 18px;font-size:1.03rem}
 .btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.4)}
+.btn.ghost{background:rgba(255,255,255,.04);border:1.5px dashed var(--border);color:var(--muted)}
+.btn.ghost:hover{border-color:var(--accent2);color:var(--text)}
+a.btn{text-decoration:none;text-align:center;display:block}
 .drop{border:1.5px dashed rgba(255,255,255,.28);border-radius:16px;padding:22px 14px;text-align:center;color:var(--muted);font-size:.88rem;transition:.15s;cursor:pointer}
 .drop:hover,.drop.over{border-color:var(--accent2);background:rgba(139,92,246,.09)}
 .drop svg{width:34px;height:34px;opacity:.85;margin-bottom:4px}
@@ -551,7 +555,8 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:30px;opa
       </div>
       <div class="meta" id="latest-meta">هنوز آرشیوی ساخته نشده است.</div>
       <button class="btn primary big" id="btn-download" disabled>⬇&nbsp; دانلود فایل فشرده</button>
-      <p class="hint">داخل هر آرشیو، فایل <b>CHANGES.txt</b> گزارش کامل تغییرات (تغییرکرده/افزوده/حذف‌شده) قرار دارد.</p>
+      <a class="btn ghost big" id="latest-link" href="/api/latest" target="_blank" rel="noopener" hidden>🔗&nbsp; باز کردن دانلود در تب جدید</a>
+      <p class="hint">اگر دانلود داخل پیش‌نمایش شروع نشد: دکمهٔ «باز کردن در تب جدید» (بالای پنجرهٔ پیش‌نمایش) را بزن و آنجا دوباره امتحان کن. داخل هر آرشیو، فایل <b>CHANGES.txt</b> گزارش کامل تغییرات (تغییرکرده/افزوده/حذف‌شده) قرار دارد.</p>
     </section>
 
   </main>
@@ -675,13 +680,46 @@ $('btn-archive').addEventListener('click', async () => {
 });
 
 /* ---- دکمه ۳: دانلود آخرین آرشیو ---- */
+const inIframe = (() => {
+  try { return window.self !== window.top } catch (e) { return true }
+})();
+let latestName = null;
+
 $('btn-download').addEventListener('click', () => {
   if (!$('btn-download').dataset.ready) {
     toast('اول از دکمهٔ ۲ فایل فشرده بساز', 'err');
     return;
   }
-  window.location.href = '/api/latest';
+  if (inIframe) {
+    // داخل قاب پیش‌نمایش مرورگر ممکن است دانلود را مسدود کند → در تب جدید باز می‌کنیم
+    const w = window.open('/api/latest', '_blank');
+    if (w) {
+      toast('✅ دانلود در تب جدید باز شد', 'ok');
+    } else {
+      // پاپ‌آپ مسدود شد → دانلود مستقیم با blob
+      downloadViaBlob();
+    }
+  } else {
+    window.location.href = '/api/latest';
+  }
 });
+
+async function downloadViaBlob() {
+  try {
+    const res = await fetch('/api/latest');
+    if (!res.ok) throw new Error('خطا در دریافت فایل');
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = latestName || 'download.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast('✅ دانلود شروع شد — اگر شروع نشد از پیوند «تب جدید» زیر دکمه استفاده کن', 'ok');
+  } catch (e) {
+    toast('❌ دانلود در این قاب مسدود است — از پیوند «باز کردن در تب جدید» زیر دکمه استفاده کن', 'err');
+  }
+}
 
 /* ---- وضعیت ---- */
 async function refresh(){
@@ -707,6 +745,8 @@ async function refresh(){
     if (s.latest) {
       dbtn.disabled = false;
       dbtn.dataset.ready = '1';
+      latestName = s.latest.name;
+      $('latest-link').hidden = false;
       $('latest-meta').innerHTML =
         '<div class="kv">' +
         '<span>نام:</span><span>' + esc(s.latest.name) + '</span>' +
@@ -716,6 +756,8 @@ async function refresh(){
     } else {
       dbtn.disabled = true;
       delete dbtn.dataset.ready;
+      latestName = null;
+      $('latest-link').hidden = true;
       $('latest-meta').textContent = 'هنوز آرشیوی ساخته نشده است.';
     }
   } catch (e) { /* بی‌خیال */ }
@@ -930,6 +972,23 @@ class Handler(BaseHTTPRequestHandler):
 
     # ----- دکمه ۳: دانلود آخرین آرشیو -----
     def handle_latest(self):
+        # اگر آرشیوی وجود ندارد یا فایل‌ها از زمان ساخت آن تغییر کرده‌اند،
+        # پیش از دانلود یک نسخهٔ تازه می‌سازیم تا کاربر همیشه آخرین وضعیت را بگیرد.
+        with LOCK:
+            latest = jload(LATEST_PATH) or {}
+            latest_name = os.path.basename(latest.get("name") or "")
+            latest_path = ARCHIVES_DIR / latest_name if latest_name else None
+            stale = False
+            if latest_name and latest_path and latest_path.exists():
+                current = build_manifest(FILES_DIR)
+                newest = max((m["mtime"] for m in current.values()), default=0)
+                stale = newest > float(latest.get("created_ts") or 0)
+            if (not latest_name or not latest_path or not latest_path.exists() or stale) and files_stat(FILES_DIR)[0] > 0:
+                try:
+                    create_archive(False)
+                except Exception as e:
+                    print(f"! بازسازی خودکار آرشیو ناموفق: {e}", flush=True)
+
         info = jload(LATEST_PATH) or {}
         name = os.path.basename(info.get("name") or "")
         path = ARCHIVES_DIR / name if name else None
@@ -944,6 +1003,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Disposition", f'attachment; filename="{name}"')
         self.send_header("Content-Length", str(size))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         try:
             with open(path, "rb") as f:
