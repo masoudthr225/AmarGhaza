@@ -34,6 +34,8 @@ function buildDoc() {
   const cellPad = (st.cellPad==null?1:+st.cellPad);
   const CS = cellStyle(rowH, cellPad);   // استایل مستقیم سلول‌ها (ارتفاع سطر و فاصله داخلی)
   const AN = `text-align:${st.alignName || 'right'};`;      // چیدمان ستون نام
+  const AR = `text-align:${st.alignRowNo || 'center'};`;    // چیدمان ستون ردیف
+  const AC = `text-align:${st.alignCode || 'center'};`;     // چیدمان ستون کد پرسنلی
   const AH = st.alignHeader || 'center';                    // چیدمان سربرگ
   const AP = st.alignPage || 'center';                      // چیدمان جدول در صفحه
   if (st.layout === 'excel') return buildExcelDoc();
@@ -71,18 +73,18 @@ function buildDoc() {
     for (let ci=0; ci<cols; ci++) {
       const chunk = rows.slice(ci*per,(ci+1)*per);
       html += `<table class="ptab"><thead><tr>`;
-      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}">${esc(hd().rowNo)}</th>`;
+      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}${AR}">${esc(hd().rowNo)}</th>`;
       html += `<th style="${CS}${AN}">${esc(hd().name)}</th>`;
-      if (st.showCode) html += `<th style="width:${cw().code}%;${CS}">${esc(hd().code)}</th>`;
+      if (st.showCode) html += `<th style="width:${cw().code}%;${CS}${AC}">${esc(hd().code)}</th>`;
       html += `<th style="width:${cw().unit}%;${CS}">${esc(hd().unit)}</th>`;
       if (st.showSign) html += `<th style="width:${cw().sign}%;${CS}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
       chunk.forEach((r, i)=>{
         const isAb = !!S.sheet.absent[r.p.id];
         html += `<tr class="${isAb?'ab':''}">`;
-        if (st.showRowNo) html += `<td class="c" style="${CS}">${ci*per+i+1}</td>`;
+        if (st.showRowNo) html += `<td class="c" style="${CS}${AR}">${ci*per+i+1}</td>`;
         html += `<td style="${CS}${AN}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
-        if (st.showCode) html += `<td class="c" style="${CS}">${esc(r.p.code||'')}</td>`;
+        if (st.showCode) html += `<td class="c" style="${CS}${AC}">${esc(r.p.code||'')}</td>`;
         html += `<td class="c" style="${CS}">${esc(r.u.name)}</td>`;
         if (st.showSign) html += `<td style="${CS}"></td>`;
         html += `</tr>`;
@@ -121,17 +123,17 @@ function buildDoc() {
     html += `<div class="cols" style="grid-template-columns:repeat(${cols},1fr)">`;
     chunks.forEach((chunk, ci)=>{
       html += `<table class="ptab"><thead><tr>`;
-      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}">${esc(hd().rowNo)}</th>`;
+      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${CS}${AR}">${esc(hd().rowNo)}</th>`;
       html += `<th style="${CS}${AN}">${esc(hd().name)}</th>`;
-      if (st.showCode) html += `<th style="width:${cw().code}%;${CS}">${esc(hd().code)}</th>`;
+      if (st.showCode) html += `<th style="width:${cw().code}%;${CS}${AC}">${esc(hd().code)}</th>`;
       if (st.showSign) html += `<th style="width:${cw().sign}%;${CS}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
       chunk.forEach((p, i)=>{
         const isAb = !!S.sheet.absent[p.id];
         html += `<tr class="${isAb?'ab':''}">`;
-        if (st.showRowNo) html += `<td class="c" style="${CS}">${ci*per+i+1}</td>`;
+        if (st.showRowNo) html += `<td class="c" style="${CS}${AR}">${ci*per+i+1}</td>`;
         html += `<td style="${CS}${AN}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
-        if (st.showCode) html += `<td class="c" style="${CS}">${esc(p.code||'')}</td>`;
+        if (st.showCode) html += `<td class="c" style="${CS}${AC}">${esc(p.code||'')}</td>`;
         if (st.showSign) html += `<td style="${CS}"></td>`;
         html += `</tr>`;
       });
@@ -328,10 +330,12 @@ function buildExcelDoc() {
 function cellTrio(p, no, CS, isLeft) {
   const sep = isLeft ? ' xls-sep' : '';
   const AN = `text-align:${(S.setup && S.setup.alignName) || 'right'};`;
-  if (!p) return `<td class="xls-no${sep}" style="${CS}"></td><td class="xls-code" style="${CS}"></td><td class="xls-name" style="${CS}${AN}"></td>`;
+  const AR = `text-align:${(S.setup && S.setup.alignRowNo) || 'center'};`;
+  const AC = `text-align:${(S.setup && S.setup.alignCode) || 'center'};`;
+  if (!p) return `<td class="xls-no${sep}" style="${CS}${AR}"></td><td class="xls-code" style="${CS}${AC}"></td><td class="xls-name" style="${CS}${AN}"></td>`;
   const ab = !!S.sheet.absent[p.id];
-  return `<td class="xls-no${sep}" style="${CS}">${no}</td>` +
-         `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}">${esc(p.code || '')}</td>` +
+  return `<td class="xls-no${sep}" style="${CS}${AR}">${no}</td>` +
+         `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}${AC}">${esc(p.code || '')}</td>` +
          `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${AN}"><span class="nm">${esc(p.name)}</span></td>`;
 }
 

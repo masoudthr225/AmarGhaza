@@ -246,6 +246,24 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             </select>
           </div>
           <div class="field" style="flex:1">
+            <label>چیدمان ستون ردیف</label>
+            <select id="psAlignRowNo" onchange="saveSetup()">
+              <option value="right">راست‌چین</option>
+              <option value="center">وسط‌چین</option>
+              <option value="left">چپ‌چین</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1">
+            <label>چیدمان ستون کد پرسنلی</label>
+            <select id="psAlignCode" onchange="saveSetup()">
+              <option value="right">راست‌چین</option>
+              <option value="center">وسط‌چین</option>
+              <option value="left">چپ‌چین</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1">
             <label>چیدمان سربرگ</label>
             <select id="psAlignHeader" onchange="saveSetup()">
               <option value="right">راست‌چین</option>
