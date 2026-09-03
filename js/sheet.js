@@ -112,7 +112,7 @@ function renderAttendance() {
       }</div>
       <div class="extras-box">
         <div class="extras-head">
-          <span>🍳 اقلام زیر جدول <small>(خوراک، حاضری، تخم مرغ و … — در چاپ زیر جدول همین واحد می‌آید)</small></span>
+          <span>🍳 اقلام زیر جدول</span>
           <button class="btn sm ghost" onclick="addExtra('${u.id}')">➕ افزودن ردیف</button>
         </div>
         ${exs.map(x=>`<div class="extra-row">
@@ -168,7 +168,7 @@ function togglePickMode(on) {
 function clearPicked() {
   S.sheet.picked = {}; S.sheet.pickMode = false;
   const chk = document.getElementById('pickModeChk'); if (chk) chk.checked = false;
-  save(); renderPickInfo(); renderPickList(); renderAttendance(); renderPreview();
+  save(); renderPickInfo(); renderAttendance(); renderPreview();
   toast('انتخاب نفرات پاک شد');
 }
 function renderPickInfo() {
@@ -183,68 +183,17 @@ function renderPickInfo() {
   el.className = 'chip' + (pickModeOn() ? ' red' : '');
 }
 
-/* ---- مودال ---- */
-function openPickModal() {
-  if (!selectedUnits().length) { toast('ابتدا حداقل یک واحد را انتخاب کنید'); return; }
-  document.getElementById('pickModal').classList.add('open');
-  renderPickList();
-}
-function closePickModal() {
-  document.getElementById('pickModal').classList.remove('open');
-}
 function pickPool() {
-  const uf = (document.getElementById('pickUnitFilter')||{}).value || '';
-  const q  = ((document.getElementById('pickSearch')||{}).value || '').trim().toLowerCase();
   let list = [];
-  selectedUnits().forEach(u=>{ if (!uf || u.id===uf) list = list.concat(unitPeople(u.id)); });
-  return list.filter(p => !q || String(p.name).toLowerCase().includes(q) || String(p.code||'').includes(q));
+  selectedUnits().forEach(u=>{ list = list.concat(unitPeople(u.id)); });
+  return list;
 }
 function togglePick(pid, on) {
   if (on) picked()[pid] = true; else delete picked()[pid];
-  save(); renderPickList(); renderPickInfo(); renderAttendance(); renderPreview();
+  save(); renderPickInfo(); renderAttendance(); renderPreview();
 }
 /* انتخاب/لغو همه نفرات یک واحد */
 function pickUnit(uId, on) {
   unitPeople(uId).forEach(p=>{ if (on) picked()[p.id] = true; else delete picked()[p.id]; });
-  save(); renderPickList(); renderPickInfo(); renderAttendance(); renderPreview();
-}
-function pickAll(on) {
-  pickPool().forEach(p=>{ if (on) picked()[p.id] = true; else delete picked()[p.id]; });
-  save(); renderPickList(); renderPickInfo(); renderAttendance(); renderPreview();
-}
-function applyPick() {
-  const n = Object.keys(picked()).length;
-  if (!n) { toast('حداقل یک نفر را انتخاب کنید'); return; }
-  S.sheet.pickMode = true;
-  save(); closePickModal(); renderPickInfo(); renderAttendance(); renderPreview();
-  toast(`فقط ${n} نفر انتخاب‌شده در چاپ می‌آیند ✅`);
-}
-function renderPickList() {
-  const tb = document.getElementById('pickTable');
-  if (!tb) return;
-  const uf = document.getElementById('pickUnitFilter');
-  const cur = uf.value;
-  uf.innerHTML = '<option value="">همه واحدهای انتخابی</option>' +
-    selectedUnits().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
-  uf.value = selectedUnits().some(u=>u.id===cur) ? cur : '';
-
-  const list = pickPool();
-  const unitName = id => (S.units.find(u=>u.id===id)||{}).name || '—';
-  tb.innerHTML = list.length
-    ? `<thead><tr><th style="width:36px">#</th><th style="width:56px">چاپ</th>
-        <th>نام و نام خانوادگی</th><th style="width:100px">کد پرسنلی</th><th style="width:150px">واحد</th></tr></thead><tbody>` +
-      list.map((p,i)=>{
-        const on = !!picked()[p.id];
-        return `<tr class="${on?'pick-on':''}">
-          <td class="c">${i+1}</td>
-          <td class="c"><input type="checkbox" ${on?'checked':''} onchange="togglePick('${p.id}', this.checked)"></td>
-          <td>${esc(p.name)}</td>
-          <td class="c">${esc(p.code||'')}</td>
-          <td>${esc(unitName(p.unitId))}</td>
-        </tr>`;
-      }).join('') + '</tbody>'
-    : '<tbody><tr><td>نفری یافت نشد.</td></tr></tbody>';
-
-  const cnt = document.getElementById('pickModalCount');
-  if (cnt) cnt.textContent = `${list.filter(p=>picked()[p.id]).length} از ${list.length} نفر انتخاب شده`;
+  save(); renderPickInfo(); renderAttendance(); renderPreview();
 }

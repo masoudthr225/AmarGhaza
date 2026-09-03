@@ -26,9 +26,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 <header class="appbar">
   <div>
     <h1>🍽️ برنامه آمار غذا</h1>
-    <div class="sub">ثبت و چاپ آمار ناهار، عصرانه و شام پرسنل — سازگار با همه پرینترها و کاغذ رولی حرارتی</div>
-    <div class="sub" id="saveStatus" style="margin-top:2px">💾 ذخیره خودکار فعال</div>
-    <div class="sub" style="margin-top:2px"><span id="appVersion">نسخه —</span> · <a href="#" style="color:#ffd" onclick="checkForUpdate(false);return false">🔄 بررسی به‌روزرسانی</a></div>
+    <div class="sub"><span id="appVersion">نسخه —</span> · <a href="#" style="color:#ffd" onclick="checkForUpdate(false);return false">🔄 بررسی به‌روزرسانی</a></div>
   </div>
   <div class="spacer"></div>
   <button class="btn" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
@@ -76,7 +74,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   </div>
 
   <div class="card">
-    <h2>۲) انتخاب واحدها <span class="hint">— تک واحد یا چند واحد</span></h2>
+    <h2>۲) انتخاب واحدها</h2>
     <div class="row" style="margin-bottom:10px">
       <button class="btn sm ghost" onclick="selectAllUnits(true)">انتخاب همه</button>
       <button class="btn sm ghost" onclick="selectAllUnits(false)">هیچکدام</button>
@@ -84,7 +82,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     <div class="unit-checks" id="unitChecks"></div>
 
     <div class="row" style="margin-top:14px;gap:8px;align-items:center">
-      <button class="btn" style="background:#8e44ad" onclick="openPickModal()">👤 انتخاب نفرات دلخواه برای چاپ</button>
       <label style="display:flex;gap:6px;align-items:center;cursor:pointer">
         <input type="checkbox" id="pickModeChk" onchange="togglePickMode(this.checked)">
         فقط نفرات انتخاب‌شده چاپ شوند
@@ -92,11 +89,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
       <span class="chip" id="pickInfo"></span>
       <button class="btn sm ghost" onclick="clearPicked()">پاک کردن انتخاب‌ها</button>
     </div>
-    <div class="att-note">💡 با این دکمه می‌توانید فقط چند نفر مشخص را برای چاپ انتخاب کنید؛ بقیه نفرات در برگه چاپ نمی‌آیند.</div>
   </div>
 
   <div class="card">
-    <h2>۳) حضور و غیاب <span class="hint">— روی نام هر شخص کلیک کنید تا غایب شود (روی نام خط کشیده می‌شود و در چاپ هم خط‌خورده چاپ می‌گردد)</span></h2>
+    <h2>۳) حضور و غیاب</h2>
     <div class="stats" id="sheetStats"></div>
     <div class="row" style="margin-bottom:10px">
       <button class="btn sm secondary" onclick="clearAbsents()">✔️ همه حاضر</button>
@@ -111,18 +107,17 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   <div class="grid2">
 
     <div class="card">
-      <h2>🏭 واحدها <span class="hint">— افزودن، ویرایش، حذف</span></h2>
+      <h2>🏭 واحدها</h2>
       <div class="row" style="margin-bottom:8px">
         <input type="text" id="newUnitName" placeholder="نام واحد جدید (مثال: مونتاژ)" style="flex:1;min-width:180px">
         <button class="btn" onclick="addUnit()">➕ افزودن واحد</button>
         <button class="btn orange" onclick="addUnitWithExcel()" title="واحد جدید بسازید و پرسنل آن را از فایل اکسل بخوانید">➕📤 واحد جدید + اکسل پرسنل</button>
       </div>
-      <div class="att-note">💡 با دکمه 📤 کنار هر واحد می‌توانید فایل اکسل پرسنل (نام + شماره پرسنلی) را مستقیم به همان واحد اضافه کنید.</div>
       <div class="mini-list" id="unitList"></div>
     </div>
 
     <div class="card">
-      <h2>👥 پرسنل <span class="hint">— افزودن، ویرایش، حذف</span></h2>
+      <h2>👥 پرسنل</h2>
       <div class="row" style="margin-bottom:12px">
         <button class="btn" onclick="openPersonModal()">➕ افزودن پرسنل</button>
         <select id="filterUnit" onchange="renderPeople()" style="max-width:220px">
@@ -136,8 +131,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         <button class="btn sm ghost" onclick="downloadExcelTemplate()">⬇️ دریافت فایل نمونه اکسل</button>
         <button class="btn sm" style="background:#8e44ad" onclick="dropFirstNameAll()" title="حذف نام کوچک همه نفرات لیست — فقط نام خانوادگی بماند">✂️ همه → نام خانوادگی</button>
       </div>
-      <div class="att-note">✏️ سلول‌های «نام» و «کد» مستقیم قابل ویرایش‌اند — کلیک کنید، تایپ کنید و Enter بزنید. دکمه ✂️ کنار هر نفر، نام کوچک را حذف می‌کند (مثال: «محسن قمشه ای» → «قمشه ای»).</div>
-      <div class="att-note">فرمت اکسل ورودی: سه ستون «نام»، «کد پرسنلی»، «واحد». واحدهای جدید به‌صورت خودکار ساخته می‌شوند.</div>
       <div style="max-height:480px;overflow:auto">
         <table class="list" id="peopleTable">
           <thead><tr><th>#</th>
@@ -164,7 +157,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   <div class="grid2">
 
     <div class="card">
-      <h2>⏰ وعده‌های غذایی <span class="hint">— ناهار، عصرانه، شام و… (قابل افزودن و ویرایش)</span></h2>
+      <h2>⏰ وعده‌های غذایی</h2>
       <div class="row" style="margin-bottom:12px">
         <input type="text" id="newMealName" placeholder="نام وعده جدید (مثال: صبحانه)" style="flex:1;min-width:160px">
         <button class="btn" onclick="addMeal()">➕ افزودن وعده</button>
@@ -173,7 +166,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     </div>
 
     <div class="card">
-      <h2>🍲 منوی غذاها <span class="hint">— لیست غذاهایی که در آمار انتخاب می‌شوند</span></h2>
+      <h2>🍲 منوی غذاها</h2>
       <div class="row" style="margin-bottom:12px">
         <input type="text" id="newFoodName" placeholder="نام غذای جدید (مثال: قورمه سبزی)" style="flex:1;min-width:160px">
         <button class="btn" onclick="addFood()">➕ افزودن غذا</button>
@@ -209,7 +202,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <div class="field" style="flex:1"><label>عرض (mm)</label><input type="number" id="psCustomW" value="80" onchange="saveSetup()"></div>
           <div class="field" style="flex:1"><label>ارتفاع (mm) — برای رول: خالی/۰ = پیوسته</label><input type="number" id="psCustomH" value="0" onchange="saveSetup()"></div>
         </div>
-        <div class="att-note">💡 برای پرینتر حرارتی رولی، ارتفاع کاغذ «پیوسته» است و به اندازه محتوا چاپ می‌شود. در پنجره چاپ مرورگر هم پرینتر حرارتی خود را انتخاب کنید و Margins را روی None/Minimum بگذارید.</div>
       </div>
 
       <div class="card">
@@ -289,7 +281,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <div class="field" style="flex:1"><label>عرض ستون واحد (٪)</label><input type="number" id="psWUnit" min="3" max="60" step="1" onchange="saveColW()"></div>
           <div class="field" style="flex:1"><label>عرض ستون امضا (٪)</label><input type="number" id="psWSign" min="3" max="60" step="1" onchange="saveColW()"></div>
         </div>
-        <div class="att-note">📐 ستون «نام خانوادگی» عرض باقیمانده را خودش می‌گیرد — برای پهن‌تر شدنِ نام، بقیه ستون‌ها را کوچک‌تر کنید.</div>
       </div>
 
       <div class="card">
@@ -403,29 +394,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 </section>
 
 </main>
-
-<!-- مودال انتخاب نفرات برای چاپ -->
-<div class="modal-back" id="pickModal">
-  <div class="modal" style="max-width:720px">
-    <h3>👤 انتخاب نفرات برای چاپ</h3>
-    <div class="row" style="margin-bottom:10px">
-      <select id="pickUnitFilter" onchange="renderPickList()" style="max-width:200px"><option value="">همه واحدهای انتخابی</option></select>
-      <input type="text" id="pickSearch" placeholder="جستجوی نام یا کد..." oninput="renderPickList()" style="flex:1;min-width:140px">
-    </div>
-    <div class="row" style="margin-bottom:10px">
-      <button class="btn sm ghost" onclick="pickAll(true)">✅ انتخاب همه</button>
-      <button class="btn sm ghost" onclick="pickAll(false)">⬜ هیچکدام</button>
-      <span class="chip" id="pickModalCount"></span>
-    </div>
-    <div style="max-height:52vh;overflow:auto">
-      <table class="list" id="pickTable"></table>
-    </div>
-    <div class="row" style="justify-content:flex-end;margin-top:14px">
-      <button class="btn secondary" onclick="closePickModal()">بستن</button>
-      <button class="btn" onclick="applyPick()">✅ اعمال و چاپ فقط این نفرات</button>
-    </div>
-  </div>
-</div>
 
 <!-- مودال پرسنل -->
 <div class="modal-back" id="personModal">

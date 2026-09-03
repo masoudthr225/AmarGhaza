@@ -13,5 +13,5 @@ renderAll();
 window.addEventListener('keydown', e=>{
   if ((e.ctrlKey||e.metaKey) && e.key==='p') { e.preventDefault(); openPrintDialog(); }
   if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveNow(); }
-  if (e.key==='Escape') { closePersonModal(); if (typeof closePickModal==='function') closePickModal(); }
+  if (e.key==='Escape') closePersonModal();
 });
