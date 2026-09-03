@@ -180,266 +180,220 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 
 <!-- ============ تب ۴: Page Setup ============ -->
 <section id="tab-pagesetup" class="tabpane">
-  <div class="ps-app">
+  <div class="pgs">
 
-    <!-- ============ ستون تنظیمات ============ -->
-    <div class="ps-panel">
-
-      
-
-      <nav class="ps-nav">
-        <button class="ps-nav-btn active" data-sec="sec-paper"  onclick="psGo('sec-paper',this)">📄 کاغذ</button>
-        <button class="ps-nav-btn" data-sec="sec-type"   onclick="psGo('sec-type',this)">🔤 تایپوگرافی</button>
-        <button class="ps-nav-btn" data-sec="sec-layout" onclick="psGo('sec-layout',this)">🧾 چیدمان</button>
-        <button class="ps-nav-btn" data-sec="sec-cols"   onclick="psGo('sec-cols',this)">🔠 ستون‌ها</button>
-        <button class="ps-nav-btn" data-sec="sec-extras" onclick="psGo('sec-extras',this)">🍳 اقلام</button>
-        <button class="ps-nav-btn" data-sec="sec-hf"     onclick="psGo('sec-hf',this)">🔝 سربرگ</button>
-      </nav>
-
-      <div class="ps-scroll">
-
-        <!-- ---------- کاغذ ---------- -->
-        <section class="ps-sec show" id="sec-paper">
-          <h3 class="ps-h">📄 کاغذ و پرینتر</h3>
-          <div class="ps-f">
-            <label>نوع کاغذ / پرینتر</label>
-            <select id="psPaper" onchange="onPaperChange()">
-              <option value="A4P">A4 عمودی (پرینتر معمولی)</option>
-              <option value="A4L">A4 افقی</option>
-              <option value="A5P">A5 عمودی</option>
-              <option value="A5L">A5 افقی</option>
-              <option value="LETTER">Letter</option>
-              <option value="T80">🧾 پرینتر حرارتی — رول ۸۰ میلی‌متر</option>
-              <option value="T58">🧾 پرینتر حرارتی — رول ۵۸ میلی‌متر</option>
-              <option value="CUSTOM">اندازه دلخواه…</option>
-            </select>
-          </div>
-          <div class="ps-grid2" id="customSizeRow" style="display:none">
-            <div class="ps-f"><label>عرض (mm)</label><input type="number" id="psCustomW" min="30" max="400" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>ارتفاع (mm) — ۰ = رول</label><input type="number" id="psCustomH" min="0" max="600" onchange="saveSetup()"></div>
-          </div>
-
-          <h4 class="ps-sub">حاشیه‌های کاغذ (mm)</h4>
-          <div class="ps-grid4">
-            <div class="ps-f"><label>بالا</label><input type="number" id="psMT" min="0" max="50" step="0.5" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>پایین</label><input type="number" id="psMB" min="0" max="50" step="0.5" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>راست</label><input type="number" id="psMR" min="0" max="50" step="0.5" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>چپ</label><input type="number" id="psML" min="0" max="50" step="0.5" onchange="saveSetup()"></div>
-          </div>
-          <button class="ps-mini" onclick="marginAll()">همه حاشیه‌ها برابر مقدار «بالا»</button>
-        </section>
-
-        <!-- ---------- تایپوگرافی ---------- -->
-        <section class="ps-sec" id="sec-type">
-          <h3 class="ps-h">🔤 قلم و اندازه</h3>
-          <div class="ps-f">
-            <label>فونت</label>
-            <select id="psFont" onchange="saveSetup()">
-              <option value="Vazirmatn, Tahoma, sans-serif">وزیرمتن</option>
-              <option value="'B Nazanin', Tahoma, serif">ب نازنین</option>
-              <option value="'B Zar', Tahoma, serif">ب زر</option>
-              <option value="'B Titr', Tahoma, sans-serif">ب تیتر</option>
-              <option value="'Iranian Sans', Tahoma, sans-serif">ایرانیان سنس</option>
-              <option value="Arial, sans-serif">Arial</option>
-              <option value="'Courier New', monospace">Courier (حرارتی)</option>
-            </select>
-          </div>
-          <div class="ps-grid2">
-            <div class="ps-f"><label>اندازه فونت (pt)</label><input type="number" id="psFontSize" min="6" max="30" step="0.5" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>فاصله سطر</label><input type="number" id="psLineH" min="1" max="3" step="0.1" onchange="saveSetup()"></div>
-          </div>
-          <div class="ps-grid2">
-            <div class="ps-f"><label>ارتفاع سطر (mm) — ۰ = خودکار</label><input type="number" id="psRowH" min="0" max="20" step="0.5" onchange="saveSetup()"></div>
-            <div class="ps-f"><label>فاصله داخلی سلول (mm)</label><input type="number" id="psCellPad" min="0" max="10" step="0.2" onchange="saveSetup()"></div>
-          </div>
-          <label class="ps-check"><input type="checkbox" id="psBold" onchange="saveSetup()"><span>متن ضخیم (مناسب چاپ حرارتی)</span></label>
-
-          <h4 class="ps-sub">اندازهٔ سطرها (mm) — ۰ = خودکار</h4>
-          <div class="ps-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
-          <label class="ps-check"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم باشد</span></label>
-
-          <h4 class="ps-sub">چیدمان کلی</h4>
-          <div class="ps-align">
-            <span>سربرگ صفحه</span>
-            <select id="psAlignHeader" onchange="saveSetup()"><option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option></select>
-          </div>
-          <div class="ps-align">
-            <span>جدول در صفحه</span>
-            <select id="psAlignPage" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select>
-          </div>
-          <p class="ps-note">چیدمان تک‌تک ستون‌ها در بخش «🔠 ستون‌ها» تنظیم می‌شود.</p>
-        </section>
-
-        <!-- ---------- چیدمان ---------- -->
-        <section class="ps-sec" id="sec-layout">
-          <h3 class="ps-h">🧾 قالب چاپ</h3>
-          <div class="ps-grid2">
-            <div class="ps-f">
-              <label>قالب چاپ</label>
-              <select id="psLayout" onchange="saveSetup()">
-                <option value="units">جدول جدا برای هر واحد</option>
-                <option value="flat">یک جدول یکپارچه</option>
-                <option value="excel">مطابق فرم اکسل</option>
-              </select>
-            </div>
-            <div class="ps-f">
-              <label>تعداد ستون اسامی</label>
-              <select id="psCols" onchange="saveSetup()">
-                <option value="0">خودکار</option>
-                <option value="1">۱ ستون</option>
-                <option value="2">۲ ستون</option>
-                <option value="3">۳ ستون</option>
-                <option value="4">۴ ستون</option>
-              </select>
-            </div>
-          </div>
-          <h4 class="ps-sub">چه چیزهایی چاپ شود</h4>
-          <div class="ps-checks">
-            <label class="ps-check"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"><span>شماره ردیف</span></label>
-            <label class="ps-check"><input type="checkbox" id="psShowCode" onchange="saveSetup()"><span>کد پرسنلی</span></label>
-            <label class="ps-check"><input type="checkbox" id="psShowSign" onchange="saveSetup()"><span>ستون امضا</span></label>
-            <label class="ps-check"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"><span>نمایش غایبان</span></label>
-            <label class="ps-check"><input type="checkbox" id="psShowSummary" onchange="saveSetup()"><span>خط جمع‌بندی</span></label>
-            <label class="ps-check"><input type="checkbox" id="psNoFill" onchange="saveSetup()"><span>بدون پس‌زمینه (حرارتی)</span></label>
-            <label class="ps-check"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"><span>هر واحد در صفحه جدید</span></label>
-          </div>
-        </section>
-
-        <!-- ---------- ستون‌ها ---------- -->
-        <section class="ps-sec" id="sec-cols">
-          <h3 class="ps-h">🔠 ستون‌ها — عنوان، عرض و چیدمان</h3>
-          <div class="ps-tablewrap">
-            <table class="ps-table ps-matrix">
-              <thead><tr>
-                <th>ستون</th><th>عنوان چاپی</th><th>عرض ٪</th>
-                <th>چیدمان عنوان</th><th>چیدمان محتوا</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="ps-td-lbl">ردیف</td>
-                  <td><input type="text" id="psHeadRowNo" onchange="saveSetup()"></td>
-                  <td><input type="number" id="psWRowNo" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
-                  <td><select id="psHARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                  <td><select id="psCARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                </tr>
-                <tr>
-                  <td class="ps-td-lbl">نام</td>
-                  <td><input type="text" id="psHeadName" onchange="saveSetup()"></td>
-                  <td class="ps-auto">باقیمانده</td>
-                  <td><select id="psHAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                  <td><select id="psCAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                </tr>
-                <tr>
-                  <td class="ps-td-lbl">کد پرسنلی</td>
-                  <td><input type="text" id="psHeadCode" onchange="saveSetup()"></td>
-                  <td><input type="number" id="psWCode" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
-                  <td><select id="psHACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                  <td><select id="psCACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                </tr>
-                <tr>
-                  <td class="ps-td-lbl">واحد</td>
-                  <td><input type="text" id="psHeadUnit" onchange="saveSetup()"></td>
-                  <td><input type="number" id="psWUnit" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
-                  <td><select id="psHAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                  <td><select id="psCAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                </tr>
-                <tr>
-                  <td class="ps-td-lbl">امضا</td>
-                  <td><input type="text" id="psHeadSign" onchange="saveSetup()"></td>
-                  <td><input type="number" id="psWSign" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
-                  <td><select id="psHASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                  <td><select id="psCASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="ps-note">عرض ستون «نام» خودکار از باقیماندهٔ عرض جدول پر می‌شود.</p>
-        </section>
-
-        <!-- ---------- اقلام زیر جدول ---------- -->
-        <section class="ps-sec" id="sec-extras">
-          <h3 class="ps-h">🍳 اقلام زیر جدول</h3>
-          <p class="ps-note" style="margin:0 2px 12px">ردیف‌های خوراک، حاضری، ۵۰٪ و تخم مرغ که زیر لیست اسامی چاپ می‌شوند.</p>
-
-          <div class="ps-grid2">
-            <div class="ps-f">
-              <label>عرض جدول (٪ از عرض صفحه)</label>
-              <input type="number" id="psExtraWidth" min="20" max="100" step="1" onchange="saveSetup()">
-            </div>
-            <div class="ps-f">
-              <label>عرض ستون مقدار (٪)</label>
-              <input type="number" id="psExtraQtyW" min="10" max="80" step="1" onchange="saveSetup()">
-            </div>
-          </div>
-
-          <div class="ps-align">
-            <span>جای‌گیری جدول</span>
-            <select id="psExtraAlignPage" onchange="saveSetup()">
-              <option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option>
-            </select>
-          </div>
-          <div class="ps-align">
-            <span>چیدمان نام قلم</span>
-            <select id="psExtraAlignLabel" onchange="saveSetup()">
-              <option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option>
-            </select>
-          </div>
-          <div class="ps-align">
-            <span>چیدمان مقدار</span>
-            <select id="psExtraAlignQty" onchange="saveSetup()">
-              <option value="right">راست‌چین</option><option value="center">وسط‌چین</option><option value="left">چپ‌چین</option>
-            </select>
-          </div>
-
-          <div class="ps-f" style="margin-top:10px">
-            <label>ارتفاع سطر اقلام (mm) — ۰ = مثل بقیه</label>
-            <input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()">
-          </div>
-          <label class="ps-check"><input type="checkbox" id="psExtraBold" onchange="saveSetup()"><span>متن اقلام ضخیم باشد</span></label>
-        </section>
-
-        <!-- ---------- سربرگ و پاصفحه ---------- -->
-        <section class="ps-sec" id="sec-hf">
-          <h3 class="ps-h">🔝 سربرگ</h3>
-          <div class="ps-checks">
-            <label class="ps-check"><input type="checkbox" id="psHeaderOn" onchange="saveSetup()"><span>نمایش سربرگ</span></label>
-            <label class="ps-check"><input type="checkbox" id="psHeaderDate" onchange="saveSetup()"><span>تاریخ</span></label>
-            <label class="ps-check"><input type="checkbox" id="psHeaderMeal" onchange="saveSetup()"><span>وعده و غذا</span></label>
-          </div>
-          <div class="ps-grid2">
-            <div class="ps-f"><label>عنوان اصلی</label><input type="text" id="psHeaderTitle" onchange="saveSetup()" placeholder="آمار غذای پرسنل"></div>
-            <div class="ps-f"><label>زیرعنوان</label><input type="text" id="psHeaderSub" onchange="saveSetup()" placeholder="واحد امور رفاهی"></div>
-          </div>
-
-          <h3 class="ps-h" style="margin-top:18px">🔻 پاصفحه</h3>
-          <div class="ps-checks">
-            <label class="ps-check"><input type="checkbox" id="psFooterOn" onchange="saveSetup()"><span>نمایش پاصفحه</span></label>
-            <label class="ps-check"><input type="checkbox" id="psFooterSign" onchange="saveSetup()"><span>محل امضا</span></label>
-            <label class="ps-check"><input type="checkbox" id="psFooterTime" onchange="saveSetup()"><span>ساعت چاپ</span></label>
-          </div>
-          <div class="ps-f"><label>متن پاصفحه</label><input type="text" id="psFooterText" onchange="saveSetup()" placeholder="لطفاً آمار تا ساعت ۱۰ صبح اعلام شود."></div>
-        </section>
-
+    <!-- ================= نوار ابزار بالا ================= -->
+    <div class="pgs-ribbon">
+      <div class="pgs-rgroup">
+        <span class="pgs-rlabel">اندازه</span>
+        <select id="psPaper" onchange="onPaperChange()" class="pgs-sel">
+          <option value="A4P">A4 عمودی</option>
+          <option value="A4L">A4 افقی</option>
+          <option value="A5P">A5 عمودی</option>
+          <option value="A5L">A5 افقی</option>
+          <option value="LETTER">Letter</option>
+          <option value="T80">رول حرارتی ۸۰mm</option>
+          <option value="T58">رول حرارتی ۵۸mm</option>
+          <option value="CUSTOM">دلخواه…</option>
+        </select>
       </div>
-
-      <div class="ps-foot">
-        <button class="ps-btn ghost" onclick="resetSetup()">↩️ پیش‌فرض</button>
-        <button class="ps-btn" onclick="showTabById('tab-sheet')">📋 آمار روز</button>
-        <button class="ps-btn primary" onclick="openPrintDialog()">🖨️ چاپ لیست</button>
+      <div class="pgs-rgroup">
+        <span class="pgs-rlabel">قالب</span>
+        <select id="psLayout" onchange="saveSetup()" class="pgs-sel">
+          <option value="units">جدول جدا برای هر واحد</option>
+          <option value="flat">یک جدول یکپارچه</option>
+          <option value="excel">مطابق فرم اکسل</option>
+        </select>
       </div>
+      <div class="pgs-rgroup">
+        <span class="pgs-rlabel">ستون</span>
+        <select id="psCols" onchange="saveSetup()" class="pgs-sel pgs-sel-sm">
+          <option value="0">خودکار</option><option value="1">۱</option><option value="2">۲</option>
+          <option value="3">۳</option><option value="4">۴</option>
+        </select>
+      </div>
+      <span class="pgs-sep"></span>
+      <div class="pgs-rgroup">
+        <span class="pgs-rlabel">قلم</span>
+        <select id="psFont" onchange="saveSetup()" class="pgs-sel">
+          <option value="Vazirmatn, Tahoma, sans-serif">وزیرمتن</option>
+          <option value="'B Nazanin', Tahoma, serif">ب نازنین</option>
+          <option value="'B Zar', Tahoma, serif">ب زر</option>
+          <option value="'B Titr', Tahoma, sans-serif">ب تیتر</option>
+          <option value="'Iranian Sans', Tahoma, sans-serif">ایرانیان سنس</option>
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="'Courier New', monospace">Courier</option>
+        </select>
+        <input type="number" id="psFontSize" min="5" max="30" step="0.5" onchange="saveSetup()" class="pgs-num" title="اندازه قلم">
+        <button class="pgs-tgl" id="psBoldBtn" onclick="pgsToggleBold()" title="متن ضخیم"><b>ض</b></button>
+        <input type="checkbox" id="psBold" onchange="saveSetup()" hidden>
+      </div>
+      <span class="pgs-spacer"></span>
+      <button class="pgs-btn primary" onclick="openPrintDialog()">🖨️ چاپ</button>
     </div>
 
-    <!-- ============ ستون پیش‌نمایش ============ -->
-    <div class="ps-preview">
-      <div class="ps-pv-bar">
-        <span class="ps-pv-title">👁️ پیش‌نمایش زنده</span>
-        <span class="ps-chip-info" id="paperInfo"></span>
-      </div>
-      <div class="ps-pv-stage">
-        <div id="previewPage"></div>
-      </div>
-    </div>
+    <div class="pgs-body">
 
+      <!-- ================= پیش‌نمایش ================= -->
+      <div class="pgs-view">
+        <div class="pgs-viewbar">
+          <span class="pgs-chip" id="paperInfo"></span>
+          <span class="pgs-spacer"></span>
+          <button class="pgs-zbtn" onclick="pgsZoom(-1)" title="کوچک‌تر">−</button>
+          <span class="pgs-zval" id="pgsZoomVal">۱۰۰٪</span>
+          <button class="pgs-zbtn" onclick="pgsZoom(1)" title="بزرگ‌تر">+</button>
+          <button class="pgs-zbtn" onclick="pgsZoom(0)" title="اندازه مناسب">⤢</button>
+        </div>
+        <div class="pgs-stage" id="pgsStage">
+          <div class="pgs-paper" id="previewPage"></div>
+        </div>
+      </div>
+
+      <!-- ================= پنل تنظیمات ================= -->
+      <aside class="pgs-panel">
+        <nav class="pgs-tabs">
+          <button class="pgs-tab active" onclick="pgsGo('pg-margins',this)">حاشیه</button>
+          <button class="pgs-tab" onclick="pgsGo('pg-table',this)">جدول</button>
+          <button class="pgs-tab" onclick="pgsGo('pg-cols',this)">ستون‌ها</button>
+          <button class="pgs-tab" onclick="pgsGo('pg-extras',this)">اقلام</button>
+          <button class="pgs-tab" onclick="pgsGo('pg-hf',this)">سربرگ</button>
+        </nav>
+
+        <div class="pgs-scroll">
+
+          <!-- ---------- حاشیه ---------- -->
+          <section class="pgs-sec show" id="pg-margins">
+            <h4>حاشیه‌ها (میلی‌متر)</h4>
+            <div class="pgs-mgrid">
+              <div class="pgs-f"><label>بالا</label><input type="number" id="psMT" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>پایین</label><input type="number" id="psMB" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>راست</label><input type="number" id="psMR" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>چپ</label><input type="number" id="psML" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
+            </div>
+            <button class="pgs-mini" onclick="marginAll()">یکسان کردن همه</button>
+            <div class="pgs-hint" id="pgsUsable"></div>
+
+            <h4>اندازه دلخواه کاغذ</h4>
+            <div class="pgs-grid2" id="customSizeRow" style="display:none">
+              <div class="pgs-f"><label>عرض (mm)</label><input type="number" id="psCustomW" min="30" max="400" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع (mm) — ۰ = رول</label><input type="number" id="psCustomH" min="0" max="600" onchange="saveSetup()"></div>
+            </div>
+
+            <h4>چیدمان کلی</h4>
+            <div class="pgs-row"><span>سربرگ صفحه</span>
+              <select id="psAlignHeader" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
+            <div class="pgs-row"><span>جدول در صفحه</span>
+              <select id="psAlignPage" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
+          </section>
+
+          <!-- ---------- جدول ---------- -->
+          <section class="pgs-sec" id="pg-table">
+            <h4>اندازه سطر و سلول</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>فاصله سطر</label><input type="number" id="psLineH" min="1" max="3" step="0.1" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>فاصله داخلی (mm)</label><input type="number" id="psCellPad" min="0" max="10" step="0.2" onchange="saveSetup()"></div>
+            </div>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>ارتفاع سطر (mm)</label><input type="number" id="psRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
+            </div>
+            <label class="pgs-chk"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم</span></label>
+
+            <h4>چه چیزی چاپ شود</h4>
+            <div class="pgs-checks">
+              <label class="pgs-chk"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"><span>شماره ردیف</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psShowCode" onchange="saveSetup()"><span>کد پرسنلی</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psShowSign" onchange="saveSetup()"><span>ستون امضا</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"><span>نمایش غایبان</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psShowSummary" onchange="saveSetup()"><span>خط جمع‌بندی</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psNoFill" onchange="saveSetup()"><span>بدون پس‌زمینه</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"><span>هر واحد صفحه جدید</span></label>
+            </div>
+          </section>
+
+          <!-- ---------- ستون‌ها ---------- -->
+          <section class="pgs-sec" id="pg-cols">
+            <h4>عنوان، عرض و چیدمان ستون‌ها</h4>
+            <div class="pgs-tblwrap">
+              <table class="pgs-matrix">
+                <thead><tr><th>ستون</th><th>عنوان چاپی</th><th>عرض٪</th><th>عنوان</th><th>محتوا</th></tr></thead>
+                <tbody>
+                  <tr><td class="k">ردیف</td>
+                    <td><input type="text" id="psHeadRowNo" onchange="saveSetup()"></td>
+                    <td><input type="number" id="psWRowNo" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                    <td><select id="psHARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                    <td><select id="psCARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                  <tr><td class="k">نام</td>
+                    <td><input type="text" id="psHeadName" onchange="saveSetup()"></td>
+                    <td class="auto">باقیمانده</td>
+                    <td><select id="psHAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                    <td><select id="psCAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                  <tr><td class="k">کد پرسنلی</td>
+                    <td><input type="text" id="psHeadCode" onchange="saveSetup()"></td>
+                    <td><input type="number" id="psWCode" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                    <td><select id="psHACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                    <td><select id="psCACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                  <tr><td class="k">واحد</td>
+                    <td><input type="text" id="psHeadUnit" onchange="saveSetup()"></td>
+                    <td><input type="number" id="psWUnit" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                    <td><select id="psHAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                    <td><select id="psCAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                  <tr><td class="k">امضا</td>
+                    <td><input type="text" id="psHeadSign" onchange="saveSetup()"></td>
+                    <td><input type="number" id="psWSign" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
+                    <td><select id="psHASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
+                    <td><select id="psCASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pgs-hint" id="pgsColHint"></div>
+          </section>
+
+          <!-- ---------- اقلام ---------- -->
+          <section class="pgs-sec" id="pg-extras">
+            <h4>اقلام زیر جدول</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>عرض جدول ٪</label><input type="number" id="psExtraWidth" min="20" max="100" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>عرض ستون مقدار ٪</label><input type="number" id="psExtraQtyW" min="10" max="80" onchange="saveSetup()"></div>
+            </div>
+            <div class="pgs-row"><span>جای‌گیری</span>
+              <select id="psExtraAlignPage" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
+            <div class="pgs-row"><span>چیدمان نام</span>
+              <select id="psExtraAlignLabel" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
+            <div class="pgs-row"><span>چیدمان مقدار</span>
+              <select id="psExtraAlignQty" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
+            <div class="pgs-f"><label>ارتفاع سطر (mm)</label><input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
+            <label class="pgs-chk"><input type="checkbox" id="psExtraBold" onchange="saveSetup()"><span>متن ضخیم</span></label>
+          </section>
+
+          <!-- ---------- سربرگ ---------- -->
+          <section class="pgs-sec" id="pg-hf">
+            <h4>سربرگ</h4>
+            <div class="pgs-checks">
+              <label class="pgs-chk"><input type="checkbox" id="psHeaderOn" onchange="saveSetup()"><span>نمایش سربرگ</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psHeaderDate" onchange="saveSetup()"><span>تاریخ</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psHeaderMeal" onchange="saveSetup()"><span>وعده و غذا</span></label>
+            </div>
+            <div class="pgs-f"><label>عنوان اصلی</label><input type="text" id="psHeaderTitle" onchange="saveSetup()" placeholder="آمار غذای پرسنل"></div>
+            <div class="pgs-f"><label>زیرعنوان</label><input type="text" id="psHeaderSub" onchange="saveSetup()" placeholder="واحد امور رفاهی"></div>
+
+            <h4>پاصفحه</h4>
+            <div class="pgs-checks">
+              <label class="pgs-chk"><input type="checkbox" id="psFooterOn" onchange="saveSetup()"><span>نمایش پاصفحه</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psFooterSign" onchange="saveSetup()"><span>محل امضا</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psFooterTime" onchange="saveSetup()"><span>ساعت چاپ</span></label>
+            </div>
+            <div class="pgs-f"><label>متن پاصفحه</label><input type="text" id="psFooterText" onchange="saveSetup()" placeholder="لطفاً آمار تا ساعت ۱۰ صبح اعلام شود."></div>
+          </section>
+
+        </div>
+
+        <div class="pgs-foot">
+          <button class="pgs-btn ghost" onclick="resetSetup()">بازگشت به پیش‌فرض</button>
+          <button class="pgs-btn" onclick="showTabById('tab-sheet')">آمار روز</button>
+        </div>
+      </aside>
+    </div>
   </div>
 </section>
 

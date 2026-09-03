@@ -429,147 +429,168 @@
   .doc[style*="--align-page:right"] table.xls-head,
 
 
-  /* ==================== تنظیمات صفحه — طراحی حرفه‌ای ==================== */
-  .ps-app {
-    display: grid; grid-template-columns: minmax(390px, 460px) 1fr; gap: 16px;
-    align-items: start;
-  }
-  .ps-panel {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    box-shadow: 0 4px 18px rgba(26,107,84,.07);
-    display: flex; flex-direction: column; overflow: hidden;
-    max-height: calc(100vh - 150px);
-  }
 
-  /* --- نوار قالب‌های آماده --- */
-  .ps-toolbar { padding: 12px 14px 10px; border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, #f7fbfa, #eef5f2); }
-  .ps-presets { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .ps-presets-lbl { font-size: .78rem; color: var(--muted); font-weight: 700; margin-left: 2px; }
-  .ps-chip {
+  /* ==================== Page Setup (سبک اکسل / ورد) ==================== */
+  .pgs { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------- نوار ابزار ---------- */
+  .pgs-ribbon {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 14px; box-shadow: 0 2px 10px rgba(26,107,84,.06);
+  }
+  .pgs-rgroup { display: flex; align-items: center; gap: 6px; }
+  .pgs-rlabel { font-size: .74rem; color: var(--muted); font-weight: 700; }
+  .pgs-sel, .pgs-num {
+    border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px;
+    font-size: .82rem; background: #fff; color: var(--text);
+  }
+  .pgs-sel-sm { padding: 6px; }
+  .pgs-num { width: 62px; text-align: center; }
+  .pgs-sel:focus, .pgs-num:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .pgs-tgl {
+    border: 1px solid var(--border); background: #fff; border-radius: 8px;
+    width: 32px; height: 32px; cursor: pointer; font-size: .85rem; transition: .15s;
+  }
+  .pgs-tgl:hover { border-color: var(--primary); color: var(--primary); }
+  .pgs-tgl.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .pgs-sep { width: 1px; height: 26px; background: var(--border); }
+  .pgs-spacer { flex: 1; }
+  .pgs-btn {
     border: 1px solid var(--border); background: #fff; color: var(--text);
-    border-radius: 999px; padding: 5px 11px; font-size: .78rem; font-weight: 600;
+    border-radius: 9px; padding: 8px 16px; font-size: .82rem; font-weight: 700;
     cursor: pointer; transition: .15s;
   }
-  .ps-chip:hover { border-color: var(--primary); color: var(--primary);
-    background: var(--primary-light); transform: translateY(-1px); }
+  .pgs-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .pgs-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .pgs-btn.primary:hover { background: var(--primary-dark); color: #fff; }
+  .pgs-btn.ghost { color: var(--muted); }
 
-  /* --- تب‌های عمودی بخش‌ها --- */
-  .ps-nav { display: flex; gap: 2px; padding: 8px 10px 0; border-bottom: 1px solid var(--border);
-    overflow-x: auto; scrollbar-width: none; }
-  .ps-nav::-webkit-scrollbar { display: none; }
-  .ps-nav-btn {
-    border: none; background: transparent; color: var(--muted);
-    padding: 9px 12px; font-size: .82rem; font-weight: 700; cursor: pointer;
-    border-bottom: 2.5px solid transparent; white-space: nowrap; transition: .15s;
+  /* ---------- بدنه: پیش‌نمایش + پنل ---------- */
+  .pgs-body { display: grid; grid-template-columns: 1fr minmax(330px, 380px); gap: 10px; align-items: start; }
+
+  .pgs-view {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; display: flex; flex-direction: column;
+    height: calc(100vh - 210px); min-height: 420px;
   }
-  .ps-nav-btn:hover { color: var(--primary); }
-  .ps-nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-  /* --- ناحیه اسکرول --- */
-  .ps-scroll { overflow-y: auto; padding: 16px 16px 20px; flex: 1; }
-  .ps-scroll::-webkit-scrollbar { width: 8px; }
-  .ps-scroll::-webkit-scrollbar-thumb { background: #cfdcd7; border-radius: 4px; }
-  .ps-sec { display: none; animation: psFade .18s ease; }
-  .ps-sec.show { display: block; }
-  @keyframes psFade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
-
-  .ps-h { font-size: .95rem; font-weight: 800; color: var(--primary-dark);
-    margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary-light); }
-  .ps-sub { font-size: .8rem; font-weight: 700; color: var(--muted);
-    margin: 16px 0 8px; text-transform: none; }
-
-  .ps-f { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
-  .ps-f > label { font-size: .76rem; font-weight: 700; color: var(--muted); }
-  .ps-f input, .ps-f select, .ps-table input {
-    border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px;
-    background: #fff; font-size: .85rem; width: 100%; transition: .15s;
+  .pgs-viewbar {
+    display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+    border-bottom: 1px solid var(--border); background: #fafcfb;
   }
-  .ps-f input:focus, .ps-f select:focus, .ps-table input:focus {
-    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light);
+  .pgs-chip {
+    font-size: .74rem; color: var(--muted); background: #fff;
+    border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; white-space: nowrap;
   }
-  .ps-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .ps-grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-
-  .ps-mini {
-    border: 1px dashed var(--border); background: #fff; color: var(--muted);
-    border-radius: 8px; padding: 6px 10px; font-size: .76rem; cursor: pointer;
-    width: 100%; margin-top: 4px; transition: .15s;
+  .pgs-zbtn {
+    border: 1px solid var(--border); background: #fff; border-radius: 7px;
+    width: 28px; height: 28px; cursor: pointer; font-size: .9rem; color: var(--text); transition: .15s;
   }
-  .ps-mini:hover { border-color: var(--primary); color: var(--primary); border-style: solid; }
+  .pgs-zbtn:hover { border-color: var(--primary); color: var(--primary); }
+  .pgs-zval { font-size: .74rem; color: var(--muted); min-width: 46px; text-align: center; font-weight: 700; }
 
-  /* --- چک‌باکس‌ها --- */
-  .ps-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
-  .ps-check { display: flex; align-items: center; gap: 7px; cursor: pointer;
-    font-size: .82rem; padding: 5px 7px; border-radius: 7px; transition: .12s; }
-  .ps-check:hover { background: var(--primary-light); }
-  .ps-check input { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; flex: none; }
-
-  /* --- ردیف چیدمان --- */
-  .ps-align { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
-  .ps-align > span { font-size: .8rem; color: var(--muted); font-weight: 600;
-    min-width: 108px; flex: none; }
-  .ps-align select { flex: 1; border: 1px solid var(--border); border-radius: 8px;
-    padding: 6px 9px; font-size: .82rem; background: #fff; }
-  .ps-align select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
-
-  /* --- جدول ستون‌ها --- */
-  .ps-table { width: 100%; border-collapse: collapse; }
-  .ps-table th { font-size: .74rem; color: var(--muted); text-align: right;
-    padding: 6px 8px; border-bottom: 1.5px solid var(--border); font-weight: 700; }
-  .ps-table td { padding: 5px 6px; border-bottom: 1px solid #eef3f1; }
-  .ps-td-lbl { font-size: .82rem; font-weight: 700; color: var(--text); white-space: nowrap; }
-  .ps-auto { font-size: .76rem; color: var(--muted); text-align: center; font-style: italic; }
-
-  /* --- پاورقی دکمه‌ها --- */
-  .ps-foot { display: flex; gap: 8px; padding: 12px 14px;
-    border-top: 1px solid var(--border); background: #fafcfb; }
-  .ps-btn { flex: 1; border: 1px solid var(--border); background: #fff; color: var(--text);
-    border-radius: 9px; padding: 9px 10px; font-size: .82rem; font-weight: 700;
-    cursor: pointer; transition: .15s; }
-  .ps-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .ps-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
-  .ps-btn.primary:hover { background: var(--primary-dark); color: #fff; }
-  .ps-btn.ghost { flex: 0 0 auto; color: var(--muted); }
-
-  /* --- پیش‌نمایش --- */
-  .ps-preview {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    box-shadow: 0 4px 18px rgba(26,107,84,.07); overflow: hidden;
-    display: flex; flex-direction: column; max-height: calc(100vh - 150px);
-    position: sticky; top: 14px;
-  }
-  .ps-pv-bar { display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, #f7fbfa, #eef5f2); }
-  .ps-pv-title { font-size: .88rem; font-weight: 800; color: var(--primary-dark); }
-  .ps-chip-info { font-size: .74rem; color: var(--muted); background: #fff;
-    border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
-  .ps-pv-stage {
-    flex: 1; overflow: auto; padding: 20px;
-    background: repeating-conic-gradient(#eef2f1 0% 25%, #f6f9f8 0% 50%) 50%/18px 18px;
+  /* میز کار: کاغذ همیشه وسط، اسکرول در هر دو جهت */
+  .pgs-stage {
+    flex: 1; overflow: auto; padding: 26px;
+    background: #6f7d78;
     display: flex; justify-content: center; align-items: flex-start;
   }
-  .ps-pv-stage #previewPage {
-    background: #fff; box-shadow: 0 6px 22px rgba(0,0,0,.13); border-radius: 2px;
+  /* کاغذ: عرض بر حسب میلی‌متر واقعی — نه پیکسل و نه transform.
+     مرورگر خودش mm را مدیریت می‌کند، پس هیچ‌وقت سرریز نمی‌شود. */
+  .pgs-paper {
+    background: #fff; box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    flex: none; overflow: hidden;
   }
+  .pgs-paper > .pgs-inner { overflow: hidden; }
+  .pgs-paper .doc { max-width: 100%; }
 
-  @media (max-width: 1100px) {
-    .ps-app { grid-template-columns: 1fr; }
-    .ps-panel, .ps-preview { max-height: none; position: static; }
-    .ps-pv-stage { min-height: 420px; }
+  /* ---------- پنل کناری ---------- */
+  .pgs-panel {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    display: flex; flex-direction: column; overflow: hidden;
+    height: calc(100vh - 210px); min-height: 420px;
   }
+  .pgs-tabs { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .pgs-tabs::-webkit-scrollbar { display: none; }
+  .pgs-tab {
+    flex: 1; border: none; background: transparent; color: var(--muted);
+    padding: 11px 8px; font-size: .8rem; font-weight: 700; cursor: pointer;
+    border-bottom: 2.5px solid transparent; white-space: nowrap; transition: .15s;
+  }
+  .pgs-tab:hover { color: var(--primary); background: #f7fbfa; }
+  .pgs-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-  /* --- ماتریس ستون‌ها --- */
-  .ps-tablewrap { overflow-x: auto; }
-  .ps-matrix { min-width: 430px; }
-  .ps-matrix th { font-size: .7rem; white-space: nowrap; text-align: center; }
-  .ps-matrix th:first-child, .ps-matrix th:nth-child(2) { text-align: right; }
-  .ps-matrix td { padding: 4px 3px; }
-  .ps-matrix input[type="number"] { width: 62px; text-align: center; }
-  .ps-matrix select {
-    border: 1px solid var(--border); border-radius: 7px; padding: 5px 6px;
-    font-size: .78rem; background: #fff; width: 100%; cursor: pointer;
+  .pgs-scroll { flex: 1; overflow-y: auto; padding: 14px; }
+  .pgs-scroll::-webkit-scrollbar { width: 8px; }
+  .pgs-scroll::-webkit-scrollbar-thumb { background: #cfdcd7; border-radius: 4px; }
+  .pgs-sec { display: none; }
+  .pgs-sec.show { display: block; animation: pgsFade .18s ease; }
+  @keyframes pgsFade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
+
+  .pgs-sec h4 {
+    font-size: .8rem; font-weight: 800; color: var(--primary-dark);
+    margin: 14px 0 9px; padding-bottom: 6px; border-bottom: 1.5px solid var(--primary-light);
   }
-  .ps-matrix select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
-  .ps-note { font-size: .74rem; color: var(--muted); margin: 10px 2px 0; line-height: 1.7; }
+  .pgs-sec h4:first-child { margin-top: 0; }
+
+  .pgs-f { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
+  .pgs-f > label { font-size: .73rem; color: var(--muted); font-weight: 700; }
+  .pgs-f input, .pgs-f select {
+    border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px;
+    font-size: .83rem; background: #fff; width: 100%;
+  }
+  .pgs-f input:focus, .pgs-f select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .pgs-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .pgs-mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+  .pgs-row { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; }
+  .pgs-row > span { font-size: .78rem; color: var(--muted); font-weight: 600; min-width: 104px; flex: none; }
+  .pgs-row select {
+    flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px;
+    font-size: .8rem; background: #fff;
+  }
+  .pgs-row select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+  .pgs-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+  .pgs-chk {
+    display: flex; align-items: center; gap: 7px; cursor: pointer;
+    font-size: .8rem; padding: 5px 6px; border-radius: 7px; transition: .12s;
+  }
+  .pgs-chk:hover { background: var(--primary-light); }
+  .pgs-chk input { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; flex: none; }
+
+  .pgs-mini {
+    border: 1px dashed var(--border); background: #fff; color: var(--muted);
+    border-radius: 8px; padding: 6px 10px; font-size: .75rem; cursor: pointer; width: 100%; transition: .15s;
+  }
+  .pgs-mini:hover { border-color: var(--primary); color: var(--primary); border-style: solid; }
+  .pgs-hint {
+    font-size: .72rem; color: var(--muted); background: #f6faf9;
+    border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; margin-top: 9px; line-height: 1.8;
+  }
+  .pgs-hint.warn { background: #fff6f2; border-color: #f0c7b4; color: #a4502c; }
+
+  .pgs-tblwrap { overflow-x: auto; }
+  .pgs-matrix { width: 100%; border-collapse: collapse; min-width: 330px; }
+  .pgs-matrix th {
+    font-size: .68rem; color: var(--muted); font-weight: 700;
+    padding: 5px 3px; border-bottom: 1.5px solid var(--border); text-align: center;
+  }
+  .pgs-matrix th:first-child, .pgs-matrix th:nth-child(2) { text-align: right; }
+  .pgs-matrix td { padding: 3px 2px; border-bottom: 1px solid #eef3f1; }
+  .pgs-matrix td.k { font-size: .78rem; font-weight: 700; white-space: nowrap; }
+  .pgs-matrix td.auto { font-size: .7rem; color: var(--muted); text-align: center; font-style: italic; }
+  .pgs-matrix input, .pgs-matrix select {
+    border: 1px solid var(--border); border-radius: 6px; padding: 5px 5px;
+    font-size: .76rem; background: #fff; width: 100%;
+  }
+  .pgs-matrix input[type="number"] { width: 56px; text-align: center; }
+  .pgs-matrix input:focus, .pgs-matrix select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+
+  .pgs-foot { display: flex; gap: 8px; padding: 11px 13px; border-top: 1px solid var(--border); background: #fafcfb; }
+  .pgs-foot .pgs-btn { flex: 1; }
+
+  @media (max-width: 1080px) {
+    .pgs-body { grid-template-columns: 1fr; }
+    .pgs-view, .pgs-panel { height: auto; max-height: 70vh; }
+  }

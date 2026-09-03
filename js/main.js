@@ -67,3 +67,13 @@ window.addEventListener('pagehide', flushPendingEdits);
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flushPendingEdits();
 });
+
+
+/* پیش‌نمایش صفحه با تغییر اندازه پنجره دوباره متناسب شود */
+let _pgsRz;
+window.addEventListener('resize', () => {
+  clearTimeout(_pgsRz);
+  _pgsRz = setTimeout(() => {
+    if (typeof renderPreview === 'function' && document.getElementById('pgsStage')) renderPreview();
+  }, 160);
+});

@@ -50,6 +50,8 @@ function renderSetupControls() {
   const _ap = document.getElementById('psAlignPage');
   if (_ap) _ap.value = st.alignPage || 'center';
   document.getElementById('psBold').checked = st.bold;
+  const _bb = document.getElementById('psBoldBtn');
+  if (_bb) _bb.classList.toggle('on', !!st.bold);
   document.getElementById('psCols').value = String(st.cols);
   document.getElementById('psShowCode').checked = st.showCode;
   document.getElementById('psShowRowNo').checked = st.showRowNo;
@@ -279,12 +281,6 @@ document.addEventListener('click', e=>{
 });
 document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeAllMenus(); });
 
-
-/* ============ ناوبری بخش‌های تنظیمات صفحه ============ */
-function psGo(secId, btn) {
-  document.querySelectorAll('#tab-pagesetup .ps-sec').forEach(x => x.classList.toggle('show', x.id === secId));
-  document.querySelectorAll('#tab-pagesetup .ps-nav-btn').forEach(b => b.classList.toggle('active', b === btn));
-}
 
 /* ============ یکسان کردن حاشیه‌ها ============ */
 function marginAll() {

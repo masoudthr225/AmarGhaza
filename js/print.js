@@ -241,29 +241,101 @@ function buildDoc() {
 }
 
 /* ================= پیش‌نمایش ================= */
+/* ================= پیش‌نمایش =================
+   کاغذ با واحد میلی‌متر واقعی رندر می‌شود (نه پیکسل، نه transform/zoom).
+   مرورگر خودش mm را به پیکسل تبدیل می‌کند، بنابراین محتوا هرگز از
+   لبه کاغذ بیرون نمی‌زند و ارتفاع هم به‌درستی در چیدمان لحاظ می‌شود. */
+let PGS_ZOOM = 0;   // 0 = خودکار (متناسب با عرض میز کار)
+
+function pgsFitScale(paperMM) {
+  const stage = document.getElementById('pgsStage');
+  if (!stage) return 1;
+  const avail = stage.clientWidth - 52;               // منهای padding میز کار
+  const pxPerMM = 96 / 25.4;
+  const need = paperMM * pxPerMM;
+  if (need <= 0 || avail <= 0) return 1;
+  return Math.min(1.6, Math.max(0.25, avail / need));
+}
+
 function renderPreview() {
   const d = paperDims();
   const st = S.setup;
   const html = buildDoc();
-  const label = `${d.label} — ${d.w}×${d.h||'∞'} mm`;
-  ['paperInfo','paperInfo2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent = '📄 ' + label; });
 
-  const scale = Math.min(1, 700 / (d.w * 3.7795));
-  ['previewPage','previewPage2'].forEach(id=>{
+  const label = `${d.label} — ${d.w}×${d.h || '∞'} mm`;
+  ['paperInfo', 'paperInfo2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '📄 ' + label;
+  });
+
+  let scale = PGS_ZOOM > 0 ? PGS_ZOOM : pgsFitScale(d.w);
+  scale = Math.round(scale * 1000) / 1000;   // جلوگیری از اعداد اعشاری طولانی
+  const zv = document.getElementById('pgsZoomVal');
+  if (zv) zv.textContent = Math.round(scale * 100) + '٪';
+
+  ['previewPage', 'previewPage2'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    const wpx = d.w * 3.7795;
-    const hpx = d.h ? d.h * 3.7795 : 0;
-    /* به‌جای transform (که ارتفاع واقعی را از جریان صفحه حذف می‌کند و روی
-       کاغذ رول باعث بریده شدن اسامی می‌شود) از zoom استفاده می‌کنیم؛
-       zoom ارتفاع را در چیدمان لحاظ می‌کند، پس ظرف خودش کشیده می‌شود. */
-    el.style.width = (wpx * scale) + 'px';
-    el.style.height = hpx ? (hpx * scale) + 'px' : 'auto';
-    el.style.minHeight = hpx ? (hpx * scale) + 'px' : '0';
-    el.innerHTML = `<div class="pv-sheet" style="width:${wpx}px;${hpx?`min-height:${hpx}px;`:''}
-      padding:${st.mt*3.7795}px ${st.mr*3.7795}px ${st.mb*3.7795}px ${st.ml*3.7795}px;
-      zoom:${scale};">${html}</div>`;
+    // عرض/ارتفاع کاغذ بر حسب میلی‌متر، مقیاس‌شده با font-size ریشه‌ای
+    const mm = v => (Math.round(v * 100) / 100) + 'mm';
+    el.style.width  = mm(d.w * scale);
+    el.style.height = d.h ? mm(d.h * scale) : 'auto';
+    el.innerHTML =
+      `<div class="pgs-inner" style="` +
+        `box-sizing:border-box;width:${mm(d.w * scale)};` +
+        (d.h ? `min-height:${mm(d.h * scale)};` : '') +
+        `padding:${mm(st.mt * scale)} ${mm(st.mr * scale)} ${mm(st.mb * scale)} ${mm(st.ml * scale)};` +
+        `font-size:${(Math.round((+st.fontSize || 11) * scale * 100) / 100)}pt;` +
+      `">${html}</div>`;
   });
+
+  updatePgsHints();
+}
+
+/* راهنمای زنده: عرض مفید و هشدار تنگی ستون‌ها */
+function updatePgsHints() {
+  const d = paperDims(), st = S.setup;
+  const usable = d.w - (+st.mr || 0) - (+st.ml || 0);
+  const u = document.getElementById('pgsUsable');
+  if (u) {
+    u.className = 'pgs-hint' + (usable < 30 ? ' warn' : '');
+    u.textContent = `عرض مفید: ${usable.toFixed(1)} میلی‌متر` +
+      (usable < 30 ? ' — حاشیه‌ها را کم کنید، جا برای جدول نمی‌ماند.' : '');
+  }
+  const c = document.getElementById('pgsColHint');
+  if (c && usable > 0) {
+    const w = cw();
+    const fixed = (st.showRowNo ? w.rowNo : 0) + (st.showCode ? w.code : 0) + (st.showSign ? w.sign : 0);
+    const nameMM = usable * (100 - fixed) / 100;
+    c.className = 'pgs-hint' + (nameMM < 15 ? ' warn' : '');
+    c.textContent = `ستون نام: ${nameMM.toFixed(1)} میلی‌متر` +
+      (nameMM < 15 ? ' — برای نام کوتاه است؛ عرض بقیه ستون‌ها را کم کنید.' : ' (کافی)');
+  }
+}
+
+/* بزرگ‌نمایی: 1 = زیاد، -1 = کم، 0 = اندازه مناسب */
+function pgsZoom(dir) {
+  const d = paperDims();
+  const cur = PGS_ZOOM > 0 ? PGS_ZOOM : pgsFitScale(d.w);
+  if (dir === 0) PGS_ZOOM = 0;
+  else PGS_ZOOM = Math.min(1.6, Math.max(0.25, cur + dir * 0.1));
+  renderPreview();
+}
+
+/* دکمه ضخیم روی نوار ابزار */
+function pgsToggleBold() {
+  const cb = document.getElementById('psBold');
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  saveSetup();
+  const btn = document.getElementById('psBoldBtn');
+  if (btn) btn.classList.toggle('on', cb.checked);
+}
+
+/* جابه‌جایی بین بخش‌های پنل تنظیمات */
+function pgsGo(secId, btn) {
+  document.querySelectorAll('#tab-pagesetup .pgs-sec').forEach(x => x.classList.toggle('show', x.id === secId));
+  document.querySelectorAll('#tab-pagesetup .pgs-tab').forEach(b => b.classList.toggle('active', b === btn));
 }
 
 /* ================= چاپ ================= */
