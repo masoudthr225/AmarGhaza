@@ -920,8 +920,14 @@ class Handler(BaseHTTPRequestHandler):
             if m:
                 name = m.group(1)
                 full = os.path.join(ASSETS_DIR, name)
-                if os.path.isfile(full) and (name.endswith('.woff2') or name.endswith('.jpg')):
-                    ctype = ('font/woff2' if name.endswith('.woff2') else 'image/jpeg')
+                ctype = None
+                for ext, ct in (('.woff2', 'font/woff2'), ('.jpg', 'image/jpeg'),
+                                ('.jpeg', 'image/jpeg'), ('.png', 'image/png'),
+                                ('.webp', 'image/webp')):
+                    if name.endswith(ext):
+                        ctype = ct
+                        break
+                if os.path.isfile(full) and ctype:
                     with open(full, 'rb') as f:
                         data = f.read()
                     self.send_response(200)

@@ -81,10 +81,15 @@ input[type=text]:focus,select:focus,textarea:focus{border-color:var(--indigo)}
 .filters select{width:auto;min-width:130px}
 
 /* ── جدول ── */
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+.table-wrap{overflow:auto;max-height:62vh;border:1px solid var(--border);border-radius:10px;overscroll-behavior:contain}
+.table-wrap::-webkit-scrollbar{width:10px;height:10px}
+.table-wrap::-webkit-scrollbar-track{background:#eef2ff;border-radius:99px}
+.table-wrap::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:99px}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:#a5b4fc}
+.table-wrap{scrollbar-width:thin;scrollbar-color:#c7d2fe #eef2ff}
 table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}
 thead th{background:linear-gradient(90deg,#e0e7ff,#f3e8ff);padding:11px 8px;font-weight:800;
-  border-bottom:2px solid #c7d2fe;white-space:nowrap}
+  border-bottom:2px solid #c7d2fe;white-space:nowrap;position:sticky;top:0;z-index:5}
 thead th.sortable{cursor:pointer;user-select:none}
 thead th.sortable:hover{background:#c7d2fe}
 thead th .arr{font-size:.7rem;opacity:.45;margin-right:4px}
@@ -311,6 +316,29 @@ function toast(msg, type, desc){
   setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(()=>t.remove(),400)},4200);
 }
 
+/* ═══════════════ آلارم صوتی (Web Audio — آفلاین، بدون فایل صوتی) ═══════════════ */
+let _actx=null;
+function tone(freq,delay,dur,type,vol){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  if(!_actx)_actx=new AC();
+  if(_actx.state==='suspended')_actx.resume();
+  const t=_actx.currentTime+delay;
+  const o=_actx.createOscillator(),g=_actx.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol||0.22,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(_actx.destination);
+  o.start(t);o.stop(t+dur+0.05);
+}
+/* آلارم ثبت — دو بوق کوتاه، به‌محض زدن دکمهٔ ذخیره */
+function alarmRegister(){try{tone(880,0,.12);tone(880,.18,.15);}catch(e){}}
+/* آلارم تایید — ملودی صعودی سه‌نتی، وقتی ثبت با موفقیت تایید شد */
+function alarmConfirm(){try{tone(659,0,.12);tone(880,.13,.12);tone(1175,.26,.32);}catch(e){}}
+/* آلارم خطا — بوق بم */
+function alarmError(){try{tone(196,0,.3,'square',0.12);}catch(e){}}
+
 /* تاریخ شمسی امروز */
 function toJalali(g){
   const gy=g.getFullYear(), gm=g.getMonth()+1, gd=g.getDate();
@@ -462,16 +490,18 @@ $('btn-save').addEventListener('click',async ()=>{
     numericWeight:$('fld-weight').value.trim(),numericKarat:$('fld-karat').value.trim(),
     meltNumber:$('fld-melt').value.trim(),description:$('fld-desc').value.trim()};
   try{
+    alarmRegister(); /* آلارم ثبت */
     const url=editingId?'/api/rey-giri/'+editingId:'/api/rey-giri';
     const r=await fetch(url,{method:editingId?'PUT':'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)});
     const j=await r.json();
     if(j.success){
+      alarmConfirm(); /* آلارم تایید */
       toast(editingId?'رکورد بروزرسانی شد':'رکورد جدید ثبت شد','ok');
       $('form-overlay').classList.remove('open');
       fetchRecords();fetchStats();
-    }else toast(j.error||'خطا در عملیات','err');
-  }catch(e){toast('خطا در ارتباط با سرور','err')}
+    }else{alarmError();toast(j.error||'خطا در عملیات','err');}
+  }catch(e){alarmError();toast('خطا در ارتباط با سرور','err')}
 });
 
 /* Enter مثل Tab */
