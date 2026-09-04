@@ -748,6 +748,31 @@ def stamp_now():
     return datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
 
+RESET_PASSWORD = '1313'
+
+
+def reset_database(password):
+    """صفر کردن برنامه — حذف همهٔ رکوردها (با نسخهٔ امن خودکار قبل از پاک‌سازی)"""
+    if str(password or '').strip() != RESET_PASSWORD:
+        return None, 'رمز اشتباه است', 403
+    if not os.path.exists(DB_PATH):
+        return None, 'فایل دیتابیس پیدا نشد', 404
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+    safe_name = 'gold-backup-before-reset-%s.db' % stamp_now()
+    shutil.copy2(DB_PATH, os.path.join(BACKUP_DIR, safe_name))
+    conn = db()
+    try:
+        count = conn.execute('SELECT COUNT(*) FROM ReyGiri').fetchone()[0]
+        conn.execute('DELETE FROM ReyGiri')
+        conn.commit()
+        conn.execute('VACUUM')
+    finally:
+        conn.close()
+    return {'success': True,
+            'message': 'برنامه صفر شد — %s رکورد پاک شد' % to_fa(count),
+            'backup': safe_name}, None, 200
+
+
 # ── مسیر خروجی فایل‌ها (اکسل / بکاپ) ──
 
 def load_settings():
@@ -1141,6 +1166,13 @@ class Handler(BaseHTTPRequestHandler):
 
             if path == '/api/rey-giri/backup':
                 result, err, status = create_backup()
+                if err:
+                    return self.send_json({'success': False, 'error': err}, status)
+                return self.send_json(result)
+
+            if path == '/api/rey-giri/reset':
+                body = self.read_json()
+                result, err, status = reset_database(body.get('password'))
                 if err:
                     return self.send_json({'success': False, 'error': err}, status)
                 return self.send_json(result)
