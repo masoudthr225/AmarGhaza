@@ -4,7 +4,12 @@ const PAPERS = {
   A5P:{w:148,h:210,label:'A5 عمودی'}, A5L:{w:210,h:148,label:'A5 افقی'},
   LETTER:{w:216,h:279,label:'Letter'},
   T80:{w:80,h:0,label:'رول حرارتی ۸۰mm'}, T58:{w:58,h:0,label:'رول حرارتی ۵۸mm'},
+  /* اندازه‌های درایور EPSON TM-T88IV */
+  T80R:{w:80,h:297,label:'Roll Paper 80×297 (TM-T88IV)'},
+  POSTCARD:{w:100,h:148,label:'Postcard 100×148'},
 };
+/* عرض قابل چاپ واقعی پرینترها (کمتر از عرض کاغذ است) */
+const PRINTABLE = { T80:72, T80R:72, T58:48 };
 function paperDims() {
   const st = S.setup;
   if (st.paper==='CUSTOM') return {w: +st.customW||80, h: +st.customH||0, label:'دلخواه'};
@@ -104,9 +109,18 @@ function onPaperChange() {
   const v = document.getElementById('psPaper').value;
   S.setup.paper = v;
   document.getElementById('customSizeRow').style.display = v==='CUSTOM' ? 'flex' : 'none';
-  // پیشنهاد خودکار برای حرارتی
-  if (v==='T80' || v==='T58') {
-    Object.assign(S.setup, {mt:2, mb:2, mr:2, ml:2, fontSize: v==='T58'?8.5:9.5, bold:true, cols:1, showSign:false, noFill:true});
+  // پیشنهاد خودکار برای پرینتر حرارتی
+  if (v==='T80' || v==='T58' || v==='T80R') {
+    /* عرض قابل چاپ کمتر از عرض کاغذ است (TM-T88IV: ۸۰mm کاغذ، ۷۲mm چاپ).
+       حاشیه راست/چپ طوری تنظیم می‌شود که محتوا داخل ناحیه چاپ بماند. */
+    const paperW = PAPERS[v].w;
+    const printW = PRINTABLE[v] || paperW;
+    const side = Math.max(1, Math.round(((paperW - printW) / 2) * 10) / 10);
+    Object.assign(S.setup, {
+      mt: 2, mb: 2, mr: side, ml: side,
+      fontSize: v === 'T58' ? 8.5 : 9.5,
+      bold: true, cols: 1, showSign: false, noFill: true
+    });
   }
   save(); renderSetupControls(); renderPreview();
 }
