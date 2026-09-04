@@ -319,10 +319,19 @@ tbody tr:hover{background:#f5f3ff}
     <div class="dhead">🗄 بکاپ و بازیابی <button class="dclose" data-close="backup-overlay">×</button></div>
     <div class="dbody">
       <div class="sec blue">
+        <h4>📁 مسیر خروجی فایل‌ها (اکسل و بکاپ)</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="out-dir" dir="ltr" style="flex:1;min-width:210px" placeholder="مثلاً C:\GoldOutput">
+          <button class="btn primary" id="btn-save-dir">💾 ذخیرهٔ مسیر</button>
+        </div>
+        <div class="fhint" id="out-dir-cur" style="margin-top:8px">مسیر فعلی: …</div>
+        <div class="fhint">فایل‌های اکسل و بکاپ در این مسیر ذخیره می‌شوند. اگر مسیری تعیین نشود، پوشهٔ «خروجی» کنار برنامه استفاده می‌شود.</div>
+      </div>
+      <div class="sec blue">
         <h4>💾 گرفتن نسخهٔ پشتیبان</h4>
         <div style="display:flex;flex-direction:column;gap:8px">
           <button class="btn primary" id="btn-backup-create">💾 ذخیرهٔ نسخهٔ پشتیبان در برنامه</button>
-          <button class="btn" id="btn-backup-download">📥 دانلود فایل بکاپ روی کامپیوتر</button>
+          <button class="btn" id="btn-backup-download">📥 دانلود فایل بکاپ از مرورگر (اختیاری)</button>
         </div>
       </div>
       <div class="sec amberb">
@@ -628,11 +637,14 @@ document.querySelectorAll('#form-overlay input,#form-overlay select,#form-overla
     }
   }));
 
-/* ═══════════════ خروجی اکسل ═══════════════ */
-$('btn-export').addEventListener('click',()=>{
+/* ═══════════════ خروجی اکسل (ذخیره در مسیر خروجی) ═══════════════ */
+$('btn-export').addEventListener('click',async ()=>{
   toast('در حال ایجاد فایل اکسل…');
-  const a=document.createElement('a');a.href='/api/rey-giri/export';a.download='';
-  document.body.appendChild(a);a.click();a.remove();
+  try{
+    const r=await fetch('/api/rey-giri/export?save=1');const j=await r.json();
+    if(j.success)toast('فایل اکسل ذخیره شد','ok',j.path);
+    else toast(j.error||'خطا در ایجاد فایل اکسل','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
 });
 
 /* ═══════════════ آپلود اکسل ═══════════════ */
@@ -654,6 +666,28 @@ $('file-upload-input').addEventListener('change',async e=>{
 });
 
 /* ═══════════════ بکاپ و بازیابی ═══════════════ */
+async function fetchSettings(){
+  try{
+    const r=await fetch('/api/settings');const j=await r.json();
+    if(j.success){
+      $('out-dir').value=j.data.configured?j.data.outputDir:'';
+      $('out-dir-cur').textContent='مسیر فعلی: '+j.data.outputDir;
+    }
+  }catch(e){console.error(e)}
+}
+$('btn-save-dir').addEventListener('click',async ()=>{
+  const v=$('out-dir').value.trim();
+  if(!v){toast('مسیر را وارد کنید','err');return;}
+  const btn=$('btn-save-dir');btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال ذخیره…';
+  try{
+    const r=await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({outputDir:v})});
+    const j=await r.json();
+    if(j.success){toast(j.message,'ok',j.outputDir);$('out-dir-cur').textContent='مسیر فعلی: '+j.outputDir;}
+    else toast(j.error||'خطا در ذخیرهٔ مسیر','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+  btn.disabled=false;btn.innerHTML='💾 ذخیرهٔ مسیر';
+});
 async function fetchBackups(){
   try{
     const r=await fetch('/api/rey-giri/backup/list');const j=await r.json();
@@ -680,12 +714,12 @@ window.restoreBackup=async name=>{
     else{toast(j.error||'خطا در بازیابی','err');fetchBackups();}
   }catch(e){toast('خطا در ارتباط با سرور','err');fetchBackups();}
 };
-$('btn-backup').addEventListener('click',()=>{$('backup-overlay').classList.add('open');fetchBackups();});
+$('btn-backup').addEventListener('click',()=>{$('backup-overlay').classList.add('open');fetchSettings();fetchBackups();});
 $('btn-backup-create').addEventListener('click',async ()=>{
   const btn=$('btn-backup-create');btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال ساخت…';
   try{
     const r=await fetch('/api/rey-giri/backup',{method:'POST'});const j=await r.json();
-    if(j.success){toast(j.message,'ok',j.name);fetchBackups();fetchStats();}
+    if(j.success){toast(j.message,'ok',j.savedTo||j.name);fetchBackups();fetchStats();}
     else toast(j.error||'خطا در ساخت بکاپ','err');
   }catch(e){toast('خطا در ارتباط با سرور','err')}
   btn.disabled=false;btn.innerHTML='💾 ذخیرهٔ نسخهٔ پشتیبان در برنامه';

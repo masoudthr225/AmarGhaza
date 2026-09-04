@@ -41,6 +41,8 @@ APP_PATH = os.path.abspath(__file__)
 BASE_DIR = os.path.dirname(APP_PATH)
 DB_PATH = os.path.join(BASE_DIR, 'db', 'custom.db')
 BACKUP_DIR = os.path.join(BASE_DIR, 'db', 'backups')
+SETTINGS_PATH = os.path.join(BASE_DIR, 'db', 'settings.json')
+DEFAULT_OUTPUT_DIR = os.path.join(BASE_DIR, 'خروجی')
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
 LOG_FILE = os.path.join(LOG_DIR, 'launcher.log')
 LOCK_FILE = os.path.join(BASE_DIR, '.run.lock')
@@ -746,13 +748,82 @@ def stamp_now():
     return datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
 
+# ── مسیر خروجی فایل‌ها (اکسل / بکاپ) ──
+
+def load_settings():
+    try:
+        with open(SETTINGS_PATH, encoding='utf-8') as f:
+            s = json.load(f)
+        return s if isinstance(s, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_settings(s):
+    try:
+        os.makedirs(os.path.dirname(SETTINGS_PATH), exist_ok=True)
+        with open(SETTINGS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(s, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception:
+        return False
+
+
+def get_output_dir():
+    """مسیر خروجی — اگر تنظیم نشده باشد: پوشهٔ «خروجی» کنار برنامه"""
+    d = str(load_settings().get('outputDir') or '').strip().strip('"').strip("'")
+    if d:
+        try:
+            os.makedirs(d, exist_ok=True)
+            return d
+        except OSError:
+            pass
+    try:
+        os.makedirs(DEFAULT_OUTPUT_DIR, exist_ok=True)
+        return DEFAULT_OUTPUT_DIR
+    except OSError:
+        return BASE_DIR
+
+
+def set_output_dir(raw):
+    d = str(raw or '').strip().strip('"').strip("'")
+    if not d:
+        return None, 'مسیر را وارد کنید', 400
+    try:
+        os.makedirs(d, exist_ok=True)
+    except OSError:
+        return None, 'این مسیر قابل ایجاد نیست — مسیر را بررسی کنید (مثلاً C:\\GoldOutput)', 400
+    d = os.path.abspath(d)
+    s = load_settings()
+    s['outputDir'] = d
+    if not save_settings(s):
+        return None, 'ذخیرهٔ تنظیمات ممکن نشد (دسترسی نوشتن؟)', 500
+    return {'success': True, 'message': 'مسیر خروجی ذخیره شد',
+            'outputDir': d}, None, 200
+
+
+def save_to_output(data, filename):
+    """نوشتن فایل در مسیر خروجی — مسیر کامل فایل را برمی‌گرداند"""
+    d = get_output_dir()
+    p = os.path.join(d, filename)
+    with open(p, 'wb') as f:
+        f.write(data)
+    return p
+
+
 def create_backup():
-    """گرفتن نسخهٔ پشتیبان دستی (در db/backups)"""
+    """گرفتن نسخهٔ پشتیبان دستی (در db/backups + رونوشت در مسیر خروجی)"""
     if not os.path.exists(DB_PATH):
         return None, 'فایل دیتابیس پیدا نشد', 404
     os.makedirs(BACKUP_DIR, exist_ok=True)
     name = 'gold-manual-%s.db' % stamp_now()
     shutil.copy2(DB_PATH, os.path.join(BACKUP_DIR, name))
+    saved_to = ''
+    try:
+        with open(os.path.join(BACKUP_DIR, name), 'rb') as f:
+            saved_to = save_to_output(f.read(), name)
+    except Exception:
+        saved_to = ''
     conn = db()
     try:
         count = conn.execute('SELECT COUNT(*) FROM ReyGiri WHERE deletedAt IS NULL').fetchone()[0]
@@ -763,6 +834,7 @@ def create_backup():
         'message': 'نسخهٔ پشتیبان با موفقیت ساخته شد (%s رکورد)' % to_fa(count),
         'name': name,
         'count': count,
+        'savedTo': saved_to,
         'size': os.path.getsize(os.path.join(BACKUP_DIR, name)),
     }, None, 200
 
@@ -942,6 +1014,13 @@ class Handler(BaseHTTPRequestHandler):
             if path == '/api/rey-giri/stats':
                 return self.send_json({'success': True, 'data': get_stats()})
 
+            if path == '/api/settings':
+                cfg = load_settings()
+                return self.send_json({'success': True, 'data': {
+                    'outputDir': get_output_dir(),
+                    'configured': bool(str(cfg.get('outputDir') or '').strip()),
+                }})
+
             if path == '/api/rey-giri/export':
                 conn = db()
                 try:
@@ -953,7 +1032,17 @@ class Handler(BaseHTTPRequestHandler):
                 if not rows:
                     return self.send_json({'success': False, 'error': 'داده‌ای برای خروجی وجود ندارد'}, 404)
                 data = xlsx_export([row_to_dict(r) for r in rows])
-                fname = 'rey-giri-export-%s.xlsx' % datetime.now().strftime('%Y-%m-%d')
+                fname = 'rey-giri-export-%s.xlsx' % stamp_now()
+                if (params.get('save') or [''])[0] == '1':
+                    # ذخیرهٔ مستقیم در مسیر خروجی (به‌جای دانلود مرورگر)
+                    try:
+                        p = save_to_output(data, fname)
+                    except OSError:
+                        return self.send_json({'success': False,
+                                               'error': 'نوشتن در مسیر خروجی ممکن نشد — مسیر را در پنجرهٔ بکاپ و بازیابی بررسی کنید'}, 400)
+                    return self.send_json({'success': True,
+                                           'message': 'فایل اکسل در مسیر خروجی ذخیره شد',
+                                           'path': p, 'name': fname})
                 return self.send_bytes(data,
                                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                                        fname)
@@ -999,6 +1088,13 @@ class Handler(BaseHTTPRequestHandler):
         try:
             u = urlparse(self.path)
             path = u.path
+
+            if path == '/api/settings':
+                body = self.read_json()
+                result, err, status = set_output_dir(body.get('outputDir'))
+                if err:
+                    return self.send_json({'success': False, 'error': err}, status)
+                return self.send_json(result)
 
             if path == '/api/rey-giri':
                 body = self.read_json()
