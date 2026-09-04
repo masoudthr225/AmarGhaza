@@ -49,8 +49,10 @@ UI_FILE = os.path.join(BASE_DIR, 'ui.html')
 ASSETS_DIR = os.path.join(BASE_DIR, 'assets')
 
 PORT = int(os.environ.get('PORT', '3000'))
-HOST = '127.0.0.1'
-BASE_URL = 'http://%s:%d' % (HOST, PORT)
+# به‌صورت پیش‌فرض فقط همین کامپیوتر (امن)؛ برای پیش‌نمایش وب می‌توان با HOST=0.0.0.0 تغییر داد
+HOST = os.environ.get('HOST', '127.0.0.1')
+DISPLAY_HOST = '127.0.0.1' if HOST in ('0.0.0.0', '::') else HOST
+BASE_URL = 'http://%s:%d' % (DISPLAY_HOST, PORT)
 MAX_BACKUPS = 20
 
 # برچسب‌های استاندارد وضعیت عیار — هماهنگ با نسخه‌های قبلی
