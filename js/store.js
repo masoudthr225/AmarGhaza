@@ -15,6 +15,13 @@ const DEFAULT_SETUP = {
   colAlign:  { rowNo:'center', name:'right',  code:'center', unit:'center', sign:'center' },
   colHAlign: { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' },
   headRowH: 0, headBold: true, extraRowH: 0,
+  /* --- برگرفته از پروژه Page Setup Pro --- */
+  orient: 'portrait',                 // جهت کاغذ
+  italic: false, underline: false,    // سبک قلم
+  fontColor: '#000000',
+  borderStyle: 'solid', borderColor: '#000000', borderWidth: 0.5,
+  headBg: '', zebra: false,           // پس‌زمینه عنوان و ردیف‌های یک‌درمیان
+  indent: 0,                          // تورفتگی متن نام (mm)
   /* اقلام زیر جدول: خوراک / حاضری / 50% / تخم مرغ */
   extraAlignLabel: 'center', extraAlignQty: 'center',
   extraWidth: 100, extraQtyW: 40, extraAlignPage: 'center', extraBold: true,
@@ -91,6 +98,16 @@ function migrateAlign() {
   if (st.extraQtyW       == null) st.extraQtyW       = 40;
   if (st.extraAlignPage  == null) st.extraAlignPage  = 'center';
   if (st.extraBold       == null) st.extraBold       = true;
+  if (st.orient      == null) st.orient      = 'portrait';
+  if (st.italic      == null) st.italic      = false;
+  if (st.underline   == null) st.underline   = false;
+  if (st.fontColor   == null) st.fontColor   = '#000000';
+  if (st.borderStyle == null) st.borderStyle = 'solid';
+  if (st.borderColor == null) st.borderColor = '#000000';
+  if (st.borderWidth == null) st.borderWidth = 0.5;
+  if (st.headBg      == null) st.headBg      = '';
+  if (st.zebra       == null) st.zebra       = false;
+  if (st.indent      == null) st.indent      = 0;
   if (st.headRowH == null)  st.headRowH = 0;
   if (st.extraRowH == null) st.extraRowH = 0;
   if (st.headBold == null)  st.headBold = true;

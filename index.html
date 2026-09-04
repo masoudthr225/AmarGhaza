@@ -196,6 +196,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <option value="T58">رول حرارتی ۵۸mm</option>
           <option value="CUSTOM">دلخواه…</option>
         </select>
+        <select id="psOrient" onchange="saveSetup()" class="pgs-sel pgs-sel-sm" title="جهت کاغذ">
+          <option value="portrait">عمودی</option>
+          <option value="landscape">افقی</option>
+        </select>
       </div>
       <div class="pgs-rgroup">
         <span class="pgs-rlabel">قالب</span>
@@ -226,7 +230,12 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         </select>
         <input type="number" id="psFontSize" min="5" max="30" step="0.5" onchange="saveSetup()" class="pgs-num" title="اندازه قلم">
         <button class="pgs-tgl" id="psBoldBtn" onclick="pgsToggleBold()" title="متن ضخیم"><b>ض</b></button>
+        <button class="pgs-tgl" id="psItalicBtn" onclick="pgsToggleStyle('psItalic','psItalicBtn')" title="مورب"><i>م</i></button>
+        <button class="pgs-tgl" id="psUnderBtn" onclick="pgsToggleStyle('psUnderline','psUnderBtn')" title="زیرخط"><u>ز</u></button>
+        <input type="color" id="psFontColor" onchange="saveSetup()" class="pgs-color" title="رنگ متن">
         <input type="checkbox" id="psBold" onchange="saveSetup()" hidden>
+        <input type="checkbox" id="psItalic" onchange="saveSetup()" hidden>
+        <input type="checkbox" id="psUnderline" onchange="saveSetup()" hidden>
       </div>
       <span class="pgs-spacer"></span>
       <button class="pgs-btn primary" onclick="openPrintDialog()">🖨️ چاپ</button>
@@ -298,6 +307,28 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <div class="pgs-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
             </div>
             <label class="pgs-chk"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم</span></label>
+
+            <h4>کادر و رنگ</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f">
+                <label>نوع کادر</label>
+                <select id="psBorderStyle" onchange="saveSetup()">
+                  <option value="solid">پیوسته</option>
+                  <option value="dotted">نقطه‌چین</option>
+                  <option value="dashed">خط‌چین</option>
+                  <option value="double">دوخطه</option>
+                  <option value="none">بدون کادر</option>
+                </select>
+              </div>
+              <div class="pgs-f"><label>ضخامت کادر (mm)</label><input type="number" id="psBorderWidth" min="0.1" max="2" step="0.1" onchange="saveSetup()"></div>
+            </div>
+            <div class="pgs-row"><span>رنگ کادر</span><input type="color" id="psBorderColor" onchange="saveSetup()"></div>
+            <div class="pgs-row"><span>پس‌زمینه عنوان</span><input type="color" id="psHeadBg" onchange="saveSetup()"></div>
+            <div class="pgs-checks">
+              <label class="pgs-chk"><input type="checkbox" id="psZebra" onchange="saveSetup()"><span>ردیف‌های یک‌درمیان</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psNoHeadBg" onchange="pgsClearHeadBg()"><span>بدون پس‌زمینه عنوان</span></label>
+            </div>
+            <div class="pgs-f"><label>تورفتگی ستون نام (mm)</label><input type="number" id="psIndent" min="0" max="20" step="0.5" onchange="saveSetup()"></div>
 
             <h4>چه چیزی چاپ شود</h4>
             <div class="pgs-checks">

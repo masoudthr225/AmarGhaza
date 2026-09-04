@@ -7,6 +7,25 @@ function hd() {
   return { ...def, ...(S.setup.heads||{}) };
 }
 /* عرض ستون‌ها به درصد (قابل ویرایش توسط کاربر) — ستون نام باقیمانده را می‌گیرد */
+/* کادر سلول‌ها — معادل کلاس Border در پروژه Page Setup Pro */
+function cellBorder() {
+  const st = S.setup;
+  const sty = st.borderStyle || 'solid';
+  if (sty === 'none') return 'border:none;';
+  const wdt = Math.max(0.1, +st.borderWidth || 0.5);
+  const col = st.borderColor || '#000000';
+  return `border:${wdt}mm ${sty} ${col};`.replace(`${wdt}mm`, `${(wdt).toFixed(2)}mm`);
+}
+/* سبک قلم سند — ایتالیک / زیرخط / رنگ */
+function fontStyleCss() {
+  const st = S.setup;
+  let css = '';
+  if (st.italic) css += 'font-style:italic;';
+  if (st.underline) css += 'text-decoration:underline;';
+  if (st.fontColor && st.fontColor !== '#000000') css += `color:${st.fontColor};`;
+  return css;
+}
+
 /* جدول اقلام زیر جدول: عرض و جای‌گیری در صفحه */
 function extraTableStyle() {
   const st = S.setup;
@@ -34,7 +53,10 @@ function extraQtyStyle() {
 function ca(k) {
   const d = { rowNo:'center', name:'right', code:'center', unit:'center', sign:'center' };
   const m = { ...d, ...((S.setup && S.setup.colAlign) || {}) };
-  return `text-align:${m[k] || d[k]};`;
+  let css = `text-align:${m[k] || d[k]};`;
+  const ind = +((S.setup && S.setup.indent) || 0);
+  if (k === 'name' && ind > 0) css += `padding-inline-start:${ind}mm;`;
+  return css;
 }
 function cha(k) {
   const d = { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' };
@@ -45,7 +67,8 @@ function cha(k) {
 function headStyle() {
   const st = S.setup;
   const pad = (st.cellPad == null ? 1 : +st.cellPad);
-  let css = `padding:${pad}mm ${(pad + 1).toFixed(2)}mm;`;
+  let css = cellBorder() + `padding:${pad}mm ${(pad + 1).toFixed(2)}mm;`;
+  if (st.headBg) css += `background:${st.headBg};-webkit-print-color-adjust:exact;print-color-adjust:exact;`;
   const h = +st.headRowH || 0;
   if (h > 0) css += `height:${h}mm;`;
   css += st.headBold === false ? 'font-weight:400;' : 'font-weight:800;';
@@ -108,7 +131,7 @@ function buildDoc() {
   const AP = st.alignPage || 'center';                      // چیدمان جدول در صفحه
   if (st.layout === 'excel') return buildExcelDoc();
 
-  let html = `<div class="doc ${st.noFill?'no-fill':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;--align-page:${AP};" dir="rtl">`;
+  let html = `<div class="doc ${st.noFill?'no-fill':''} ${st.zebra?'zebra':''}" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold?'font-weight:700;':''}${fontStyleCss()}--row-h:${rowH?rowH+'mm':'auto'};--cell-pad:${cellPad}mm;--align-page:${AP};" dir="rtl">`;
 
   if (st.headerOn) {
     html += `<div class="doc-header" style="text-align:${AH}">`;
@@ -258,7 +281,7 @@ function pgsFitScale(paperMM) {
 }
 
 function renderPreview() {
-  const d = paperDims();
+  const d = orientedDims();
   const st = S.setup;
   const html = buildDoc();
 
@@ -292,9 +315,17 @@ function renderPreview() {
   updatePgsHints();
 }
 
+/* جهت کاغذ (عمودی/افقی) — معادل orientation در Page Setup Pro */
+function orientedDims() {
+  const d = paperDims();
+  const st = S.setup;
+  if (st.orient === 'landscape' && d.h) return { w: d.h, h: d.w, label: d.label + ' (افقی)' };
+  return d;
+}
+
 /* راهنمای زنده: عرض مفید و هشدار تنگی ستون‌ها */
 function updatePgsHints() {
-  const d = paperDims(), st = S.setup;
+  const d = orientedDims(), st = S.setup;
   const usable = d.w - (+st.mr || 0) - (+st.ml || 0);
   const u = document.getElementById('pgsUsable');
   if (u) {
@@ -315,7 +346,7 @@ function updatePgsHints() {
 
 /* بزرگ‌نمایی: 1 = زیاد، -1 = کم، 0 = اندازه مناسب */
 function pgsZoom(dir) {
-  const d = paperDims();
+  const d = orientedDims();
   const cur = PGS_ZOOM > 0 ? PGS_ZOOM : pgsFitScale(d.w);
   if (dir === 0) PGS_ZOOM = 0;
   else PGS_ZOOM = Math.min(1.6, Math.max(0.25, cur + dir * 0.1));
@@ -330,6 +361,22 @@ function pgsToggleBold() {
   saveSetup();
   const btn = document.getElementById('psBoldBtn');
   if (btn) btn.classList.toggle('on', cb.checked);
+}
+
+/* دکمه‌های مورب/زیرخط روی نوار ابزار */
+function pgsToggleStyle(cbId, btnId) {
+  const cb = document.getElementById(cbId);
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  saveSetup();
+  const b = document.getElementById(btnId);
+  if (b) b.classList.toggle('on', cb.checked);
+}
+/* حذف پس‌زمینه عنوان */
+function pgsClearHeadBg() {
+  saveSetup();
+  renderSetupControls();
+  renderPreview();
 }
 
 /* جابه‌جایی بین بخش‌های پنل تنظیمات */
@@ -349,7 +396,7 @@ function openPrintDialog() {
     showTabById('tab-sheet');
     return;
   }
-  const d = paperDims();
+  const d = orientedDims();
   const st = S.setup;
   const sizeRule = d.h ? `size: ${d.w}mm ${d.h}mm;` : `size: ${d.w}mm auto;`;
   document.getElementById('printPageStyle').textContent = `
@@ -410,7 +457,7 @@ function buildExcelDoc() {
   const AP = st.alignPage || 'center';
   const dateTxt = S.sheet.date || '';
 
-  let html = `<div class="doc xls ${st.noFill ? 'no-fill' : ''}" dir="rtl" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold ? 'font-weight:700;' : ''}--row-h:${rowH ? rowH + 'mm' : 'auto'};--cell-pad:${cellPad}mm;--align-page:${AP};">`;
+  let html = `<div class="doc xls ${st.noFill ? 'no-fill' : ''} ${st.zebra?'zebra':''}" dir="rtl" style="font-family:${st.font};font-size:${st.fontSize}pt;line-height:${st.lineH};${st.bold ? 'font-weight:700;' : ''}${fontStyleCss()}--row-h:${rowH ? rowH + 'mm' : 'auto'};--cell-pad:${cellPad}mm;--align-page:${AP};">`;
 
   let grandTot = 0, grandAbs = 0;
 
@@ -495,13 +542,14 @@ function cellTrio(p, no, CS, isLeft) {
 /* استایل مستقیم سلول: ارتفاع سطر و فاصله داخلی — روی همه مرورگرها و در چاپ قابل اتکاست */
 function cellStyle(rowH, cellPad) {
   const pad = (cellPad == null ? 1 : +cellPad);
+  const bd = cellBorder();
   /* پدینگ افقی نباید روی کاغذ باریک (رول حرارتی) کل عرض ستون را ببلعد.
      روی رول ۵۸ ستون «ردیف» فقط ~۴mm عرض دارد؛ ۲mm پدینگ در هر طرف
      یعنی صفر فضا برای متن و محتوا محو می‌شود. */
   const w = (typeof paperDims === 'function') ? paperDims().w : 210;
   const maxH = w <= 60 ? 0.6 : (w <= 90 ? 1 : pad + 1);
   const padH = Math.min(pad + 1, maxH);
-  let css = `padding:${pad}mm ${padH.toFixed(2)}mm;`;
+  let css = bd + `padding:${pad}mm ${padH.toFixed(2)}mm;`;
   if (rowH > 0) css += `height:${rowH}mm;`;
   return css;
 }

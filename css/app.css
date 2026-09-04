@@ -257,6 +257,11 @@
 
   .doc .ab .nm { text-decoration: line-through; text-decoration-thickness: 1.6px; }
   .doc .ab-tag { font-size: .8em; font-weight: 800; }
+  .doc.zebra table.ptab tbody tr:nth-child(even) td,
+  .doc.zebra table.xls-tab tbody tr:nth-child(even) td {
+    background: #f1f1f1;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
   .doc .cols { display: grid; gap: 6px; }
   /* آیتم‌های گرید به‌صورت پیش‌فرض کوچک‌تر از محتوای خود نمی‌شوند و روی
      کاغذ باریک از لبه کاغذ بیرون می‌زنند؛ این اجازه را می‌دهیم. */
@@ -594,3 +599,10 @@
     .pgs-body { grid-template-columns: 1fr; }
     .pgs-view, .pgs-panel { height: auto; max-height: 70vh; }
   }
+
+  /* پیکر رنگ روی نوار ابزار و پنل */
+  .pgs-color, .pgs-row input[type="color"] {
+    width: 34px; height: 30px; padding: 2px; cursor: pointer;
+    border: 1px solid var(--border); border-radius: 8px; background: #fff;
+  }
+  .pgs-row input[type="color"] { flex: none; }
