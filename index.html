@@ -231,10 +231,20 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <option value="'Courier New', monospace">Courier</option>
         </select>
         <input type="number" id="psFontSize" min="5" max="30" step="0.5" onchange="saveSetup()" class="pgs-num" title="اندازه قلم">
-        <button class="pgs-tgl" id="psBoldBtn" onclick="pgsToggleBold()" title="متن ضخیم"><b>ض</b></button>
-        <button class="pgs-tgl" id="psItalicBtn" onclick="pgsToggleStyle('psItalic','psItalicBtn')" title="مورب"><i>م</i></button>
-        <button class="pgs-tgl" id="psUnderBtn" onclick="pgsToggleStyle('psUnderline','psUnderBtn')" title="زیرخط"><u>ز</u></button>
-        <input type="color" id="psFontColor" onchange="saveSetup()" class="pgs-color" title="رنگ متن">
+        <button class="pgs-tgl" id="psBoldBtn" onclick="pgsToggleBold()" title="ضخیم (Bold)" aria-label="ضخیم">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h6.2a3.8 3.8 0 0 1 0 7.6H7z"/><path d="M7 12.6h7a3.9 3.9 0 0 1 0 7.8H7z"/><path d="M7 5v15.4"/></svg>
+        </button>
+        <button class="pgs-tgl" id="psItalicBtn" onclick="pgsToggleStyle('psItalic','psItalicBtn')" title="مورب (Italic)" aria-label="مورب">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5h-5"/><path d="M14 19H9"/><path d="M14.5 5 10 19"/></svg>
+        </button>
+        <button class="pgs-tgl" id="psUnderBtn" onclick="pgsToggleStyle('psUnderline','psUnderBtn')" title="زیرخط (Underline)" aria-label="زیرخط">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v6.5a5 5 0 0 0 10 0V4"/><path d="M5.5 20h13"/></svg>
+        </button>
+        <label class="pgs-swatch" id="psColorBox" title="رنگ متن">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 15 12 4l5.5 11"/><path d="M8.4 11.4h7.2"/></svg>
+          <span class="pgs-swatch-bar" id="psColorBar"></span>
+          <input type="color" id="psFontColor" onchange="saveSetup()" aria-label="رنگ متن">
+        </label>
         <input type="checkbox" id="psBold" onchange="saveSetup()" hidden>
         <input type="checkbox" id="psItalic" onchange="saveSetup()" hidden>
         <input type="checkbox" id="psUnderline" onchange="saveSetup()" hidden>

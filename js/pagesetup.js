@@ -66,6 +66,8 @@ function renderSetupControls() {
   setC('psItalic',      st.italic);
   setC('psUnderline',   st.underline);
   setV('psFontColor',   st.fontColor   || '#000000');
+  const _cbar = document.getElementById('psColorBar');
+  if (_cbar) _cbar.style.background = st.fontColor || '#000000';
   setV('psBorderStyle', st.borderStyle || 'solid');
   setV('psBorderWidth', MM2CM(st.borderWidth == null ? 0.5 : st.borderWidth));
   setV('psBorderColor', st.borderColor || '#000000');
@@ -189,7 +191,12 @@ function saveSetup() {
   const vOr = gv('psOrient');      if (vOr  != null) st.orient      = vOr;
   const vIt = gc('psItalic');      if (vIt  != null) st.italic      = vIt;
   const vUn = gc('psUnderline');   if (vUn  != null) st.underline   = vUn;
-  const vFc = gv('psFontColor');   if (vFc  != null) st.fontColor   = vFc;
+  const vFc = gv('psFontColor');
+  if (vFc != null) {
+    st.fontColor = vFc;
+    const bar = document.getElementById('psColorBar');
+    if (bar) bar.style.background = vFc;
+  }
   const vBs = gv('psBorderStyle'); if (vBs  != null) st.borderStyle = vBs;
   const vBw = gv('psBorderWidth'); if (vBw  != null) st.borderWidth = Math.max(0.1, Math.min(2, CM2MM(vBw) || 0.5));
   const vBc = gv('psBorderColor'); if (vBc  != null) st.borderColor = vBc;

@@ -604,7 +604,7 @@
   }
 
   /* پیکر رنگ روی نوار ابزار و پنل */
-  .pgs-color, .pgs-row input[type="color"] {
+  .pgs-row input[type="color"] {
     width: 34px; height: 30px; padding: 2px; cursor: pointer;
     border: 1px solid var(--border); border-radius: 8px; background: #fff;
   }
@@ -625,3 +625,40 @@
     opacity: 0; transition: opacity .2s; white-space: nowrap;
   }
   .pgs-saved.show { opacity: 1; }
+
+  /* ---------- آیکون‌های قالب‌بندی متن روی نوار ابزار ---------- */
+  .pgs-tgl {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0; color: var(--text);
+  }
+  .pgs-tgl svg {
+    width: 17px; height: 17px;
+    fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .pgs-tgl:hover svg { stroke: var(--primary); }
+  .pgs-tgl.on svg { stroke: #fff; }
+
+  /* ---------- انتخاب رنگ متن ---------- */
+  .pgs-swatch {
+    position: relative; display: inline-flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    width: 32px; height: 32px; cursor: pointer; transition: .15s;
+    border: 1px solid var(--border); border-radius: 8px; background: #fff;
+  }
+  .pgs-swatch:hover { border-color: var(--primary); }
+  .pgs-swatch svg {
+    width: 16px; height: 13px;
+    fill: none; stroke: currentColor;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .pgs-swatch:hover svg { stroke: var(--primary); }
+  .pgs-swatch-bar {
+    width: 17px; height: 4px; border-radius: 1px;
+    background: #000; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+  }
+  /* خود input رنگ نامرئی است ولی کل کادر را کلیک‌پذیر می‌کند */
+  .pgs-swatch input[type="color"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    width: 100%; height: 100%; border: none; padding: 0;
+  }
