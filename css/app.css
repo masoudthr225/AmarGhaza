@@ -266,7 +266,11 @@
   /* آیتم‌های گرید به‌صورت پیش‌فرض کوچک‌تر از محتوای خود نمی‌شوند و روی
      کاغذ باریک از لبه کاغذ بیرون می‌زنند؛ این اجازه را می‌دهیم. */
   .doc .cols > * { min-width: 0; }
-  .doc .extras-ptab { margin-top: 4px; }
+  .doc table.ptab.extras-ptab { margin-top: 4px; table-layout: auto; }
+  /* سرستون‌ها و سلول‌ها باید دقیقا هم‌تراز باشند */
+  .doc table.ptab { border-spacing: 0; }
+  .doc table.ptab thead th { box-sizing: border-box; }
+  .doc table.ptab tbody td { box-sizing: border-box; }
 
   .doc .sum-line { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; font-weight: 700; }
   .doc .sum-line span { border: 1px solid #000; border-radius: 4px; padding: 2px 8px; }
@@ -422,17 +426,16 @@
   .doc { --align-page: center; }
   .doc .cols,
   .doc table.ptab,
-  .doc table.xls-head,
+  .doc table.xls-head { margin-inline: 0; }
 
   .doc[style*="--align-page:center"] table.ptab,
-  .doc[style*="--align-page:center"] table.xls-head,
+  .doc[style*="--align-page:center"] table.xls-head { margin-inline: auto; }
 
   .doc[style*="--align-page:left"] table.ptab,
-  .doc[style*="--align-page:left"] table.xls-head,
+  .doc[style*="--align-page:left"] table.xls-head { margin-inline: 0 auto; }
 
   .doc[style*="--align-page:right"] table.ptab,
-  .doc[style*="--align-page:right"] table.xls-head,
-
+  .doc[style*="--align-page:right"] table.xls-head { margin-inline: auto 0; }
 
 
   /* ==================== Page Setup (سبک اکسل / ورد) ==================== */
@@ -609,3 +612,16 @@
 
   .pgs-tab.dim { opacity: .55; }
 
+
+  /* نوار ذخیره هر بخش تنظیمات */
+  .pgs-savebar {
+    display: flex; align-items: center; gap: 9px; margin-top: 16px;
+    padding-top: 12px; border-top: 1px dashed var(--border);
+  }
+  .pgs-savebar .pgs-btn { flex: 1; }
+  .pgs-savebar .pgs-btn.ghost { flex: 0 0 auto; }
+  .pgs-saved {
+    font-size: .74rem; font-weight: 700; color: var(--primary);
+    opacity: 0; transition: opacity .2s; white-space: nowrap;
+  }
+  .pgs-saved.show { opacity: 1; }

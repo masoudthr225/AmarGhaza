@@ -296,6 +296,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <select id="psAlignHeader" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
             <div class="pgs-row"><span>جدول در صفحه</span>
               <select id="psAlignPage" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره حاشیه</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
+            </div>
           </section>
 
           <!-- ---------- جدول ---------- -->
@@ -343,6 +347,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <label class="pgs-chk"><input type="checkbox" id="psNoFill" onchange="saveSetup()"><span>بدون پس‌زمینه</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"><span>هر واحد صفحه جدید</span></label>
             </div>
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره جدول</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
+            </div>
           </section>
 
           <!-- ---------- ستون‌ها ---------- -->
@@ -381,6 +389,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               </table>
             </div>
             <div class="pgs-hint" id="pgsColHint"></div>
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره ستون‌ها</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
+            </div>
           </section>
 
           <!-- ---------- اقلام ---------- -->
@@ -398,6 +410,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <select id="psExtraAlignQty" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
             <div class="pgs-f"><label>ارتفاع سطر (mm)</label><input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
             <label class="pgs-chk"><input type="checkbox" id="psExtraBold" onchange="saveSetup()"><span>متن ضخیم</span></label>
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره اقلام</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
+            </div>
           </section>
 
           <!-- ---------- ویرایش فرم اکسل ---------- -->
@@ -432,8 +448,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             <label class="pgs-chk"><input type="checkbox" id="psXShowExtras" onchange="saveSetup()"><span>نمایش اقلام (خوراک، حاضری، ۵۰٪، تخم مرغ)</span></label>
             <div class="pgs-f"><label>عرض ستون نام قلم ٪</label><input type="number" id="psXExtraLabelW" min="20" max="90" step="1" onchange="saveSetup()"></div>
 
-            <div class="pgs-foot" style="padding:11px 0 0;border:none;background:none">
-              <button class="pgs-btn ghost" onclick="resetXls()">بازگشت فرم اکسل به پیش‌فرض</button>
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره فرم اکسل</button>
+              <button class="pgs-btn ghost" onclick="resetXls()">بازگشت به پیش‌فرض</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
             </div>
           </section>
 
@@ -455,6 +473,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <label class="pgs-chk"><input type="checkbox" id="psFooterTime" onchange="saveSetup()"><span>ساعت چاپ</span></label>
             </div>
             <div class="pgs-f"><label>متن پاصفحه</label><input type="text" id="psFooterText" onchange="saveSetup()" placeholder="لطفاً آمار تا ساعت ۱۰ صبح اعلام شود."></div>
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره سربرگ</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
+            </div>
           </section>
 
         </div>

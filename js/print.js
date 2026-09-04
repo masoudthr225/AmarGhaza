@@ -414,6 +414,19 @@ function resetXls() {
   renderPreview();
 }
 
+/* ذخیره دستی یک بخش + بازخورد دیداری */
+function pgsSaveSection(btn) {
+  saveSetup();
+  renderPreview();
+  const bar = btn && btn.closest('.pgs-savebar');
+  const tag = bar && bar.querySelector('.pgs-saved');
+  if (tag) {
+    tag.classList.add('show');
+    clearTimeout(tag._t);
+    tag._t = setTimeout(() => tag.classList.remove('show'), 1800);
+  }
+}
+
 /* جابه‌جایی بین بخش‌های پنل تنظیمات */
 function pgsGo(secId, btn) {
   document.querySelectorAll('#tab-pagesetup .pgs-sec').forEach(x => x.classList.toggle('show', x.id === secId));
