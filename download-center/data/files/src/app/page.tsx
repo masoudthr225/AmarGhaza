@@ -36,6 +36,7 @@ import {
   FileText,
   Trash2,
   RotateCcw,
+  DatabaseBackup,
   Edit,
   Upload,
   ArrowUpDown,
@@ -219,6 +220,11 @@ export default function ReyGiriApp() {
 
   // سطل بازیافت — نمایش رکوردهای حذف‌شده (حذف نرم)
   const [showTrash, setShowTrash] = useState(false)
+
+  // بکاپ و بازیابی
+  const [backupOpen, setBackupOpen] = useState(false)
+  const [backups, setBackups] = useState<Array<{ name: string; size: number; createdAt: string; manual: boolean }>>([])
+  const [backupBusy, setBackupBusy] = useState(false)
   
   // Form state - initialize from localStorage for persistence
   const [formOpen, setFormOpen] = useState(false)
@@ -507,6 +513,118 @@ export default function ReyGiriApp() {
   const toggleTrash = () => {
     setCurrentPage(1)
     setShowTrash((v) => !v)
+  }
+
+  // ───── بکاپ و بازیابی ─────
+
+  // فهرست نسخه‌های پشتیبان موجود
+  const fetchBackups = useCallback(async () => {
+    try {
+      const response = await fetch('/api/rey-giri/backup/list')
+      const result = await response.json()
+      if (result.success) setBackups(result.data)
+    } catch (error) {
+      console.error('Error fetching backups:', error)
+    }
+  }, [])
+
+  // گرفتن نسخهٔ پشتیبان داخل برنامه (ذخیره در db/backups)
+  const handleCreateBackup = async () => {
+    setBackupBusy(true)
+    try {
+      const response = await fetch('/api/rey-giri/backup', { method: 'POST' })
+      const result = await response.json()
+      if (result.success) {
+        toast.success(result.message, {
+          description: `نام فایل: ${result.name}`,
+        })
+        fetchBackups()
+      } else {
+        toast.error(result.error || 'خطا در ساخت نسخهٔ پشتیبان')
+      }
+    } catch (error) {
+      toast.error('خطا در ارتباط با سرور')
+    } finally {
+      setBackupBusy(false)
+    }
+  }
+
+  // دانلود فایل بکاپ روی کامپیوتر
+  const handleDownloadBackup = () => {
+    const a = document.createElement('a')
+    a.href = '/api/rey-giri/backup'
+    a.download = ''
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    toast.success('فایل بکاپ در حال دانلود است', {
+      description: 'آن را در جای امنی (مثلاً فلش) ذخیره کنید',
+    })
+  }
+
+  // بازیابی از یکی از بکاپ‌های موجود
+  const handleRestoreBackup = async (name: string) => {
+    if (!confirm(`داده‌های فعلی با محتوای «${name}» جایگزین شود؟\n\nقبل از بازیابی، از وضعیت فعلی هم نسخهٔ امن گرفته می‌شود.`)) return
+    setBackupBusy(true)
+    try {
+      const response = await fetch('/api/rey-giri/backup/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      })
+      const result = await response.json()
+      if (result.success) {
+        toast.success(result.message)
+        fetchRecords()
+        fetchStats()
+        fetchBackups()
+      } else {
+        toast.error(result.error || 'خطا در بازیابی')
+      }
+    } catch (error) {
+      toast.error('خطا در ارتباط با سرور')
+    } finally {
+      setBackupBusy(false)
+    }
+  }
+
+  // آپلود فایل بکاپ (.db) و بازیابی آن
+  const handleBackupFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!confirm(`فایل بکاپ «${file.name}» آپلود و جایگزین داده‌های فعلی شود؟\n\nقبل از بازیابی، از وضعیت فعلی هم نسخهٔ امن گرفته می‌شود.`)) {
+      e.target.value = ''
+      return
+    }
+    setBackupBusy(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const response = await fetch('/api/rey-giri/backup/restore', {
+        method: 'POST',
+        body: formData,
+      })
+      const result = await response.json()
+      if (result.success) {
+        toast.success(result.message)
+        fetchRecords()
+        fetchStats()
+        fetchBackups()
+      } else {
+        toast.error(result.error || 'خطا در بازیابی فایل بکاپ')
+      }
+    } catch (error) {
+      toast.error('خطا در ارتباط با سرور')
+    } finally {
+      setBackupBusy(false)
+      e.target.value = ''
+    }
+  }
+
+  // باز کردن دیالوگ بکاپ + بارگذاری فهرست
+  const openBackupDialog = () => {
+    setBackupOpen(true)
+    fetchBackups()
   }
 
   // Handle edit
@@ -850,6 +968,16 @@ export default function ReyGiriApp() {
               <Button
                 variant="outline"
                 size="sm"
+                type="button"
+                onClick={openBackupDialog}
+                title="نسخهٔ پشتیبان گرفتن و بازیابی"
+              >
+                <DatabaseBackup className="ml-2 h-4 w-4" />
+                بکاپ و بازیابی
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
                 type="button"
                 className={showTrash ? 'bg-amber-100 border-amber-400 text-amber-800 hover:bg-amber-200' : ''}
                 onClick={toggleTrash}
@@ -1431,6 +1559,123 @@ export default function ReyGiriApp() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Backup & Restore Dialog */}
+      <Dialog open={backupOpen} onOpenChange={setBackupOpen}>
+        <DialogContent className="max-w-lg" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <DatabaseBackup className="h-5 w-5 text-indigo-500" />
+              بکاپ و بازیابی
+            </DialogTitle>
+            <DialogDescription>
+              نسخهٔ پشتیبان کامل برنامه (همهٔ رکوردها + سطل بازیافت)
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* گرفتن بکاپ */}
+          <div className="space-y-2 rounded-lg border border-indigo-200 bg-indigo-50/50 p-3">
+            <p className="text-sm font-bold text-gray-800">💾 گرفتن نسخهٔ پشتیبان</p>
+            <div className="flex flex-col gap-2">
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                disabled={backupBusy}
+                onClick={handleCreateBackup}
+              >
+                <DatabaseBackup className="ml-2 h-4 w-4" />
+                ذخیرهٔ نسخهٔ پشتیبان در برنامه
+              </Button>
+              <Button size="sm" variant="outline" disabled={backupBusy} onClick={handleDownloadBackup}>
+                <Download className="ml-2 h-4 w-4" />
+                دانلود فایل بکاپ روی کامپیوتر
+              </Button>
+            </div>
+          </div>
+
+          {/* بازیابی */}
+          <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+            <p className="text-sm font-bold text-gray-800">♻️ بازیابی از نسخهٔ پشتیبان</p>
+
+            <input
+              id="backup-file-input"
+              type="file"
+              accept=".db"
+              onChange={handleBackupFileChange}
+              style={{ display: 'none' }}
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full border-amber-400 text-amber-800 hover:bg-amber-100"
+              disabled={backupBusy}
+              type="button"
+              onClick={() => {
+                const input = document.getElementById('backup-file-input') as HTMLInputElement
+                if (input) input.click()
+              }}
+            >
+              <Upload className="ml-2 h-4 w-4" />
+              آپلود و بازیابی از فایل بکاپ (.db)
+            </Button>
+
+            <div className="text-xs text-gray-600">
+              یا از میان نسخه‌های ذخیره‌شده انتخاب کنید:
+            </div>
+
+            <div className="max-h-52 overflow-y-auto space-y-1.5">
+              {backupBusy ? (
+                <div className="flex items-center justify-center py-6">
+                  <RefreshCw className="h-6 w-6 animate-spin text-amber-500" />
+                </div>
+              ) : backups.length === 0 ? (
+                <p className="text-center text-sm text-gray-500 py-4">
+                  هنوز نسخه‌ای ذخیره نشده است
+                </p>
+              ) : (
+                backups.map((b) => (
+                  <div
+                    key={b.name}
+                    className="flex items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-2.5 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate text-xs font-mono" title={b.name}>
+                          {b.name}
+                        </span>
+                        {b.manual && (
+                          <Badge variant="secondary" className="shrink-0 bg-indigo-100 text-indigo-700 text-[10px]">
+                            دستی
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-gray-500">
+                        {new Date(b.createdAt).toLocaleString('fa-IR')} — {Math.round(b.size / 1024)} کیلوبایت
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 shrink-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                      disabled={backupBusy}
+                      title="بازیابی این نسخه"
+                      onClick={() => handleRestoreBackup(b.name)}
+                    >
+                      <RotateCcw className="ml-1 h-4 w-4" />
+                      بازیابی
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <p className="text-[11px] leading-5 text-gray-500">
+            ⚠️ قبل از هر بازیابی، از وضعیت فعلی برنامه به‌طور خودکار نسخهٔ امن گرفته می‌شود؛
+            پس هیچ داده‌ای برای همیشه از دست نمی‌رود. بکاپ‌های خودکارِ هر بار اجرای برنامه هم در همین فهرست می‌آیند.
+          </p>
         </DialogContent>
       </Dialog>
       </div>
