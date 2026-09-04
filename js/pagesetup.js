@@ -17,22 +17,25 @@ function paperDims() {
 }
 function isRoll() { const d = paperDims(); return !d.h; }
 
+/* ---------- تبدیل واحد: ذخیره داخلی میلی‌متر، نمایش سانتی‌متر ---------- */
+const MM2CM = mm => Math.round((+mm || 0) / 10 * 1000) / 1000;   // ۱۲ → ۱.۲
+const CM2MM = cm => Math.round((parseFloat(cm) || 0) * 10 * 100) / 100;  // ۱.۲ → ۱۲
+
 function renderSetupControls() {
   const st = S.setup;
   document.getElementById('psPaper').value = st.paper;
   document.getElementById('customSizeRow').style.display = st.paper==='CUSTOM' ? 'flex' : 'none';
-  document.getElementById('psCustomW').value = st.customW;
-  document.getElementById('psCustomH').value = st.customH;
-  ['mt','mb','mr','ml'].forEach(k=>document.getElementById('ps'+k.toUpperCase().replace('M','M')).value = st[k]);
-  document.getElementById('psMT').value = st.mt; document.getElementById('psMB').value = st.mb;
-  document.getElementById('psMR').value = st.mr; document.getElementById('psML').value = st.ml;
+  document.getElementById('psCustomW').value = MM2CM(st.customW);
+  document.getElementById('psCustomH').value = MM2CM(st.customH);
+  document.getElementById('psMT').value = MM2CM(st.mt); document.getElementById('psMB').value = MM2CM(st.mb);
+  document.getElementById('psMR').value = MM2CM(st.mr); document.getElementById('psML').value = MM2CM(st.ml);
   document.getElementById('psFont').value = st.font;
   document.getElementById('psFontSize').value = st.fontSize;
   document.getElementById('psLineH').value = st.lineH;
   const _rh = document.getElementById('psRowH');
-  if (_rh) _rh.value = (st.rowH != null ? st.rowH : 0);
+  if (_rh) _rh.value = MM2CM(st.rowH != null ? st.rowH : 0);
   const _cp = document.getElementById('psCellPad');
-  if (_cp) _cp.value = (st.cellPad != null ? st.cellPad : 1);
+  if (_cp) _cp.value = MM2CM(st.cellPad != null ? st.cellPad : 1);
   const _dCA = { rowNo:'center', name:'right',  code:'center', unit:'center', sign:'center' };
   const _dHA = { rowNo:'center', name:'center', code:'center', unit:'center', sign:'center' };
   const _ca = { ..._dCA, ...(st.colAlign  || {}) };
@@ -41,8 +44,8 @@ function renderSetupControls() {
     const a = document.getElementById('psCA'+sfx); if (a) a.value = _ca[k];
     const b = document.getElementById('psHA'+sfx); if (b) b.value = _ha[k];
   });
-  const _hrh = document.getElementById('psHeadRowH');  if (_hrh) _hrh.value = st.headRowH || 0;
-  const _erh = document.getElementById('psExtraRowH'); if (_erh) _erh.value = st.extraRowH || 0;
+  const _hrh = document.getElementById('psHeadRowH');  if (_hrh) _hrh.value = MM2CM(st.headRowH || 0);
+  const _erh = document.getElementById('psExtraRowH'); if (_erh) _erh.value = MM2CM(st.extraRowH || 0);
   const _xw  = document.getElementById('psExtraWidth');      if (_xw)  _xw.value  = st.extraWidth == null ? 100 : st.extraWidth;
   const _xq  = document.getElementById('psExtraQtyW');       if (_xq)  _xq.value  = st.extraQtyW  == null ? 40  : st.extraQtyW;
   const _xp  = document.getElementById('psExtraAlignPage');  if (_xp)  _xp.value  = st.extraAlignPage  || 'center';
@@ -64,11 +67,11 @@ function renderSetupControls() {
   setC('psUnderline',   st.underline);
   setV('psFontColor',   st.fontColor   || '#000000');
   setV('psBorderStyle', st.borderStyle || 'solid');
-  setV('psBorderWidth', st.borderWidth == null ? 0.5 : st.borderWidth);
+  setV('psBorderWidth', MM2CM(st.borderWidth == null ? 0.5 : st.borderWidth));
   setV('psBorderColor', st.borderColor || '#000000');
   setV('psHeadBg',      st.headBg      || '#ffffff');
   setC('psZebra',       st.zebra);
-  setV('psIndent',      st.indent      || 0);
+  setV('psIndent',      MM2CM(st.indent || 0));
   const _ib = document.getElementById('psItalicBtn');
   if (_ib) _ib.classList.toggle('on', !!st.italic);
   const _ub = document.getElementById('psUnderBtn');
@@ -144,19 +147,19 @@ function onPaperChange() {
 function saveSetup() {
   const st = S.setup;
   st.paper = document.getElementById('psPaper').value;
-  st.customW = +document.getElementById('psCustomW').value || 80;
-  st.customH = +document.getElementById('psCustomH').value || 0;
-  st.mt = +document.getElementById('psMT').value || 0;
-  st.mb = +document.getElementById('psMB').value || 0;
-  st.mr = +document.getElementById('psMR').value || 0;
-  st.ml = +document.getElementById('psML').value || 0;
+  st.customW = CM2MM(document.getElementById('psCustomW').value) || 80;
+  st.customH = CM2MM(document.getElementById('psCustomH').value) || 0;
+  st.mt = CM2MM(document.getElementById('psMT').value);
+  st.mb = CM2MM(document.getElementById('psMB').value);
+  st.mr = CM2MM(document.getElementById('psMR').value);
+  st.ml = CM2MM(document.getElementById('psML').value);
   st.font = document.getElementById('psFont').value;
   st.fontSize = +document.getElementById('psFontSize').value || 11;
   st.lineH = +document.getElementById('psLineH').value || 1.5;
   const _rh = document.getElementById('psRowH');
-  if (_rh) st.rowH = Math.max(0, Math.min(20, parseFloat(_rh.value) || 0));
+  if (_rh) st.rowH = Math.max(0, Math.min(30, CM2MM(_rh.value)));
   const _cp = document.getElementById('psCellPad');
-  if (_cp) { const v = parseFloat(_cp.value); st.cellPad = isNaN(v) ? 1 : Math.max(0, Math.min(10, v)); }
+  if (_cp) { const v = CM2MM(_cp.value); st.cellPad = _cp.value === '' ? 1 : Math.max(0, Math.min(10, v)); }
   if (!st.colAlign)  st.colAlign  = {};
   if (!st.colHAlign) st.colHAlign = {};
   [['RowNo','rowNo'],['Name','name'],['Code','code'],['Unit','unit'],['Sign','sign']].forEach(([sfx,k]) => {
@@ -164,9 +167,9 @@ function saveSetup() {
     const b = document.getElementById('psHA'+sfx); if (b && b.value) st.colHAlign[k] = b.value;
   });
   const _hrh = document.getElementById('psHeadRowH');
-  if (_hrh) st.headRowH = Math.max(0, Math.min(30, parseFloat(_hrh.value) || 0));
+  if (_hrh) st.headRowH = Math.max(0, Math.min(30, CM2MM(_hrh.value)));
   const _erh = document.getElementById('psExtraRowH');
-  if (_erh) st.extraRowH = Math.max(0, Math.min(30, parseFloat(_erh.value) || 0));
+  if (_erh) st.extraRowH = Math.max(0, Math.min(30, CM2MM(_erh.value)));
   const _xw = document.getElementById('psExtraWidth');
   if (_xw) st.extraWidth = Math.max(20, Math.min(100, parseFloat(_xw.value) || 100));
   const _xq = document.getElementById('psExtraQtyW');
@@ -188,10 +191,10 @@ function saveSetup() {
   const vUn = gc('psUnderline');   if (vUn  != null) st.underline   = vUn;
   const vFc = gv('psFontColor');   if (vFc  != null) st.fontColor   = vFc;
   const vBs = gv('psBorderStyle'); if (vBs  != null) st.borderStyle = vBs;
-  const vBw = gv('psBorderWidth'); if (vBw  != null) st.borderWidth = Math.max(0.1, Math.min(2, parseFloat(vBw) || 0.5));
+  const vBw = gv('psBorderWidth'); if (vBw  != null) st.borderWidth = Math.max(0.1, Math.min(2, CM2MM(vBw) || 0.5));
   const vBc = gv('psBorderColor'); if (vBc  != null) st.borderColor = vBc;
   const vZe = gc('psZebra');       if (vZe  != null) st.zebra       = vZe;
-  const vIn = gv('psIndent');      if (vIn  != null) st.indent      = Math.max(0, Math.min(20, parseFloat(vIn) || 0));
+  const vIn = gv('psIndent');      if (vIn  != null) st.indent      = Math.max(0, Math.min(20, CM2MM(vIn)));
   if (!st.xls) st.xls = {};
   const xv = (id, k, min, max, def) => {
     const e = document.getElementById(id); if (!e) return;

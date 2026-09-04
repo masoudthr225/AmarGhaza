@@ -300,7 +300,8 @@ function renderPreview() {
   const st = S.setup;
   const html = buildDoc();
 
-  const label = `${d.label} — ${d.w}×${d.h || '∞'} mm`;
+  const cm = v => (Math.round(v / 10 * 10) / 10);
+  const label = `${d.label} — ${cm(d.w)}×${d.h ? cm(d.h) : '∞'} cm`;
   ['paperInfo', 'paperInfo2'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = '📄 ' + label;
@@ -345,7 +346,7 @@ function updatePgsHints() {
   const u = document.getElementById('pgsUsable');
   if (u) {
     u.className = 'pgs-hint' + (usable < 30 ? ' warn' : '');
-    u.textContent = `عرض مفید: ${usable.toFixed(1)} میلی‌متر` +
+    u.textContent = `عرض مفید: ${(usable / 10).toFixed(2)} سانتی‌متر` +
       (usable < 30 ? ' — حاشیه‌ها را کم کنید، جا برای جدول نمی‌ماند.' : '');
   }
   const c = document.getElementById('pgsColHint');
@@ -354,7 +355,7 @@ function updatePgsHints() {
     const fixed = (st.showRowNo ? w.rowNo : 0) + (st.showCode ? w.code : 0) + (st.showSign ? w.sign : 0);
     const nameMM = usable * (100 - fixed) / 100;
     c.className = 'pgs-hint' + (nameMM < 15 ? ' warn' : '');
-    c.textContent = `ستون نام: ${nameMM.toFixed(1)} میلی‌متر` +
+    c.textContent = `ستون نام: ${(nameMM / 10).toFixed(2)} سانتی‌متر` +
       (nameMM < 15 ? ' — برای نام کوتاه است؛ عرض بقیه ستون‌ها را کم کنید.' : ' (کافی)');
   }
 }

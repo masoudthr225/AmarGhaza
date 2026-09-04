@@ -275,20 +275,20 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 
           <!-- ---------- حاشیه ---------- -->
           <section class="pgs-sec show" id="pg-margins">
-            <h4>حاشیه‌ها (میلی‌متر)</h4>
+            <h4>حاشیه‌ها (سانتی‌متر)</h4>
             <div class="pgs-mgrid">
-              <div class="pgs-f"><label>بالا</label><input type="number" id="psMT" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
-              <div class="pgs-f"><label>پایین</label><input type="number" id="psMB" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
-              <div class="pgs-f"><label>راست</label><input type="number" id="psMR" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
-              <div class="pgs-f"><label>چپ</label><input type="number" id="psML" min="0" max="60" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>بالا</label><input type="number" id="psMT" min="0" max="6" step="0.1" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>پایین</label><input type="number" id="psMB" min="0" max="6" step="0.1" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>راست</label><input type="number" id="psMR" min="0" max="6" step="0.1" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>چپ</label><input type="number" id="psML" min="0" max="6" step="0.1" onchange="saveSetup()"></div>
             </div>
             <button class="pgs-mini" onclick="marginAll()">یکسان کردن همه</button>
             <div class="pgs-hint" id="pgsUsable"></div>
 
             <h4>اندازه دلخواه کاغذ</h4>
             <div class="pgs-grid2" id="customSizeRow" style="display:none">
-              <div class="pgs-f"><label>عرض (mm)</label><input type="number" id="psCustomW" min="30" max="400" onchange="saveSetup()"></div>
-              <div class="pgs-f"><label>ارتفاع (mm) — ۰ = رول</label><input type="number" id="psCustomH" min="0" max="600" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>عرض (cm)</label><input step="0.1" type="number" id="psCustomW" min="3" max="40" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع (cm) — ۰ = رول</label><input step="0.1" type="number" id="psCustomH" min="0" max="60" onchange="saveSetup()"></div>
             </div>
 
             <h4>چیدمان کلی</h4>
@@ -307,11 +307,11 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             <h4>اندازه سطر و سلول</h4>
             <div class="pgs-grid2">
               <div class="pgs-f"><label>فاصله سطر</label><input type="number" id="psLineH" min="1" max="3" step="0.1" onchange="saveSetup()"></div>
-              <div class="pgs-f"><label>فاصله داخلی (mm)</label><input type="number" id="psCellPad" min="0" max="10" step="0.2" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>فاصله داخلی (cm)</label><input type="number" id="psCellPad" min="0" max="1" step="0.05" onchange="saveSetup()"></div>
             </div>
             <div class="pgs-grid2">
-              <div class="pgs-f"><label>ارتفاع سطر (mm)</label><input type="number" id="psRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
-              <div class="pgs-f"><label>ارتفاع سطر عنوان</label><input type="number" id="psHeadRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع سطر (cm)</label><input type="number" id="psRowH" min="0" max="3" step="0.05" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع سطر عنوان (cm)</label><input type="number" id="psHeadRowH" min="0" max="3" step="0.05" onchange="saveSetup()"></div>
             </div>
             <label class="pgs-chk"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم</span></label>
 
@@ -327,7 +327,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
                   <option value="none">بدون کادر</option>
                 </select>
               </div>
-              <div class="pgs-f"><label>ضخامت کادر (mm)</label><input type="number" id="psBorderWidth" min="0.1" max="2" step="0.1" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ضخامت کادر (cm)</label><input type="number" id="psBorderWidth" min="0.01" max="0.2" step="0.01" onchange="saveSetup()"></div>
             </div>
             <div class="pgs-row"><span>رنگ کادر</span><input type="color" id="psBorderColor" onchange="saveSetup()"></div>
             <div class="pgs-row"><span>پس‌زمینه عنوان</span><input type="color" id="psHeadBg" onchange="saveSetup()"></div>
@@ -335,7 +335,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <label class="pgs-chk"><input type="checkbox" id="psZebra" onchange="saveSetup()"><span>ردیف‌های یک‌درمیان</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psNoHeadBg" onchange="pgsClearHeadBg()"><span>بدون پس‌زمینه عنوان</span></label>
             </div>
-            <div class="pgs-f"><label>تورفتگی ستون نام (mm)</label><input type="number" id="psIndent" min="0" max="20" step="0.5" onchange="saveSetup()"></div>
+            <div class="pgs-f"><label>تورفتگی ستون نام (cm)</label><input type="number" id="psIndent" min="0" max="2" step="0.05" onchange="saveSetup()"></div>
 
             <h4>چه چیزی چاپ شود</h4>
             <div class="pgs-checks">
@@ -408,7 +408,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <select id="psExtraAlignLabel" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
             <div class="pgs-row"><span>چیدمان مقدار</span>
               <select id="psExtraAlignQty" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
-            <div class="pgs-f"><label>ارتفاع سطر (mm)</label><input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
+            <div class="pgs-f"><label>ارتفاع سطر (cm)</label><input type="number" id="psExtraRowH" min="0" max="3" step="0.05" onchange="saveSetup()"></div>
             <label class="pgs-chk"><input type="checkbox" id="psExtraBold" onchange="saveSetup()"><span>متن ضخیم</span></label>
             <div class="pgs-savebar">
               <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره اقلام</button>
