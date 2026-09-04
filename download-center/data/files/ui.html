@@ -302,7 +302,7 @@ tbody tr:hover{background:#f5f3ff}
           <input type="text" id="fld-weight" placeholder="مثلاً 0.24" inputmode="decimal"></div>
         <div class="field"><label>عیار دریافتی <span style="font-weight:400;color:var(--muted)">(خالی = در انتظار عیار)</span></label>
           <input type="text" id="fld-karat" placeholder="مثلاً 750" inputmode="decimal"></div>
-        <div class="field full"><label>شماره ذوب</label>
+        <div class="field"><label>شماره ذوب</label>
           <input type="text" id="fld-melt"></div>
       </div>
     </div>
@@ -616,10 +616,16 @@ $('btn-save').addEventListener('click',async ()=>{
   }catch(e){alarmError();toast('خطا در ارتباط با سرور','err')}
 });
 
-/* Enter مثل Tab */
+/* Enter مثل Tab — در آخرین فیلد (شماره ذوب) به دکمهٔ ذخیره می‌رود؛
+   اینتر روی دکمهٔ ذخیره = ثبت و بستن پنجره */
 document.querySelectorAll('#form-overlay input,#form-overlay select,#form-overlay textarea')
   .forEach((el,i,all)=>el.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();if(e.target.id==='fld-date')closeDpop();(all[i+1]||all[0]).focus();}
+    if(e.key==='Enter'){
+      e.preventDefault();
+      if(e.target.id==='fld-date')closeDpop();
+      const nxt=all[i+1];
+      if(nxt)nxt.focus();else $('btn-save').focus();
+    }
   }));
 
 /* ═══════════════ خروجی اکسل ═══════════════ */
