@@ -45,6 +45,19 @@ function renderSetupControls() {
     const b = document.getElementById('psHA'+sfx); if (b) b.value = _ha[k];
   });
   const _hrh = document.getElementById('psHeadRowH');  if (_hrh) _hrh.value = MM2CM(st.headRowH || 0);
+  const _zc = { rowNo:0, name:0, code:0, unit:0, sign:0 };
+  const _cH  = { ..._zc, ...(st.cellH  || {}) };
+  const _cP  = { ..._zc, ...(st.cellP  || {}) };
+  const _cF  = { ..._zc, ...(st.cellFS || {}) };
+  [['RowNo','rowNo'],['Name','name'],['Code','code'],['Unit','unit'],['Sign','sign']].forEach(([sfx, k]) => {
+    const h = document.getElementById('psCH' + sfx); if (h) h.value = MM2CM(_cH[k]);
+    const p = document.getElementById('psCP' + sfx); if (p) p.value = MM2CM(_cP[k]);
+    const g = document.getElementById('psCF' + sfx); if (g) g.value = _cF[k] || 0;
+  });
+  const _uta0 = document.getElementById('psUnitTitleAlign');
+  if (_uta0) _uta0.value = st.unitTitleAlign || 'center';
+  const _uts0 = document.getElementById('psUnitTitleSize');
+  if (_uts0) _uts0.value = (st.unitTitleSize == null ? 1 : st.unitTitleSize);
   const _erh = document.getElementById('psExtraRowH'); if (_erh) _erh.value = MM2CM(st.extraRowH || 0);
   const _xw  = document.getElementById('psExtraWidth');      if (_xw)  _xw.value  = st.extraWidth == null ? 100 : st.extraWidth;
   const _xq  = document.getElementById('psExtraQtyW');       if (_xq)  _xq.value  = st.extraQtyW  == null ? 40  : st.extraQtyW;
@@ -170,6 +183,21 @@ function saveSetup() {
   });
   const _hrh = document.getElementById('psHeadRowH');
   if (_hrh) st.headRowH = Math.max(0, Math.min(30, CM2MM(_hrh.value)));
+  if (!st.cellH)  st.cellH  = {};
+  if (!st.cellP)  st.cellP  = {};
+  if (!st.cellFS) st.cellFS = {};
+  [['RowNo','rowNo'],['Name','name'],['Code','code'],['Unit','unit'],['Sign','sign']].forEach(([sfx, k]) => {
+    const h = document.getElementById('psCH' + sfx);
+    if (h) st.cellH[k]  = Math.max(0, Math.min(30, CM2MM(h.value)));
+    const p = document.getElementById('psCP' + sfx);
+    if (p) st.cellP[k]  = Math.max(0, Math.min(10, CM2MM(p.value)));
+    const g = document.getElementById('psCF' + sfx);
+    if (g) st.cellFS[k] = Math.max(0, Math.min(30, parseFloat(g.value) || 0));
+  });
+  const _uta = document.getElementById('psUnitTitleAlign');
+  if (_uta && _uta.value) st.unitTitleAlign = _uta.value;
+  const _uts = document.getElementById('psUnitTitleSize');
+  if (_uts) st.unitTitleSize = Math.max(0.5, Math.min(3, parseFloat(_uts.value) || 1));
   const _erh = document.getElementById('psExtraRowH');
   if (_erh) st.extraRowH = Math.max(0, Math.min(30, CM2MM(_erh.value)));
   const _xw = document.getElementById('psExtraWidth');

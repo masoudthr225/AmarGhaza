@@ -15,6 +15,31 @@ function xlsCfg() {
   return { ...d, ...((S.setup && S.setup.xls) || {}) };
 }
 
+/* اندازه اختصاصی هر ستون: ارتفاع سطر، فاصله داخلی و اندازه قلم.
+   مقدار ۰ یعنی «از تنظیمات عمومی جدول پیروی کن». */
+function colSize(k) {
+  const st = S.setup;
+  const H  = (st.cellH  || {})[k] || 0;
+  const P  = (st.cellP  || {})[k] || 0;
+  const FS = (st.cellFS || {})[k] || 0;
+  let css = '';
+  if (P  > 0) css += `padding:${P}mm ${(P + 0.5).toFixed(2)}mm;`;
+  if (H  > 0) css += `height:${H}mm;`;
+  if (FS > 0) css += `font-size:${FS}pt;`;
+  return css;
+}
+
+/* نوار «واحد: …» */
+function unitTitleStyle() {
+  const st = S.setup;
+  const a = st.unitTitleAlign || 'center';
+  const jc = a === 'center' ? 'center' : (a === 'left' ? 'flex-start' : 'flex-end');
+  const sc = +st.unitTitleSize || 1;
+  let css = `justify-content:${jc};text-align:${a};`;
+  if (sc !== 1) css += `font-size:${(+st.fontSize || 11) * sc}pt;`;
+  return css;
+}
+
 /* کادر سلول‌ها — معادل کلاس Border در پروژه Page Setup Pro */
 function cellBorder() {
   const st = S.setup;
@@ -179,20 +204,20 @@ function buildDoc() {
     for (let ci=0; ci<cols; ci++) {
       const chunk = rows.slice(ci*per,(ci+1)*per);
       html += `<table class="ptab"><thead><tr>`;
-      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${HS}${cha('rowNo')}">${esc(hd().rowNo)}</th>`;
-      html += `<th style="${HS}${cha('name')}">${esc(hd().name)}</th>`;
-      if (st.showCode) html += `<th style="width:${cw().code}%;${HS}${cha('code')}">${esc(hd().code)}</th>`;
-      html += `<th style="width:${cw().unit}%;${HS}${cha('unit')}">${esc(hd().unit)}</th>`;
-      if (st.showSign) html += `<th style="width:${cw().sign}%;${HS}${cha('sign')}">${esc(hd().sign)}</th>`;
+      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${HS}${cha('rowNo')}${colSize('rowNo')}">${esc(hd().rowNo)}</th>`;
+      html += `<th style="${HS}${cha('name')}${colSize('name')}">${esc(hd().name)}</th>`;
+      if (st.showCode) html += `<th style="width:${cw().code}%;${HS}${cha('code')}${colSize('code')}">${esc(hd().code)}</th>`;
+      html += `<th style="width:${cw().unit}%;${HS}${cha('unit')}${colSize('unit')}">${esc(hd().unit)}</th>`;
+      if (st.showSign) html += `<th style="width:${cw().sign}%;${HS}${cha('sign')}${colSize('sign')}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
       chunk.forEach((r, i)=>{
         const isAb = !!S.sheet.absent[r.p.id];
         html += `<tr class="${isAb?'ab':''}">`;
-        if (st.showRowNo) html += `<td style="${CS}${ca('rowNo')}">${ci*per+i+1}</td>`;
-        html += `<td style="${CS}${ca('name')}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
-        if (st.showCode) html += `<td style="${CS}${ca('code')}">${esc(r.p.code||'')}</td>`;
-        html += `<td style="${CS}${ca('unit')}">${esc(r.u.name)}</td>`;
-        if (st.showSign) html += `<td style="${CS}${ca('sign')}"></td>`;
+        if (st.showRowNo) html += `<td style="${CS}${ca('rowNo')}${colSize('rowNo')}">${ci*per+i+1}</td>`;
+        html += `<td style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        if (st.showCode) html += `<td style="${CS}${ca('code')}${colSize('code')}">${esc(r.p.code||'')}</td>`;
+        html += `<td style="${CS}${ca('unit')}${colSize('unit')}">${esc(r.u.name)}</td>`;
+        if (st.showSign) html += `<td style="${CS}${ca('sign')}${colSize('sign')}"></td>`;
         html += `</tr>`;
       });
       html += `</tbody></table>`;
@@ -220,7 +245,7 @@ function buildDoc() {
     grandTot += base.length; grandAbs += allAbs;
 
     html += `<div class="unit-block" ${st.unitNewPage && ui>0 ? 'style="page-break-before:always"' : ''}>`;
-    html += `<div class="unit-title"><span>واحد: ${esc(u.name)}</span></div>`;
+    html += `<div class="unit-title" style="${unitTitleStyle()}"><span>واحد: ${esc(u.name)}</span></div>`;
 
     // تقسیم به ستون‌ها
     const per = Math.ceil(ppl.length / cols) || 1;
@@ -229,18 +254,18 @@ function buildDoc() {
     html += `<div class="cols" style="grid-template-columns:repeat(${cols},1fr)">`;
     chunks.forEach((chunk, ci)=>{
       html += `<table class="ptab"><thead><tr>`;
-      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${HS}${cha('rowNo')}">${esc(hd().rowNo)}</th>`;
-      html += `<th style="${HS}${cha('name')}">${esc(hd().name)}</th>`;
-      if (st.showCode) html += `<th style="width:${cw().code}%;${HS}${cha('code')}">${esc(hd().code)}</th>`;
-      if (st.showSign) html += `<th style="width:${cw().sign}%;${HS}${cha('sign')}">${esc(hd().sign)}</th>`;
+      if (st.showRowNo) html += `<th style="width:${cw().rowNo}%;${HS}${cha('rowNo')}${colSize('rowNo')}">${esc(hd().rowNo)}</th>`;
+      html += `<th style="${HS}${cha('name')}${colSize('name')}">${esc(hd().name)}</th>`;
+      if (st.showCode) html += `<th style="width:${cw().code}%;${HS}${cha('code')}${colSize('code')}">${esc(hd().code)}</th>`;
+      if (st.showSign) html += `<th style="width:${cw().sign}%;${HS}${cha('sign')}${colSize('sign')}">${esc(hd().sign)}</th>`;
       html += `</tr></thead><tbody>`;
       chunk.forEach((p, i)=>{
         const isAb = !!S.sheet.absent[p.id];
         html += `<tr class="${isAb?'ab':''}">`;
-        if (st.showRowNo) html += `<td style="${CS}${ca('rowNo')}">${ci*per+i+1}</td>`;
-        html += `<td style="${CS}${ca('name')}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
-        if (st.showCode) html += `<td style="${CS}${ca('code')}">${esc(p.code||'')}</td>`;
-        if (st.showSign) html += `<td style="${CS}${ca('sign')}"></td>`;
+        if (st.showRowNo) html += `<td style="${CS}${ca('rowNo')}${colSize('rowNo')}">${ci*per+i+1}</td>`;
+        html += `<td style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        if (st.showCode) html += `<td style="${CS}${ca('code')}${colSize('code')}">${esc(p.code||'')}</td>`;
+        if (st.showSign) html += `<td style="${CS}${ca('sign')}${colSize('sign')}"></td>`;
         html += `</tr>`;
       });
       html += `</tbody></table>`;
@@ -589,7 +614,7 @@ function cellTrio(p, no, CS, isLeft) {
   const ab = !!S.sheet.absent[p.id];
   return `<td class="xls-no${sep}" style="${CS}${AR}${WR}">${no}</td>` +
          `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}${AC}${WC}">${esc(p.code || '')}</td>` +
-         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${ca('name')}"><span class="nm">${esc(p.name)}</span></td>`;
+         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(p.name)}</span></td>`;
 }
 
 /* استایل مستقیم سلول: ارتفاع سطر و فاصله داخلی — روی همه مرورگرها و در چاپ قابل اتکاست */

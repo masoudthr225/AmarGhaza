@@ -325,6 +325,13 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             </div>
             <label class="pgs-chk"><input type="checkbox" id="psHeadBold" onchange="saveSetup()"><span>عنوان ستون‌ها ضخیم</span></label>
 
+            <h4>نوار «واحد: …»</h4>
+            <div class="pgs-row"><span>چیدمان</span>
+              <select id="psUnitTitleAlign" onchange="saveSetup()">
+                <option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option>
+              </select></div>
+            <div class="pgs-f"><label>بزرگی نوار واحد (برابر قلم)</label><input type="number" id="psUnitTitleSize" min="0.5" max="3" step="0.1" onchange="saveSetup()"></div>
+
             <h4>کادر و رنگ</h4>
             <div class="pgs-grid2">
               <div class="pgs-f">
@@ -368,37 +375,38 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             <h4>عنوان، عرض و چیدمان ستون‌ها</h4>
             <div class="pgs-tblwrap">
               <table class="pgs-matrix">
-                <thead><tr><th>ستون</th><th>عنوان چاپی</th><th>عرض٪</th><th>عنوان</th><th>محتوا</th></tr></thead>
+                <thead><tr><th>ستون</th><th>عنوان چاپی</th><th>عرض٪</th><th>عنوان</th><th>محتوا</th><th>ارتفاع<br>cm</th><th>فاصله<br>cm</th><th>قلم<br>pt</th></tr></thead>
                 <tbody>
                   <tr><td class="k">ردیف</td>
                     <td><input type="text" id="psHeadRowNo" onchange="saveSetup()"></td>
                     <td><input type="number" id="psWRowNo" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
                     <td><select id="psHARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                    <td><select id="psCARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                    <td><select id="psCARowNo" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td><td><input type="number" id="psCHRowNo" min="0" max="3" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCPRowNo" min="0" max="1" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCFRowNo" min="0" max="30" step="0.5" onchange="saveSetup()" title="۰ = پیروی از جدول"></td></tr>
                   <tr><td class="k">نام</td>
                     <td><input type="text" id="psHeadName" onchange="saveSetup()"></td>
                     <td class="auto">باقیمانده</td>
                     <td><select id="psHAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                    <td><select id="psCAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                    <td><select id="psCAName" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td><td><input type="number" id="psCHName" min="0" max="3" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCPName" min="0" max="1" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCFName" min="0" max="30" step="0.5" onchange="saveSetup()" title="۰ = پیروی از جدول"></td></tr>
                   <tr><td class="k">کد پرسنلی</td>
                     <td><input type="text" id="psHeadCode" onchange="saveSetup()"></td>
                     <td><input type="number" id="psWCode" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
                     <td><select id="psHACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                    <td><select id="psCACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                    <td><select id="psCACode" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td><td><input type="number" id="psCHCode" min="0" max="3" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCPCode" min="0" max="1" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCFCode" min="0" max="30" step="0.5" onchange="saveSetup()" title="۰ = پیروی از جدول"></td></tr>
                   <tr><td class="k">واحد</td>
                     <td><input type="text" id="psHeadUnit" onchange="saveSetup()"></td>
                     <td><input type="number" id="psWUnit" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
                     <td><select id="psHAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                    <td><select id="psCAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                    <td><select id="psCAUnit" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td><td><input type="number" id="psCHUnit" min="0" max="3" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCPUnit" min="0" max="1" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCFUnit" min="0" max="30" step="0.5" onchange="saveSetup()" title="۰ = پیروی از جدول"></td></tr>
                   <tr><td class="k">امضا</td>
                     <td><input type="text" id="psHeadSign" onchange="saveSetup()"></td>
                     <td><input type="number" id="psWSign" min="2" max="60" step="0.5" onchange="saveSetup()"></td>
                     <td><select id="psHASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td>
-                    <td><select id="psCASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td></tr>
+                    <td><select id="psCASign" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></td><td><input type="number" id="psCHSign" min="0" max="3" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCPSign" min="0" max="1" step="0.05" onchange="saveSetup()" title="۰ = پیروی از جدول"></td><td><input type="number" id="psCFSign" min="0" max="30" step="0.5" onchange="saveSetup()" title="۰ = پیروی از جدول"></td></tr>
                 </tbody>
               </table>
             </div>
             <div class="pgs-hint" id="pgsColHint"></div>
+            <div class="pgs-hint">در سه ستون آخر، مقدار <b>۰</b> یعنی آن ستون از تنظیمات عمومی «جدول» پیروی کند.</div>
             <div class="pgs-savebar">
               <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره ستون‌ها</button>
               <span class="pgs-saved">ذخیره شد ✓</span>

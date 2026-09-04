@@ -22,6 +22,12 @@ const DEFAULT_SETUP = {
   borderStyle: 'solid', borderColor: '#000000', borderWidth: 0.5,
   headBg: '', zebra: false,           // پس‌زمینه عنوان و ردیف‌های یک‌درمیان
   indent: 0,                          // تورفتگی متن نام (mm)
+  unitTitleAlign: 'center',           // چیدمان نوار «واحد: …»
+  unitTitleSize: 1,                   // بزرگی نوار واحد (برابر قلم)
+  /* اندازه مستقل هر ستون: ارتفاع سطر و فاصله داخلی (mm) */
+  cellH: { rowNo:0, name:0, code:0, unit:0, sign:0 },
+  cellP: { rowNo:0, name:0, code:0, unit:0, sign:0 },
+  cellFS: { rowNo:0, name:0, code:0, unit:0, sign:0 },
   /* --- ویرایش قالب فرم اکسل --- */
   xls: {
     dateLabel: '', unitLabel: '',      // پیشوند خانه تاریخ و واحد
@@ -116,7 +122,13 @@ function migrateAlign() {
   if (st.borderWidth == null) st.borderWidth = 0.5;
   if (st.headBg      == null) st.headBg      = '';
   if (st.zebra       == null) st.zebra       = false;
-  if (st.indent      == null) st.indent      = 0;
+  if (st.indent         == null) st.indent         = 0;
+  if (st.unitTitleAlign == null) st.unitTitleAlign = 'center';
+  if (st.unitTitleSize  == null) st.unitTitleSize  = 1;
+  const zc = { rowNo:0, name:0, code:0, unit:0, sign:0 };
+  if (!st.cellH)  st.cellH  = { ...zc };
+  if (!st.cellP)  st.cellP  = { ...zc };
+  if (!st.cellFS) st.cellFS = { ...zc };
   if (!st.xls) st.xls = {};
   const dx = { dateLabel:'', unitLabel:'', foodPrefix:'**', foodSuffix:'**',
                dateW:45, foodScale:1.7, noW:11, codeW:16, twoBlocks:true,
