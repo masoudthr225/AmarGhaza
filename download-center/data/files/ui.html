@@ -135,6 +135,29 @@ tbody tr:hover{background:#f5f3ff}
 .field label{display:block;font-size:.8rem;font-weight:700;color:#475569;margin-bottom:5px}
 .field .err{border-color:var(--red)!important;background:#fef2f2}
 .fhint{font-size:.7rem;color:var(--muted);margin-top:3px}
+.field{position:relative}
+.dinl{display:flex;gap:6px;align-items:stretch}
+.dinl input{flex:1;min-width:0}
+.dinl .btn{padding:6px 10px}
+
+/* ── تقویم شمسی ── */
+.dpop{display:none;position:absolute;top:100%;right:0;margin-top:6px;width:272px;background:#fff;
+  border:1px solid #c7d2fe;border-radius:14px;box-shadow:0 14px 44px rgba(2,6,23,.28);padding:12px;z-index:150}
+.dpop.open{display:block}
+.dphead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dtitle{font-weight:800;font-size:.92rem}
+.dnav{width:30px;height:30px;border:1px solid var(--border);background:#fff;border-radius:9px;cursor:pointer;
+  font-size:.85rem;line-height:1;color:var(--text);display:flex;align-items:center;justify-content:center}
+.dnav:hover{border-color:var(--indigo);color:var(--indigo);background:#eef2ff}
+.dweek{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.dweek span{text-align:center;font-size:.7rem;color:var(--muted);font-weight:800}
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dday{border:none;background:none;border-radius:9px;padding:6px 0;cursor:pointer;font-size:.86rem;
+  font-family:inherit;color:var(--text);transition:background .12s}
+.dday:hover{background:#e0e7ff}
+.dday.sel{background:var(--grad);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(99,102,241,.4)}
+.dday.today{box-shadow:inset 0 0 0 2px var(--indigo)}
+.dpfoot{margin-top:8px;display:flex;justify-content:center;border-top:1px solid var(--border);padding-top:8px}
 
 /* ── بکاپ ── */
 .sec{border:1.5px solid;border-radius:12px;padding:14px;margin-bottom:12px}
@@ -257,21 +280,30 @@ tbody tr:hover{background:#f5f3ff}
         <div class="field"><label>شماره پاکت *</label>
           <input type="text" id="fld-packet" placeholder="مثلاً 51904"><div class="fhint" id="dup-hint" style="color:var(--red);display:none">⚠️ این شماره پاکت قبلاً ثبت شده است</div></div>
         <div class="field"><label>تاریخ *</label>
-          <input type="text" id="fld-date" placeholder="مثلاً 1405/06/13"></div>
+          <div class="dinl">
+            <input type="text" id="fld-date" placeholder="مثلاً 1405/06/13" autocomplete="off">
+            <button type="button" class="btn" id="btn-dpick" title="تقویم شمسی">📅</button>
+          </div>
+          <div class="dpop" id="date-pop">
+            <div class="dphead">
+              <button type="button" class="dnav" id="dpop-prev" title="ماه قبل">❯</button>
+              <div class="dtitle" id="dpop-title">—</div>
+              <button type="button" class="dnav" id="dpop-next" title="ماه بعد">❮</button>
+            </div>
+            <div class="dweek"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div>
+            <div class="dgrid" id="dgrid"></div>
+            <div class="dpfoot"><button type="button" class="btn sm" id="dpop-today">📌 امروز</button></div>
+          </div></div>
         <div class="field"><label>نوع کار *</label>
           <select id="fld-work"><option value="">انتخاب کنید…</option><option value="النگو">النگو</option><option value="ریخته ای">ریخته‌ای</option></select></div>
         <div class="field"><label>کد مدل</label>
           <input type="text" id="fld-model" placeholder="مثلاً 155"></div>
-        <div class="field"><label>مدل کامل</label>
-          <input type="text" id="fld-model-full" placeholder="اگر خالی باشد = کد مدل"></div>
         <div class="field"><label>وزن (گرم)</label>
           <input type="text" id="fld-weight" placeholder="مثلاً 0.24" inputmode="decimal"></div>
-        <div class="field"><label>عیار دریافتی</label>
+        <div class="field"><label>عیار دریافتی <span style="font-weight:400;color:var(--muted)">(خالی = در انتظار عیار)</span></label>
           <input type="text" id="fld-karat" placeholder="مثلاً 750" inputmode="decimal"></div>
-        <div class="field"><label>شماره ذوب</label>
+        <div class="field full"><label>شماره ذوب</label>
           <input type="text" id="fld-melt"></div>
-        <div class="field full"><label>توضیحات</label>
-          <textarea id="fld-desc" rows="2"></textarea></div>
       </div>
     </div>
     <div class="dfoot">
@@ -359,6 +391,77 @@ function toJalali(g){
   return jy+'/'+String(jm).padStart(2,'0')+'/'+String(jd).padStart(2,'0');
 }
 
+/* ═══════════════ تقویم شمسی بازشو ═══════════════ */
+const JMONTHS=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const p2=n=>String(n).padStart(2,'0');
+function parseJalali(s){const m=/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec((s||'').trim());return m?{y:+m[1],m:+m[2],d:+m[3]}:null;}
+/* یافتن تاریخ میلادیِ اولِ ماه شمسی (اسکن از حدود نوروز همان سال) */
+function jMonthStart(jy,jm){
+  let d=new Date(jy+621,2,1);
+  const t=jy+'/'+p2(jm)+'/01';
+  for(let i=0;i<430;i++){
+    if(toJalali(d)===t)return new Date(d);
+    d.setDate(d.getDate()+1);
+  }
+  return null;
+}
+/* تعداد روزهای ماه شمسی (اسفند: ۲۹ یا ۳۰) */
+function jMonthLen(jy,jm){
+  if(jm<=6)return 31;
+  if(jm<=11)return 30;
+  const s=jMonthStart(jy,12);
+  if(!s)return 29;
+  const d=new Date(s);
+  for(let i=0;i<29;i++)d.setDate(d.getDate()+1); /* دا۳۰ */
+  const p=toJalali(d).split('/');
+  return (+p[0]===jy&&+p[1]===12)?30:29;
+}
+let dpopY=null,dpopM=null;
+function closeDpop(){$('date-pop').classList.remove('open');}
+function openDpop(){
+  const sel=parseJalali($('fld-date').value)||parseJalali(toJalali(new Date()));
+  dpopY=sel.y;dpopM=sel.m;
+  renderDpop();
+  $('date-pop').classList.add('open');
+}
+function renderDpop(){
+  const sel=parseJalali($('fld-date').value);
+  const today=parseJalali(toJalali(new Date()));
+  $('dpop-title').textContent=JMONTHS[dpopM-1]+' '+faNum(dpopY);
+  const start=jMonthStart(dpopY,dpopM);
+  if(!start){closeDpop();return;}
+  const off=(start.getDay()+1)%7; /* شنبه = ۰ */
+  const len=jMonthLen(dpopY,dpopM);
+  let cells='';
+  for(let i=0;i<off;i++)cells+='<span></span>';
+  for(let d=1;d<=len;d++){
+    const isT=today&&today.y===dpopY&&today.m===dpopM&&today.d===d;
+    const isS=sel&&sel.y===dpopY&&sel.m===dpopM&&sel.d===d;
+    cells+='<button type="button" class="dday'+(isS?' sel':'')+(isT?' today':'')+'" data-d="'+d+'">'+faNum(d)+'</button>';
+  }
+  $('dgrid').innerHTML=cells;
+  $('dgrid').querySelectorAll('.dday').forEach(b=>b.addEventListener('click',()=>{
+    $('fld-date').value=dpopY+'/'+p2(dpopM)+'/'+p2(+b.dataset.d);
+    closeDpop();
+  }));
+}
+$('btn-dpick').addEventListener('click',e=>{
+  e.stopPropagation();
+  $('date-pop').classList.contains('open')?closeDpop():openDpop();
+});
+$('fld-date').addEventListener('focus',()=>{if(!$('date-pop').classList.contains('open'))openDpop();});
+$('dpop-prev').addEventListener('click',()=>{dpopM--;if(dpopM<1){dpopM=12;dpopY--;}renderDpop();});
+$('dpop-next').addEventListener('click',()=>{dpopM++;if(dpopM>12){dpopM=1;dpopY++;}renderDpop();});
+$('dpop-today').addEventListener('click',()=>{
+  const t=parseJalali(toJalali(new Date()));
+  $('fld-date').value=t.y+'/'+p2(t.m)+'/'+p2(t.d);
+  closeDpop();
+});
+document.addEventListener('click',e=>{
+  if($('date-pop').classList.contains('open')&&!e.target.closest('#date-pop')&&
+     !e.target.closest('#btn-dpick')&&e.target.id!=='fld-date')closeDpop();
+});
+
 /* ═══════════════ وضعیت ═══════════════ */
 let records=[], stats=null, loading=true, editingId=null;
 let search='', workFilter='', karatFilter='', sortBy='rowNumber', sortOrder='desc';
@@ -436,7 +539,7 @@ function renderTable(){
       '<td class="mono">'+esc(r.modelCode)+'</td>'+
       '<td class="mono">'+faNum(r.numericWeight)+'</td>'+
       '<td class="mono '+karatClass(r.numericKarat)+'">'+(r.numericKarat??'—')+'</td>'+
-      '<td><span class="badge '+(r.karatStatus&&r.karatStatus.includes('پایین')?'red':(r.karatStatus&&r.karatStatus.includes('بالا')?'yellow':'green'))+'">'+esc(r.karatStatus||'—')+'</span></td>'+
+      '<td><span class="badge '+(!r.karatStatus?'gray':(r.karatStatus.includes('پایین')?'red':(r.karatStatus.includes('بالا')?'yellow':(r.karatStatus.includes('انتظار')?'gray':'green'))))+'">'+esc(r.karatStatus||'در انتظار عیار')+'</span></td>'+
       '<td><div class="opcell">'+ops+'</div></td></tr>';
   }).join('');
   area.innerHTML='<div class="table-wrap"><table><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
@@ -453,18 +556,20 @@ function sortBy_64(key){
 window.sortBy_64=sortBy_64;
 
 /* ═══════════════ ثبت / ویرایش / حذف / بازیابی ═══════════════ */
+let editingModelFull='',editingDesc='';
 function openForm(rec){
   editingId=rec?rec.id:null;
+  editingModelFull=rec?(rec.modelFull||''):'';
+  editingDesc=rec?(rec.description||''):'';
+  closeDpop();
   $('form-title').textContent=rec?'✏️ ویرایش رکورد '+faNum(rec.rowNumber):'➕ ثبت رکورد جدید';
   $('fld-packet').value=rec?rec.packetNumber:'';
   $('fld-date').value=rec?rec.date:toJalali(new Date());
   $('fld-work').value=rec?rec.workType:'';
   $('fld-model').value=rec?rec.modelCode:'';
-  $('fld-model-full').value=rec?rec.modelFull:'';
   $('fld-weight').value=rec?rec.numericWeight:'';
   $('fld-karat').value=rec?(rec.numericKarat??''):'';
   $('fld-melt').value=rec?(rec.meltNumber||''):'';
-  $('fld-desc').value=rec?(rec.description||''):'';
   $('dup-hint').style.display='none';
   $('form-overlay').classList.add('open');
   setTimeout(()=>$('fld-packet').focus(),50);
@@ -491,9 +596,11 @@ $('btn-save').addEventListener('click',async ()=>{
     $('dup-hint').style.display='block';toast('شماره پاکت تکراری است!','err');return;
   }
   const body={packetNumber:packet,date,workType:work,
-    modelCode:$('fld-model').value.trim(),modelFull:$('fld-model-full').value.trim(),
+    modelCode:$('fld-model').value.trim(),
+    modelFull:editingId?editingModelFull:'',
     numericWeight:$('fld-weight').value.trim(),numericKarat:$('fld-karat').value.trim(),
-    meltNumber:$('fld-melt').value.trim(),description:$('fld-desc').value.trim()};
+    meltNumber:$('fld-melt').value.trim(),
+    description:editingId?editingDesc:''};
   try{
     alarmRegister(); /* آلارم ثبت */
     const url=editingId?'/api/rey-giri/'+editingId:'/api/rey-giri';
@@ -512,7 +619,7 @@ $('btn-save').addEventListener('click',async ()=>{
 /* Enter مثل Tab */
 document.querySelectorAll('#form-overlay input,#form-overlay select,#form-overlay textarea')
   .forEach((el,i,all)=>el.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();(all[i+1]||all[0]).focus();}
+    if(e.key==='Enter'){e.preventDefault();if(e.target.id==='fld-date')closeDpop();(all[i+1]||all[0]).focus();}
   }));
 
 /* ═══════════════ خروجی اکسل ═══════════════ */
@@ -608,7 +715,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Insert'&&!$('form-overlay').classList.contains('open')&&!$('backup-overlay').classList.contains('open')){
     e.preventDefault();openForm(null);
   }
-  if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+  if(e.key==='Escape'){closeDpop();document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));}
 });
 $('btn-new').addEventListener('click',()=>openForm(null));
 $('btn-refresh').addEventListener('click',()=>{page=1;fetchRecords();fetchStats();toast('بروزرسانی شد','ok')});

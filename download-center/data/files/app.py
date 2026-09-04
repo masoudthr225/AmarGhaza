@@ -59,6 +59,7 @@ MAX_BACKUPS = 20
 KARAT_STANDARD = 'استاندارد (750)'
 KARAT_HIGH = 'بالا (>750)'
 KARAT_LOW = 'پایین (<750)'
+KARAT_WAITING = 'در انتظار عیار'
 
 MSG_TRASH = 'رکورد با موفقیت حذف شد'
 MSG_RESTORE = 'رکورد با موفقیت بازیابی شد'
@@ -166,13 +167,13 @@ def to_float(v):
 
 
 def calc_karat_status(numeric_karat):
-    """وضعیت عیار با برچسب استاندارد — None اگر عیار نامعتبر باشد"""
+    """وضعیت عیار با برچسب استاندارد — بدون عیار = در انتظار عیار"""
     try:
         k = float(numeric_karat)
     except (TypeError, ValueError):
-        return None
+        return KARAT_WAITING
     if k <= 0:
-        return None
+        return KARAT_WAITING
     if k > 750:
         return KARAT_HIGH
     if k < 750:
@@ -520,7 +521,7 @@ def xlsx_export(records):
             ('s', r['description'] or ''),
             ('n', r['karatReceived']),
             ('n', r['numericKarat']),
-            ('s', r['karatStatus'] or ''),
+            ('s', r['karatStatus'] or KARAT_WAITING),
         ]
         cells = []
         for i, (kind, v) in enumerate(values):
