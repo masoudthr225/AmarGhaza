@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سیستم ثبت ری‌گیری طلا</title>
+<style>
+@font-face{
+  font-family:'Vazirmatn';
+  src:url('/assets/Vazirmatn.woff2') format('woff2-variations'),url('/assets/Vazirmatn.woff2') format('woff2');
+  font-weight:100 900;font-style:normal;font-display:swap;
+}
+:root{
+  --bg:#f5f6fb;--card:#ffffff;--text:#1e293b;--muted:#64748b;
+  --border:#e2e8f0;--indigo:#6366f1;--purple:#a855f7;--amber:#f59e0b;
+  --green:#16a34a;--red:#ef4444;--radius:12px;
+  --grad:linear-gradient(135deg,#6366f1,#a855f7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;color:var(--text);
+  background:#eef0f8 url('/assets/background.jpg') center/cover fixed no-repeat;
+  min-height:100vh;
+}
+body::before{content:'';position:fixed;inset:0;background:rgba(255,255,255,.78);backdrop-filter:blur(2px);z-index:-1}
+button,input,select,textarea{font-family:inherit;font-size:.95rem}
+
+/* ── هدر ── */
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid #c7d2fe;box-shadow:0 1px 10px rgba(99,102,241,.08)}
+.hwrap{max-width:1180px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 16px rgba(99,102,241,.35)}
+h1{font-size:1.35rem;font-weight:800}
+.sub{font-size:.78rem;color:var(--muted)}
+.hint{font-size:.7rem;color:var(--indigo);margin-top:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ── دکمه‌ها ── */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;
+  color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;
+  transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--indigo);color:var(--indigo);transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--grad);color:#fff;border:none;box-shadow:0 4px 14px rgba(99,102,241,.35)}
+.btn.primary:hover{filter:brightness(1.07);color:#fff}
+.btn.trash-on{background:#fef3c7;border-color:var(--amber);color:#92400e}
+.btn.sm{padding:5px 10px;font-size:.83rem;border-radius:8px}
+.btn.icon{padding:6px;border-radius:8px}
+.btn.ok{color:var(--green)}
+.btn.ok:hover{color:var(--green);border-color:var(--green);background:#f0fdf4}
+.btn.danger{color:var(--red)}
+.btn.danger:hover{color:var(--red);border-color:var(--red);background:#fef2f2}
+.badge{display:inline-flex;align-items:center;border-radius:99px;padding:2px 10px;font-size:.75rem;font-weight:700}
+.badge.gray{background:#f1f5f9;color:#475569}
+.badge.indigo{background:#e0e7ff;color:#4338ca}
+.badge.green{background:#dcfce7;color:#166534}
+.badge.red{background:#fee2e2;color:#991b1b}
+.badge.yellow{background:#fef9c3;color:#854d0e}
+.badge.amber{background:#fef3c7;color:#92400e}
+.count-pill{background:var(--red);color:#fff;border-radius:99px;padding:0 7px;font-size:.72rem;margin-right:4px}
+
+/* ── چیدمان ── */
+main{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid #dbe1f5;border-radius:var(--radius);
+  box-shadow:0 2px 10px rgba(99,102,241,.06)}
+.card .body{padding:16px}
+.card .head{padding:12px 16px 0;display:flex;align-items:center;gap:8px;font-weight:800}
+.stat{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stat .num{font-size:1.9rem;font-weight:800;line-height:1.2}
+.stat .lbl{font-size:.8rem;color:var(--muted)}
+.stat .ico{width:48px;height:48px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:22px}
+
+/* ── فیلترها ── */
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filters .grow{flex:1;min-width:200px;position:relative}
+input[type=text],select,textarea{
+  width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;background:#fff;
+  outline:none;transition:border .15s}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--indigo)}
+.sicon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#94a3b8;pointer-events:none}
+.filters select{width:auto;min-width:130px}
+
+/* ── جدول ── */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}
+thead th{background:linear-gradient(90deg,#e0e7ff,#f3e8ff);padding:11px 8px;font-weight:800;
+  border-bottom:2px solid #c7d2fe;white-space:nowrap}
+thead th.sortable{cursor:pointer;user-select:none}
+thead th.sortable:hover{background:#c7d2fe}
+thead th .arr{font-size:.7rem;opacity:.45;margin-right:4px}
+thead th.active .arr{opacity:1;color:var(--indigo)}
+tbody td{padding:9px 8px;text-align:center;border-bottom:1px solid #eef2f7}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:#f5f3ff}
+tbody tr.trashed{background:#fffbeb}
+tbody tr.trashed:hover{background:#fef3c7}
+.pkt{background:#f1f5f9;padding:2px 8px;border-radius:6px;font-family:Consolas,monospace;font-size:.85rem}
+.mono{font-family:Consolas,monospace}
+.k-ok{color:var(--green);font-weight:800}
+.k-low{color:var(--red);font-weight:800}
+.k-high{color:#ca8a04;font-weight:800}
+.opcell{display:flex;gap:4px;justify-content:flex-end}
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.empty .big{font-size:44px;margin-bottom:10px}
+
+/* ── صفحه‌بندی ── */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px;flex-wrap:wrap}
+.pager .info{font-size:.85rem;color:var(--muted)}
+
+/* ── دیالوگ‌ها ── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px);
+  display:none;align-items:flex-start;justify-content:center;z-index:100;padding:5vh 14px;overflow:auto}
+.overlay.open{display:flex}
+.dlg{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(2,6,23,.3);width:100%;max-width:640px;
+  animation:pop .18s ease-out}
+@keyframes pop{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.dlg .dhead{padding:16px 20px 6px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
+.dlg .dbody{padding:12px 20px 20px}
+.dlg .dfoot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px}
+.dlg .dfoot .grow{flex:1}
+.dclose{margin-right:auto;border:none;background:none;font-size:1.3rem;cursor:pointer;color:#94a3b8;padding:2px 6px}
+.dclose:hover{color:var(--red)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgrid .full{grid-column:1/-1}
+@media(max-width:560px){.fgrid{grid-template-columns:1fr}}
+.field label{display:block;font-size:.8rem;font-weight:700;color:#475569;margin-bottom:5px}
+.field .err{border-color:var(--red)!important;background:#fef2f2}
+.fhint{font-size:.7rem;color:var(--muted);margin-top:3px}
+
+/* ── بکاپ ── */
+.sec{border:1.5px solid;border-radius:12px;padding:14px;margin-bottom:12px}
+.sec.blue{border-color:#c7d2fe;background:#f5f7ff}
+.sec.amberb{border-color:#fcd34d;background:#fffbeb}
+.sec h4{font-size:.92rem;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.blist{max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.bitem{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;
+  border:1px solid var(--border);border-radius:10px;padding:8px 12px}
+.bitem .nm{font-family:Consolas,monospace;font-size:.75rem;direction:ltr;text-align:left;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:270px}
+.bitem .mt{font-size:.7rem;color:var(--muted)}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid #c7d2fe;border-top-color:var(--indigo);
+  border-radius:99px;animation:rot .7s linear infinite;vertical-align:-3px;margin-left:6px}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ── toast ── */
+#toasts{position:fixed;bottom:18px;left:18px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,.22);padding:12px 16px;
+  min-width:260px;max-width:360px;font-size:.88rem;border-right:4px solid var(--indigo);
+  animation:pop .2s ease-out}
+.toast.ok{border-right-color:var(--green)}
+.toast.err{border-right-color:var(--red)}
+.toast .tt{font-weight:800;margin-bottom:2px}
+.toast .td{color:var(--muted);font-size:.78rem}
+.spin-lg{width:34px;height:34px;border:3.5px solid #c7d2fe;border-top-color:var(--indigo);border-radius:99px;
+  animation:rot .8s linear infinite;margin:40px auto}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <div class="brand">
+      <div class="logo">⚖️</div>
+      <div>
+        <h1>سیستم ثبت ری‌گیری طلا</h1>
+        <div class="sub">مدیریت و پیگیری نمونه‌های ری‌گیری</div>
+        <div class="hint">کلید میانبر ثبت جدید: Insert</div>
+      </div>
+    </div>
+    <div class="actions">
+      <input type="file" id="file-upload-input" accept=".xlsx,.xls,.csv" style="display:none">
+      <button class="btn" id="btn-upload">📤 آپلود فایل</button>
+      <button class="btn" id="btn-export">📥 خروجی Excel</button>
+      <button class="btn" id="btn-backup">🗄 بکاپ و بازیابی</button>
+      <button class="btn" id="btn-trash">🗑 سطل بازیافت <span class="count-pill" id="trash-count" style="display:none">۰</span></button>
+      <button class="btn primary" id="btn-new">➕ ثبت جدید</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- کارت‌های آمار -->
+  <div class="grid3" id="stats-cards">
+    <div class="card"><div class="body stat">
+      <div><div class="lbl">کل رکوردها</div><div class="num" id="st-total">—</div></div>
+      <div class="ico" style="background:#e0e7ff">📄</div>
+    </div></div>
+    <div class="card"><div class="body stat">
+      <div><div class="lbl">مجموع وزن (گرم)</div><div class="num" id="st-weight">—</div></div>
+      <div class="ico" style="background:#fae8ff">⚖️</div>
+    </div></div>
+    <div class="card"><div class="body stat">
+      <div><div class="lbl">میانگین عیار</div><div class="num" id="st-karat">—</div></div>
+      <div class="ico" style="background:#ede9fe">💎</div>
+    </div></div>
+  </div>
+
+  <!-- آمار نوع کار -->
+  <div class="grid2">
+    <div class="card"><div class="head">💎 آمار بر اساس نوع کار</div>
+      <div class="body" id="wt-counts"><div class="spin-lg"></div></div></div>
+    <div class="card"><div class="head">📊 وزن بر اساس نوع کار</div>
+      <div class="body" id="wt-weights"><div class="spin-lg"></div></div></div>
+  </div>
+
+  <!-- فیلترها -->
+  <div class="card" style="margin-bottom:14px"><div class="body filters">
+    <div class="grow">
+      <span class="sicon">🔍</span>
+      <input type="text" id="f-search" placeholder="جستجو (شماره پاکت، کد مدل، تاریخ، شماره ذوب)...">
+    </div>
+    <select id="f-work">
+      <option value="">همهٔ نوع‌های کار</option>
+      <option value="النگو">النگو</option>
+      <option value="ریخته ای">ریخته‌ای</option>
+    </select>
+    <select id="f-karat">
+      <option value="">همهٔ وضعیت‌های عیار</option>
+      <option value="استاندارد">استاندارد</option>
+      <option value="بالا">بالا</option>
+      <option value="پایین">پایین</option>
+    </select>
+    <button class="btn" id="btn-refresh">🔄 بروزرسانی</button>
+  </div></div>
+
+  <!-- جدول -->
+  <div class="card">
+    <div class="head" id="table-title">📋 لیست رکوردها <span class="badge gray" id="rec-count">۰</span></div>
+    <div class="body">
+      <div id="table-area"><div class="spin-lg"></div></div>
+      <div class="pager" id="pager" style="display:none">
+        <span class="info" id="page-info"></span>
+        <span style="display:flex;gap:8px">
+          <button class="btn sm" id="pg-prev">← قبلی</button>
+          <button class="btn sm" id="pg-next">بعدی →</button>
+        </span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ── دیالوگ ثبت/ویرایش ── -->
+<div class="overlay" id="form-overlay">
+  <div class="dlg">
+    <div class="dhead"><span id="form-title">➕ ثبت رکورد جدید</span>
+      <button class="dclose" data-close="form-overlay">×</button></div>
+    <div class="dbody">
+      <div class="fgrid">
+        <div class="field"><label>شماره پاکت *</label>
+          <input type="text" id="fld-packet" placeholder="مثلاً 51904"><div class="fhint" id="dup-hint" style="color:var(--red);display:none">⚠️ این شماره پاکت قبلاً ثبت شده است</div></div>
+        <div class="field"><label>تاریخ *</label>
+          <input type="text" id="fld-date" placeholder="مثلاً 1405/06/13"></div>
+        <div class="field"><label>نوع کار *</label>
+          <select id="fld-work"><option value="">انتخاب کنید…</option><option value="النگو">النگو</option><option value="ریخته ای">ریخته‌ای</option></select></div>
+        <div class="field"><label>کد مدل</label>
+          <input type="text" id="fld-model" placeholder="مثلاً 155"></div>
+        <div class="field"><label>مدل کامل</label>
+          <input type="text" id="fld-model-full" placeholder="اگر خالی باشد = کد مدل"></div>
+        <div class="field"><label>وزن (گرم)</label>
+          <input type="text" id="fld-weight" placeholder="مثلاً 0.24" inputmode="decimal"></div>
+        <div class="field"><label>عیار دریافتی</label>
+          <input type="text" id="fld-karat" placeholder="مثلاً 750" inputmode="decimal"></div>
+        <div class="field"><label>شماره ذوب</label>
+          <input type="text" id="fld-melt"></div>
+        <div class="field full"><label>توضیحات</label>
+          <textarea id="fld-desc" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="dfoot">
+      <button class="btn primary" id="btn-save">💾 ذخیره</button>
+      <button class="btn" data-close="form-overlay">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── دیالوگ بکاپ ── -->
+<div class="overlay" id="backup-overlay">
+  <div class="dlg" style="max-width:560px">
+    <div class="dhead">🗄 بکاپ و بازیابی <button class="dclose" data-close="backup-overlay">×</button></div>
+    <div class="dbody">
+      <div class="sec blue">
+        <h4>💾 گرفتن نسخهٔ پشتیبان</h4>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn primary" id="btn-backup-create">💾 ذخیرهٔ نسخهٔ پشتیبان در برنامه</button>
+          <button class="btn" id="btn-backup-download">📥 دانلود فایل بکاپ روی کامپیوتر</button>
+        </div>
+      </div>
+      <div class="sec amberb">
+        <h4>♻️ بازیابی از نسخهٔ پشتیبان</h4>
+        <input type="file" id="backup-file-input" accept=".db" style="display:none">
+        <button class="btn" id="btn-backup-upload" style="width:100%;border-color:var(--amber)">📤 آپلود و بازیابی از فایل بکاپ (.db)</button>
+        <div class="fhint" style="margin:10px 0 8px">یا از میان نسخه‌های ذخیره‌شده انتخاب کنید:</div>
+        <div class="blist" id="backup-list"><div class="spin-lg"></div></div>
+      </div>
+      <div class="fhint">⚠️ قبل از هر بازیابی، از وضعیت فعلی به‌طور خودکار نسخهٔ امن گرفته می‌شود؛ پس هیچ داده‌ای برای همیشه از دست نمی‌رود.</div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* ═══════════════ ابزارها ═══════════════ */
+const $ = id => document.getElementById(id);
+const faNum = n => Number(n||0).toLocaleString('fa-IR');
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg, type, desc){
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type||'');
+  t.innerHTML = '<div class="tt">'+esc(msg)+'</div>' + (desc?'<div class="td">'+esc(desc)+'</div>':'');
+  $('toasts').appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(()=>t.remove(),400)},4200);
+}
+
+/* تاریخ شمسی امروز */
+function toJalali(g){
+  const gy=g.getFullYear(), gm=g.getMonth()+1, gd=g.getDate();
+  const gdm=[0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy=gy<=1600?0:979; let y=gy-(gy<=1600?621:1600);
+  const y2=gm>2?y+1:y;
+  let days=365*y+Math.floor((y2+3)/4)-Math.floor((y2+99)/100)+Math.floor((y2+399)/400)-80+gd+gdm[gm-1];
+  jy+=33*Math.floor(days/12053); days%=12053;
+  jy+=4*Math.floor(days/1461); days%=1461;
+  if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365;}
+  const jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30);
+  const jd=1+(days<186?days%31:(days-186)%30);
+  return jy+'/'+String(jm).padStart(2,'0')+'/'+String(jd).padStart(2,'0');
+}
+
+/* ═══════════════ وضعیت ═══════════════ */
+let records=[], stats=null, loading=true, showTrash=false, editingId=null;
+let search='', workFilter='', karatFilter='', sortBy='rowNumber', sortOrder='desc';
+let page=1, totalPages=1, totalRecords=0;
+const PAGE_SIZE=50;
+
+/* ═══════════════ دریافت داده ═══════════════ */
+async function fetchRecords(){
+  try{
+    loading=true; renderTable();
+    const p=new URLSearchParams({search,workType:workFilter,karatStatus:karatFilter,sortBy,sortOrder,
+      page:String(page),limit:String(PAGE_SIZE)});
+    if(showTrash) p.set('trash','1');
+    const r=await fetch('/api/rey-giri?'+p); const j=await r.json();
+    if(j.success){records=j.data;totalPages=j.pagination.pages;totalRecords=j.pagination.total;}
+  }catch(e){toast('خطا در دریافت داده‌ها','err')}
+  finally{loading=false;renderTable();}
+}
+
+async function fetchStats(){
+  try{
+    const r=await fetch('/api/rey-giri/stats'); const j=await r.json();
+    if(j.success){stats=j.data;renderStats();}
+  }catch(e){console.error(e)}
+}
+
+function renderStats(){
+  if(!stats)return;
+  $('st-total').textContent=faNum(stats.totalRecords);
+  $('st-weight').textContent=faNum(stats.totalWeight);
+  $('st-karat').textContent=faNum(stats.avgKarat);
+  $('wt-counts').innerHTML=
+    '<div style="display:flex;justify-content:space-between;background:#eef2ff;border-radius:10px;padding:10px 14px;margin-bottom:8px"><b>النگو</b><span class="badge indigo">'+faNum(stats.byWorkType.elango)+' رکورد</span></div>'+
+    '<div style="display:flex;justify-content:space-between;background:#faf5ff;border-radius:10px;padding:10px 14px"><b>ریخته‌ای</b><span class="badge gray">'+faNum(stats.byWorkType.rikhtehi)+' رکورد</span></div>';
+  const tw=stats.totalWeight||1;
+  $('wt-weights').innerHTML=(stats.workTypeStats||[]).map(s=>{
+    const w=s._sum.numericWeight||0;
+    const pct=Math.min(100,Math.round(w/tw*100));
+    return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.85rem"><span>'+esc(s.workType||'—')+'</span><b>'+faNum(w)+' گرم</b></div>'+
+      '<div style="background:#e2e8f0;border-radius:99px;height:8px;margin-top:4px"><div style="width:'+pct+'%;height:8px;border-radius:99px;background:linear-gradient(90deg,#818cf8,#c084fc);transition:width .5s"></div></div></div>';
+  }).join('')||'<div class="empty" style="padding:20px">داده‌ای نیست</div>';
+  const tc=$('trash-count');
+  tc.style.display=stats.trashCount>0?'inline-flex':'none';
+  tc.textContent=faNum(stats.trashCount);
+}
+
+/* ═══════════════ جدول ═══════════════ */
+const COLS=[
+  {key:'rowNumber',label:'ردیف'},{key:'packetNumber',label:'شماره پاکت'},{key:'date',label:'تاریخ'},
+  {key:null,label:'نوع کار'},{key:'modelCode',label:'کد مدل'},{key:'numericWeight',label:'وزن (گرم)'},
+  {key:'numericKarat',label:'عیار'},{key:null,label:'وضعیت عیار'},{key:null,label:'عملیات'}
+];
+
+function karatClass(k){if(k===null||k===undefined)return'';if(k==750)return'k-ok';if(k<750)return'k-low';return'k-high'}
+
+function renderTable(){
+  $('table-title').innerHTML=(showTrash?'🗑 سطل بازیافت':'📋 لیست رکوردها')+
+    ' <span class="badge '+(showTrash?'amber':'gray')+'">'+faNum(totalRecords)+' رکورد</span>';
+  const area=$('table-area');
+  if(loading){area.innerHTML='<div class="spin-lg"></div>';$('pager').style.display='none';return;}
+  if(!records.length){
+    area.innerHTML='<div class="empty"><div class="big">'+(showTrash?'🗑':'📄')+'</div><b>'+
+      (showTrash?'سطل بازیافت خالی است':'رکوردی یافت نشد')+'</b><div style="margin-top:6px;font-size:.85rem">'+
+      (showTrash?'رکوردهای حذف‌شده اینجا نمایش داده می‌شوند و با دکمهٔ ⟲ برمی‌گردند.'
+                :'برای شروع، روی دکمهٔ «ثبت جدید» کلیک کنید یا کلید Insert را فشار دهید.')+'</div></div>';
+    $('pager').style.display='none';return;
+  }
+  const head=COLS.map(c=>{
+    if(!c.key)return'<th>'+c.label+'</th>';
+    const active=sortBy===c.key;
+    return'<th class="sortable '+(active?'active':'')+'" onclick="sortBy_64(\''+c.key+'\')">'+c.label+
+      '<span class="arr">'+(active?(sortOrder==='asc'?'▲':'▼'):'⇅')+'</span></th>';
+  }).join('');
+  const rows=records.map(r=>{
+    const ops=showTrash
+      ?'<button class="btn icon ok" title="بازیابی" onclick="restoreRec(\''+r.id+'\')">⟲</button>'
+      :'<button class="btn icon" title="ویرایش" onclick="editRec(\''+r.id+'\')">✏️</button>'+
+       '<button class="btn icon danger" title="حذف (به سطل بازیافت)" onclick="delRec(\''+r.id+'\')">🗑</button>';
+    return'<tr class="'+(showTrash?'trashed':'')+'">'+
+      '<td><b>'+faNum(r.rowNumber)+'</b></td>'+
+      '<td><span class="pkt">'+esc(r.packetNumber)+'</span></td>'+
+      '<td class="mono">'+esc(r.date)+'</td>'+
+      '<td><span class="badge '+(r.workType==='النگو'?'indigo':'gray')+'">'+esc(r.workType)+'</span></td>'+
+      '<td class="mono">'+esc(r.modelCode)+'</td>'+
+      '<td class="mono">'+faNum(r.numericWeight)+'</td>'+
+      '<td class="mono '+karatClass(r.numericKarat)+'">'+(r.numericKarat??'—')+'</td>'+
+      '<td><span class="badge '+(r.karatStatus&&r.karatStatus.includes('پایین')?'red':(r.karatStatus&&r.karatStatus.includes('بالا')?'yellow':'green'))+'">'+esc(r.karatStatus||'—')+'</span></td>'+
+      '<td><div class="opcell">'+ops+'</div></td></tr>';
+  }).join('');
+  area.innerHTML='<div class="table-wrap"><table><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  $('pager').style.display=totalPages>1?'flex':'none';
+  $('page-info').textContent='صفحهٔ '+faNum(page)+' از '+faNum(totalPages);
+  $('pg-prev').disabled=page<=1;$('pg-next').disabled=page>=totalPages;
+}
+
+function sortBy_64(key){
+  if(sortBy===key)sortOrder=sortOrder==='asc'?'desc':'asc';
+  else{sortBy=key;sortOrder='asc';}
+  fetchRecords();
+}
+window.sortBy_64=sortBy_64;
+
+/* ═══════════════ ثبت / ویرایش / حذف / بازیابی ═══════════════ */
+function openForm(rec){
+  editingId=rec?rec.id:null;
+  $('form-title').textContent=rec?'✏️ ویرایش رکورد '+faNum(rec.rowNumber):'➕ ثبت رکورد جدید';
+  $('fld-packet').value=rec?rec.packetNumber:'';
+  $('fld-date').value=rec?rec.date:toJalali(new Date());
+  $('fld-work').value=rec?rec.workType:'';
+  $('fld-model').value=rec?rec.modelCode:'';
+  $('fld-model-full').value=rec?rec.modelFull:'';
+  $('fld-weight').value=rec?rec.numericWeight:'';
+  $('fld-karat').value=rec?(rec.numericKarat??''):'';
+  $('fld-melt').value=rec?(rec.meltNumber||''):'';
+  $('fld-desc').value=rec?(rec.description||''):'';
+  $('dup-hint').style.display='none';
+  $('form-overlay').classList.add('open');
+  setTimeout(()=>$('fld-packet').focus(),50);
+}
+window.editRec=id=>{const r=records.find(x=>x.id===id);if(r)openForm(r);};
+window.delRec=async id=>{
+  if(!confirm('این رکورد به سطل بازیافت منتقل شود؟ (قابل بازگردانی است)'))return;
+  try{
+    const r=await fetch('/api/rey-giri/'+id,{method:'DELETE'});const j=await r.json();
+    if(j.success){toast(j.message,'ok','برای بازگردانی: دکمهٔ «سطل بازیافت»');fetchRecords();fetchStats();}
+    else toast(j.error||'خطا در حذف رکورد','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+};
+window.restoreRec=async id=>{
+  try{
+    const r=await fetch('/api/rey-giri/'+id+'/restore',{method:'POST'});const j=await r.json();
+    if(j.success){toast(j.message,'ok');fetchRecords();fetchStats();}
+    else toast(j.error||'خطا در بازیابی','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+};
+
+$('btn-save').addEventListener('click',async ()=>{
+  const packet=$('fld-packet').value.trim();
+  const date=$('fld-date').value.trim();
+  const work=$('fld-work').value;
+  if(!packet){toast('شماره پاکت لازم است','err');$('fld-packet').focus();return;}
+  if(!date){toast('تاریخ لازم است','err');$('fld-date').focus();return;}
+  if(!work){toast('نوع کار را انتخاب کنید','err');return;}
+  // بررسی تکراری نبودن شماره پاکت (در رکوردهای بارگذاری‌شده)
+  if(!editingId && records.some(r=>r.packetNumber===packet)){
+    $('dup-hint').style.display='block';toast('شماره پاکت تکراری است!','err');return;
+  }
+  const body={packetNumber:packet,date,workType:work,
+    modelCode:$('fld-model').value.trim(),modelFull:$('fld-model-full').value.trim(),
+    numericWeight:$('fld-weight').value.trim(),numericKarat:$('fld-karat').value.trim(),
+    meltNumber:$('fld-melt').value.trim(),description:$('fld-desc').value.trim()};
+  try{
+    const url=editingId?'/api/rey-giri/'+editingId:'/api/rey-giri';
+    const r=await fetch(url,{method:editingId?'PUT':'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)});
+    const j=await r.json();
+    if(j.success){
+      toast(editingId?'رکورد بروزرسانی شد':'رکورد جدید ثبت شد','ok');
+      $('form-overlay').classList.remove('open');
+      fetchRecords();fetchStats();
+    }else toast(j.error||'خطا در عملیات','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+});
+
+/* Enter مثل Tab */
+document.querySelectorAll('#form-overlay input,#form-overlay select,#form-overlay textarea')
+  .forEach((el,i,all)=>el.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();(all[i+1]||all[0]).focus();}
+  }));
+
+/* ═══════════════ سطل بازیافت ═══════════════ */
+$('btn-trash').addEventListener('click',()=>{
+  showTrash=!showTrash;page=1;
+  $('btn-trash').classList.toggle('trash-on',showTrash);
+  $('btn-trash').innerHTML=(showTrash?'📋 لیست اصلی':'🗑 سطل بازیافت')+
+    ' <span class="count-pill" id="trash-count" style="display:'+(stats&&stats.trashCount>0?'inline-flex':'none')+'">'+faNum(stats?stats.trashCount:0)+'</span>';
+  fetchRecords();
+});
+
+/* ═══════════════ خروجی اکسل ═══════════════ */
+$('btn-export').addEventListener('click',()=>{
+  toast('در حال ایجاد فایل اکسل…');
+  const a=document.createElement('a');a.href='/api/rey-giri/export';a.download='';
+  document.body.appendChild(a);a.click();a.remove();
+});
+
+/* ═══════════════ آپلود اکسل ═══════════════ */
+$('btn-upload').addEventListener('click',()=>$('file-upload-input').click());
+$('file-upload-input').addEventListener('change',async e=>{
+  const file=e.target.files[0];if(!file)return;
+  const name=file.name.toLowerCase();
+  if(!/\.(xlsx|xls|csv)$/.test(name)){toast('لطفاً فایل Excel (.xlsx) یا CSV انتخاب کنید','err');e.target.value='';return;}
+  toast('در حال پردازش فایل… لطفاً صبر کنید');
+  try{
+    const fd=new FormData();fd.append('file',file);
+    const r=await fetch('/api/rey-giri/upload',{method:'POST',body:fd});
+    const j=await r.json();
+    if(j.success)toast(j.message,'ok',j.duplicates>0?'هیچ دادهٔ قبلی پاک نشد':'');
+    else toast(j.error||'خطا در پردازش فایل','err');
+    fetchRecords();fetchStats();
+  }catch(err){toast('خطا در ارتباط با سرور','err')}
+  e.target.value='';
+});
+
+/* ═══════════════ بکاپ و بازیابی ═══════════════ */
+async function fetchBackups(){
+  try{
+    const r=await fetch('/api/rey-giri/backup/list');const j=await r.json();
+    if(j.success)renderBackups(j.data);
+  }catch(e){console.error(e)}
+}
+function renderBackups(list){
+  const el=$('backup-list');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:18px">هنوز نسخه‌ای ذخیره نشده است</div>';return;}
+  el.innerHTML=list.map(b=>
+    '<div class="bitem"><div style="min-width:0"><div class="nm" title="'+esc(b.name)+'">'+esc(b.name)+
+    (b.manual?' <span class="badge indigo" style="font-size:.62rem">دستی</span>':'')+'</div>'+
+    '<div class="mt">'+new Date(b.createdAt).toLocaleString('fa-IR')+' — '+faNum(Math.round(b.size/1024))+' کیلوبایت</div></div>'+
+    '<button class="btn sm ok" onclick="restoreBackup(\''+esc(b.name)+'\')">⟲ بازیابی</button></div>').join('');
+}
+window.restoreBackup=async name=>{
+  if(!confirm('داده‌های فعلی با محتوای «'+name+'» جایگزین شود؟\n\nقبل از بازیابی، از وضعیت فعلی هم نسخهٔ امن گرفته می‌شود.'))return;
+  $('backup-list').innerHTML='<div style="text-align:center;padding:18px"><span class="spin"></span> در حال بازیابی…</div>';
+  try{
+    const r=await fetch('/api/rey-giri/backup/restore',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+    const j=await r.json();
+    if(j.success){toast(j.message,'ok');fetchRecords();fetchStats();fetchBackups();}
+    else{toast(j.error||'خطا در بازیابی','err');fetchBackups();}
+  }catch(e){toast('خطا در ارتباط با سرور','err');fetchBackups();}
+};
+$('btn-backup').addEventListener('click',()=>{$('backup-overlay').classList.add('open');fetchBackups();});
+$('btn-backup-create').addEventListener('click',async ()=>{
+  const btn=$('btn-backup-create');btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال ساخت…';
+  try{
+    const r=await fetch('/api/rey-giri/backup',{method:'POST'});const j=await r.json();
+    if(j.success){toast(j.message,'ok',j.name);fetchBackups();fetchStats();}
+    else toast(j.error||'خطا در ساخت بکاپ','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+  btn.disabled=false;btn.innerHTML='💾 ذخیرهٔ نسخهٔ پشتیبان در برنامه';
+});
+$('btn-backup-download').addEventListener('click',()=>{
+  const a=document.createElement('a');a.href='/api/rey-giri/backup';a.download='';
+  document.body.appendChild(a);a.click();a.remove();
+  toast('فایل بکاپ در حال دانلود است','ok','آن را در جای امنی (مثلاً فلش) ذخیره کنید');
+});
+$('btn-backup-upload').addEventListener('click',()=>$('backup-file-input').click());
+$('backup-file-input').addEventListener('change',async e=>{
+  const file=e.target.files[0];if(!file)return;
+  if(!confirm('فایل بکاپ «'+file.name+'» آپلود و جایگزین داده‌های فعلی شود؟\n\nقبل از بازیابی، از وضعیت فعلی هم نسخهٔ امن گرفته می‌شود.')){e.target.value='';return;}
+  $('backup-list').innerHTML='<div style="text-align:center;padding:18px"><span class="spin"></span> در حال آپلود و بازیابی…</div>';
+  try{
+    const fd=new FormData();fd.append('file',file);
+    const r=await fetch('/api/rey-giri/backup/restore',{method:'POST',body:fd});
+    const j=await r.json();
+    if(j.success){toast(j.message,'ok');fetchRecords();fetchStats();fetchBackups();}
+    else{toast(j.error||'خطا در بازیابی فایل بکاپ','err');fetchBackups();}
+  }catch(err){toast('خطا در ارتباط با سرور','err');fetchBackups();}
+  e.target.value='';
+});
+
+/* ═══════════════ متفرقه ═══════════════ */
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{
+  $(b.dataset.close).classList.remove('open');
+}));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{
+  if(e.target===o)o.classList.remove('open');
+}));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Insert'&&!$('form-overlay').classList.contains('open')&&!$('backup-overlay').classList.contains('open')){
+    e.preventDefault();openForm(null);
+  }
+  if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+});
+$('btn-new').addEventListener('click',()=>openForm(null));
+$('btn-refresh').addEventListener('click',()=>{page=1;fetchRecords();fetchStats();toast('بروزرسانی شد','ok')});
+$('pg-prev').addEventListener('click',()=>{if(page>1){page--;fetchRecords();}});
+$('pg-next').addEventListener('click',()=>{if(page<totalPages){page++;fetchRecords();}});
+
+let searchTimer=null;
+$('f-search').addEventListener('input',e=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{search=e.target.value.trim();page=1;fetchRecords();},400);
+});
+$('f-work').addEventListener('change',e=>{workFilter=e.target.value;page=1;fetchRecords();});
+$('f-karat').addEventListener('change',e=>{karatFilter=e.target.value;page=1;fetchRecords();});
+
+/* شروع */
+fetchRecords();
+fetchStats();
+</script>
+</body>
+</html>
