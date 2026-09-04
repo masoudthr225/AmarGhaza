@@ -101,11 +101,12 @@ function ensureSingleInstance() {
   try { fs.writeFileSync(LOCK_FILE, String(process.pid)) } catch {}
 }
 
-/** اجرای یک فرمان و انتظار برای پایان آن (خروجی در لاگ) */
-function run(cmd, args, label) {
+/** اجرای یک فرمان و انتظار برای پایان آن (خروجی در لاگ) — با محدودیت زمانی اختیاری */
+function run(cmd, args, label, timeoutMs = 0) {
   return new Promise((resolve) => {
     log(`${label}...`)
     let out = ''
+    let timedOut = false
     const child = spawn(cmd, args, { ...RUN_OPTS, stdio: ['ignore', 'pipe', 'pipe'] })
     const collect = (d) => {
       out += d.toString()
@@ -113,17 +114,54 @@ function run(cmd, args, label) {
     }
     child.stdout?.on('data', collect)
     child.stderr?.on('data', collect)
+    let timer = null
+    if (timeoutMs > 0) {
+      timer = setTimeout(() => {
+        timedOut = true
+        try { child.kill('SIGKILL') } catch {}
+      }, timeoutMs)
+    }
     child.on('error', (e) => {
+      if (timer) clearTimeout(timer)
       log(`❌ خطا در ${label}: ${e.message}`)
       resolve(false)
     })
     child.on('close', (code) => {
-      if (code === 0) {
+      if (timer) clearTimeout(timer)
+      if (timedOut) {
+        log(`❌ ${label} بیش از حد معمول طول کشید و متوقف شد`)
+        resolve(false)
+      } else if (code === 0) {
         log(`✅ ${label} تمام شد`)
         resolve(true)
       } else {
         log(`❌ ${label} با کد ${code} تمام شد:\n${out.slice(-3000)}`)
         resolve(false)
+      }
+    })
+  })
+}
+
+/** بررسی نسخهٔ Node.js — حداقل ۲۰ */
+async function checkNodeVersion() {
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, ['--version'], { ...RUN_OPTS, stdio: ['pipe', 'ignore', 'ignore'] })
+    let out = ''
+    child.stdout?.on('data', (d) => { out += d.toString() })
+    child.on('error', () => resolve(true)) // مشخص نیست — بگذ ادامه دهد
+    child.on('close', () => {
+      const m = out.match(/v(\d+)/)
+      if (m && Number(m[1]) < 20) {
+        const ver = out.trim()
+        log(`⛔ نسخهٔ Node.js قدیمی است: ${ver} — حداقل نسخهٔ ۲۰ لازم است`)
+        msgBox(
+          'سیستم ری‌گیری طلا — نسخهٔ Node.js قدیمی',
+          `نسخهٔ Node.js شما ${ver} است ولی این برنامه حداقل نسخهٔ ۲۰ لازم دارد.\n\nلطفاً از nodejs.org جدیدترین نسخهٔ LTS را نصب و کامپیوتر را ری‌استارت کنید.`
+        )
+        resolve(false)
+      } else {
+        log(`✓ Node.js ${out.trim()}`)
+        resolve(true)
       }
     })
   })
@@ -207,6 +245,9 @@ let stopping = false
 let openedBrowser = false
 let crashTimes = []
 
+// حالت «فقط نصب اولیه» — با --setup-only از طرف اجرای برنامه.vbs فراخوانی می‌شود
+const SETUP_ONLY = process.argv.includes('--setup-only')
+
 function startServer() {
   const logFd = fs.openSync(LOG_FILE, 'a')
   server = spawn(
@@ -275,23 +316,35 @@ process.on('unhandledRejection', (e) => log(`⚠️ رد شدن Promise: ${e} �
 
 async function main() {
   log('━━━ شروع launcher ━━━')
+
+  // ۰) بررسی نسخهٔ Node.js (حداقل ۲۰)
+  if (!(await checkNodeVersion())) return cleanExit(2)
+
   ensureSingleInstance()
 
-  // ۱) وابستگی‌ها
+  // ۱) وابستگی‌ها — با حداکثر ۲۰ دقیقه وقت (اینترنت کند)
   if (!fs.existsSync(path.join(ROOT, 'node_modules'))) {
-    const ok = await run(NPM, ['install', '--no-audit', '--no-fund'], 'نصب وابستگی‌ها (اولین اجرا — چند دقیقه صبر کنید)')
+    log('اولین اجرا: نصب وابستگی‌ها آغاز شد')
+    const ok = await run(NPM, ['install', '--no-audit', '--no-fund'], 'نصب وابستگی‌ها (اولین اجرا — چند دقیقه صبر کنید)', 20 * 60 * 1000)
     if (!ok) {
-      msgBox('سیستم ری‌گیری طلا — خطا', 'نصب وابستگی‌ها ناموفق بود. اتصال اینترنت را بررسی کنید و دوباره اجرا کنید.')
-      return cleanExit(1)
+      msgBox(
+        'سیستم ری‌گیری طلا — خطا در نصب',
+        'نصب وابستگی‌ها ناموفق بود یا بیش از حد طول کشید.\n\n۱) اتصال اینترنت را بررسی کنید\n۲) آنتی‌ویروس/فایروال را موقتاً غیرفعال کنید\n۳) دوباره «اجرای برنامه.vbs» را اجرا کنید\n\nجزئیات: logs/launcher.log'
+      )
+      return cleanExit(2)
     }
   }
 
-  // ۲) کلاینت دیتابیس (Prisma)
-  if (!fs.existsSync(path.join(ROOT, 'node_modules', '.prisma', 'client'))) {
-    const ok = await run(NPM, ['run', 'db:generate'], 'ساخت کلاینت دیتابیس')
+  // ۲) کلاینت دیتابیس — از قبل داخل پروژه است (src/generated/prisma)؛
+  //    فقط اگر به‌هرعلتی نبود، با prisma generate ساخته می‌شود
+  if (!fs.existsSync(path.join(ROOT, 'src', 'generated', 'prisma', 'index.js'))) {
+    const ok = await run(NPM, ['run', 'db:generate'], 'ساخت کلاینت دیتابیس', 5 * 60 * 1000)
     if (!ok) {
-      msgBox('سیستم ری‌گیری طلا — خطا', 'ساخت کلاینت دیتابیس ناموفق بود.')
-      return cleanExit(1)
+      msgBox(
+        'سیستم ری‌گیری طلا — خطا در کلاینت دیتابیس',
+        'ساخت کلاینت دیتابیس ناموفق بود.\n\nجزئیات: logs/launcher.log\nیا با START.bat اجرا کنید.'
+      )
+      return cleanExit(2)
     }
   }
 
@@ -300,14 +353,23 @@ async function main() {
 
   // ۴) ساخت در صورت نیاز
   if (isBuildStale()) {
-    const ok = await run(NPM, ['run', 'build'], 'ساخت نسخهٔ اجرایی برنامه (اولین بار طول می‌کشد)')
+    const ok = await run(NPM, ['run', 'build'], 'ساخت نسخهٔ اجرایی برنامه (اولین بار طول می‌کشد)', 30 * 60 * 1000)
     if (!ok) {
-      msgBox('سیستم ری‌گیری طلا — خطا', 'ساخت برنامه ناموفق بود. جزئیات در logs/launcher.log')
-      return cleanExit(1)
+      msgBox(
+        'سیستم ری‌گیری طلا — خطا در ساخت برنامه',
+        'ساخت برنامه ناموفق بود.\n\n۱) سایر برنامه‌ها را ببندید (رم بیشتر آزاد شود)\n۲) دوباره «اجرای برنامه.vbs» را اجرا کنید\n\nجزئیات: logs/launcher.log'
+      )
+      return cleanExit(2)
     }
   }
 
-  // ۵) اجرای مخفی سرور
+  // ۵) حالت «فقط نصب» — بعد از نصب و ساخت خارج می‌شود؛ خودِ برنامه در اجرای بعدی (مخفی) بالا می‌آید
+  if (SETUP_ONLY) {
+    log('✅ نصب اولیه کامل شد — برنامه در حال راه‌اندازی (پنجرهٔ مخفی)')
+    return cleanExit(0)
+  }
+
+  // ۶) اجرای مخفی سرور
   startServer()
   const ready = await waitUntilReady()
   if (ready) {
@@ -321,7 +383,7 @@ async function main() {
     log('⚠️ سرور در زمان مقرر پاسخ نداد — نگهبان فعال می‌ماند')
   }
 
-  // ۶) حلقهٔ نگهبان — stop.flag را زیر نظر بگیر
+  // ۷) حلقهٔ نگهبان — stop.flag را زیر نظر بگیر
   setInterval(() => {
     if (fs.existsSync(STOP_FLAG)) {
       log('سرور به درخواست کاربر متوقف شد.')

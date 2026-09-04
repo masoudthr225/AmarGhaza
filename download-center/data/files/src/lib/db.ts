@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+// کلاینت Prisma از داخل خود پروژه (src/generated/prisma) — بدون نیاز به prisma generate اینترنتی
+import { PrismaClient } from '@/generated/prisma'
 import { PrismaLibSQL } from '@prisma/adapter-libsql'
 import path from 'node:path'
 import fs from 'node:fs'

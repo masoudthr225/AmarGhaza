@@ -34,21 +34,21 @@ model Post {
 }
 
 model ReyGiri {
-  id              String    @id @default(cuid())
-  rowNumber       Int
-  packetNumber    String
-  date            String
-  workType        String // النگو یا ریخته‌ای
-  modelCode       String
-  modelFull       String
-  reyWeight       String
-  numericWeight   Float
-  meltNumber      String?
-  description     String?
-  karatReceived   Float?
-  numericKarat    Float?
-  karatStatus     String? // استاندارد (750) / بالا (>750) / پایین (<750)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime? // حذف نرم: اگر مقدار داشته باشد رکورد در سطل بازیافت است
+  id            String    @id @default(cuid())
+  rowNumber     Int
+  packetNumber  String
+  date          String
+  workType      String // النگو یا ریخته‌ای
+  modelCode     String
+  modelFull     String
+  reyWeight     String
+  numericWeight Float
+  meltNumber    String?
+  description   String?
+  karatReceived Float?
+  numericKarat  Float?
+  karatStatus   String? // استاندارد (750) / بالا (>750) / پایین (<750)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // حذف نرم: اگر مقدار داشته باشد رکورد در سطل بازیافت است
 }

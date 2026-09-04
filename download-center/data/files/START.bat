@@ -7,7 +7,7 @@ echo     GOLD SAMPLING SYSTEM - Console (troubleshooting)
 echo   ================================================
 echo.
 
-echo [1/4] Checking Node.js...
+echo [1/5] Checking Node.js (v20 or newer required)...
 where node >nul 2>&1
 if %errorlevel% neq 0 (
     echo   [FAIL] Node.js NOT installed!
@@ -15,10 +15,9 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo   [OK] Node.js found:
-node --version
+for /f "delims=" %%v in ('node --version') do echo   [OK] Node.js %%v
 
-echo [2/4] Installing dependencies ^(first time only^)...
+echo [2/5] Installing dependencies ^(first time only^)...
 if not exist "node_modules" (
     call npm install --no-audit --no-fund
     if %errorlevel% neq 0 (
@@ -30,15 +29,20 @@ if not exist "node_modules" (
     echo   [OK] Already installed.
 )
 
-echo [3/4] Generating database client...
-call npm run db:generate
-if %errorlevel% neq 0 (
-    echo   [FAIL] prisma generate failed.
-    pause
-    exit /b 1
+echo [3/5] Checking database client...
+if exist "src\generated\prisma\index.js" (
+    echo   [OK] Bundled database client found.
+) else (
+    echo   [WARN] Bundled client missing - generating...
+    call npm run db:generate
+    if %errorlevel% neq 0 (
+        echo   [FAIL] prisma generate failed.
+        pause
+        exit /b 1
+    )
 )
 
-echo [4/4] Building the app if needed...
+echo [4/5] Building the app if needed...
 if not exist ".next\BUILD_ID" (
     echo   Building... this can take a few minutes the first time.
     call npm run build
@@ -51,8 +55,8 @@ if not exist ".next\BUILD_ID" (
     echo   [OK] Build exists.
 )
 
+echo [5/5] Starting server at http://127.0.0.1:3000
 echo.
-echo   Starting server at http://127.0.0.1:3000
 echo   Keep this window OPEN while using the program.
 echo   To stop: close this window or press Ctrl+C.
 echo.
