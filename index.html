@@ -37,7 +37,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   <button class="btn ghost" style="color:#fff;border-color:#fff" onclick="document.getElementById('importFile').click()">📂 بازیابی</button>
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
   <input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this)">
-  <input type="file" id="xeFile" accept=".xlsx,.xls" style="display:none" onchange="xeLoadFile(this)">
 </header>
 
 <nav class="tabs">
@@ -45,7 +44,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   <button data-tab="tab-people" onclick="showTab(this)">👥 پرسنل و واحدها</button>
   <button data-tab="tab-menu" onclick="showTab(this)">🍲 وعده‌ها و منوی غذا</button>
   <button data-tab="tab-pagesetup" onclick="showTab(this)">⚙️ تنظیمات صفحه (Page Setup)</button>
-  <button data-tab="tab-xlsedit" onclick="showTab(this)">📗 ویرایش فایل اکسل</button>
 </nav>
 
 <main>
@@ -492,26 +490,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 <!-- تقویم شمسی -->
 <div class="jdp" id="jdp"></div>
 
-<section id="tab-xlsedit" class="tabpane">
-  <div class="xe-wrap">
-    <div class="xe-bar">
-      <button class="pgs-btn primary" onclick="xeOpenPicker()">📂 باز کردن فایل اکسل</button>
-      <button class="pgs-btn" onclick="xeNewFile()">📄 فایل جدید</button>
-      <span class="pgs-sep"></span>
-      <button class="pgs-btn" onclick="xeAddRow()">+ سطر</button>
-      <button class="pgs-btn" onclick="xeAddCol()">+ ستون</button>
-      <span class="pgs-sep"></span>
-      <button class="pgs-btn" onclick="xeImportPeople()">👥 افزودن اسامی به برنامه</button>
-      <span class="pgs-spacer"></span>
-      <button class="pgs-btn" onclick="xeSaveAs()">ذخیره با نام…</button>
-      <button class="pgs-btn primary" onclick="xeSave()">💾 ذخیره فایل</button>
-    </div>
-    <div class="xe-sheets" id="xeSheets"></div>
-    <div class="xe-info" id="xeInfo"></div>
-    <div class="xe-grid" id="xeGrid"></div>
-  </div>
-</section>
-
 <!-- ناحیه واقعی چاپ -->
 <div id="printArea"></div>
 <style id="printPageStyle"></style>
@@ -527,7 +505,6 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     'js/pagesetup.js',
     'js/print.js',
     'js/excel.js',
-    'js/xlsedit.js',
     'js/updater.js',
     'js/main.js'
   ];

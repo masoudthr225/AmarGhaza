@@ -18,7 +18,7 @@ MANIFEST = os.path.join(ROOT, 'js', 'manifest.js')
 TRACKED = [
     'css/app.css',
     'js/store.js', 'js/jalali.js', 'js/sheet.js', 'js/manage.js',
-    'js/pagesetup.js', 'js/print.js', 'js/excel.js', 'js/xlsedit.js', 'js/updater.js',
+    'js/pagesetup.js', 'js/print.js', 'js/excel.js', 'js/updater.js',
     'js/main.js', 'js/xlsx.full.min.js',
     'index.html',
 ]
