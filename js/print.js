@@ -7,6 +7,14 @@ function hd() {
   return { ...def, ...(S.setup.heads||{}) };
 }
 /* عرض ستون‌ها به درصد (قابل ویرایش توسط کاربر) — ستون نام باقیمانده را می‌گیرد */
+/* تنظیمات قالب فرم اکسل (با مقادیر پیش‌فرض امن) */
+function xlsCfg() {
+  const d = { dateLabel:'', unitLabel:'', foodPrefix:'**', foodSuffix:'**',
+              dateW:45, foodScale:1.7, noW:11, codeW:16, twoBlocks:true,
+              showExtras:true, extraLabelW:60 };
+  return { ...d, ...((S.setup && S.setup.xls) || {}) };
+}
+
 /* کادر سلول‌ها — معادل کلاس Border در پروژه Page Setup Pro */
 function cellBorder() {
   const st = S.setup;
@@ -105,14 +113,20 @@ function cw() {
 
 function autoCols() {
   const st = S.setup;
-  const d = paperDims();
+  const d = (typeof orientedDims === 'function') ? orientedDims() : paperDims();
   const usable = d.w - (+st.mr || 0) - (+st.ml || 0);   // عرض واقعی قابل استفاده
-  // حداکثر ستونی که با عرض مفید جا می‌شود (هر ستون دست‌کم ۳۵ میلی‌متر)
-  const maxFit = Math.max(1, Math.floor(usable / 35));
-  if (st.cols > 0) return Math.min(st.cols, maxFit);
-  if (usable <= 160) return Math.min(1, maxFit);
-  if (usable <= 230) return Math.min(2, maxFit);
-  return Math.min(3, maxFit);
+
+  /* حداقل عرض هر ستون بر حسب اندازه قلم تخمین زده می‌شود، نه یک عدد ثابت.
+     با قلم کوچک (چاپ حرارتی) ستون باریک‌تری هم خوانا است. */
+  const fs = +st.fontSize || 11;
+  const minCol = Math.max(18, fs * 1.9);   // مثلا قلم ۹pt → ~۱۸mm، قلم ۱۱pt → ~۲۱mm
+  const maxFit = Math.max(1, Math.floor(usable / minCol));
+
+  if (st.cols > 0) return Math.min(st.cols, maxFit);   // انتخاب کاربر، تا حد جا شدن
+  if (usable <= 90)  return Math.min(1, maxFit);
+  if (usable <= 160) return Math.min(2, maxFit);
+  if (usable <= 230) return Math.min(3, maxFit);
+  return Math.min(4, maxFit);
 }
 
 function buildDoc() {
@@ -127,6 +141,7 @@ function buildDoc() {
   const HS = headStyle();                                   // استایل سرستون‌ها
   const XS = cellStyle(+st.extraRowH || rowH, cellPad);     // اقلام زیر جدول
   const ETS = extraTableStyle(), ELS = extraLabelStyle(), EQS = extraQtyStyle();
+  const X = xlsCfg();
   const AH = st.alignHeader || 'center';                    // چیدمان سربرگ
   const AP = st.alignPage || 'center';                      // چیدمان جدول در صفحه
   if (st.layout === 'excel') return buildExcelDoc();
@@ -379,6 +394,26 @@ function pgsClearHeadBg() {
   renderPreview();
 }
 
+/* فعال کردن قالب اکسل از داخل تب فرم اکسل */
+function pgsUseExcel() {
+  const sel = document.getElementById('psLayout');
+  if (sel) sel.value = 'excel';
+  S.setup.layout = 'excel';
+  saveSetup();
+  renderSetupControls();
+  renderPreview();
+}
+/* بازگرداندن تنظیمات فرم اکسل به پیش‌فرض */
+function resetXls() {
+  if (!confirm('تنظیمات فرم اکسل به حالت پیش‌فرض برگردد؟')) return;
+  S.setup.xls = { dateLabel:'', unitLabel:'', foodPrefix:'**', foodSuffix:'**',
+                  dateW:45, foodScale:1.7, noW:11, codeW:16, twoBlocks:true,
+                  showExtras:true, extraLabelW:60 };
+  save();
+  renderSetupControls();
+  renderPreview();
+}
+
 /* جابه‌جایی بین بخش‌های پنل تنظیمات */
 function pgsGo(secId, btn) {
   document.querySelectorAll('#tab-pagesetup .pgs-sec').forEach(x => x.classList.toggle('show', x.id === secId));
@@ -453,6 +488,7 @@ function buildExcelDoc() {
   const CS = cellStyle(rowH, cellPad);
   const XS = cellStyle(+st.extraRowH || rowH, cellPad);
   const ETS = extraTableStyle(), ELS = extraLabelStyle(), EQS = extraQtyStyle();
+  const X = xlsCfg();
   const AH = st.alignHeader || 'center';
   const AP = st.alignPage || 'center';
   const dateTxt = S.sheet.date || '';
@@ -473,35 +509,37 @@ function buildExcelDoc() {
 
     /* --- سربرگ: تاریخ + نام واحد --- */
     html += `<table class="xls-head"><tr>
-      <td class="xls-date" style="${CS}">${esc(dateTxt)}</td>
-      <td class="xls-unit" style="${CS}">${esc(u.name)}</td>
+      <td class="xls-date" style="${CS}width:${X.dateW}%;">${esc(X.dateLabel)}${esc(dateTxt)}</td>
+      <td class="xls-unit" style="${CS}width:${100 - X.dateW}%;">${esc(X.unitLabel)}${esc(u.name)}</td>
     </tr></table>`;
 
     /* --- نام غذا در یک کادر تمام‌عرض --- */
-    if (food) html += `<div class="xls-food" style="font-size:${st.fontSize * 1.7}pt;text-align:${AH}">** ${esc(food.name)} **</div>`;
+    if (food) html += `<div class="xls-food" style="font-size:${(st.fontSize * X.foodScale).toFixed(1)}pt;text-align:${AH}">${esc(X.foodPrefix)} ${esc(food.name)} ${esc(X.foodSuffix)}</div>`;
 
-    /* --- جدول اسامی در دو ستون کنار هم --- */
-    const half = Math.ceil(ppl.length / 2) || 1;
-    const right = ppl.slice(0, half);          // ستون راست: نفر ۱ تا نیمه
-    const left  = ppl.slice(half);             // ستون چپ: بقیه
+    /* --- جدول اسامی: یک یا دو بلوک کنار هم --- */
+    const nb = X.twoBlocks ? 2 : 1;
+    const half = Math.ceil(ppl.length / nb) || 1;
+    const right = ppl.slice(0, half);
+    const left  = nb === 2 ? ppl.slice(half) : [];
     const lines = Math.max(right.length, left.length);
 
     html += `<table class="xls-tab"><tbody>`;
     for (let i = 0; i < lines; i++) {
-      const a = right[i], b = left[i];
       html += `<tr>`;
-      html += cellTrio(a, i + 1, CS);
-      html += cellTrio(b, half + i + 1, CS, true);
+      html += cellTrio(right[i], i + 1, CS);
+      if (nb === 2) html += cellTrio(left[i], half + i + 1, CS, true);
       html += `</tr>`;
     }
     html += `</tbody></table>`;
 
     /* --- اقلام زیر جدول (خوراک، نون پنیر، تخم مرغ …) --- */
-    const exs = (typeof unitExtras === 'function' ? unitExtras(u.id) : []).filter(x => x.label);
+    const exs = X.showExtras
+      ? (typeof unitExtras === 'function' ? unitExtras(u.id) : []).filter(x => x.label)
+      : [];
     if (exs.length) {
       html += `<table class="xls-extras" style="${ETS}"><tbody>`;
       exs.forEach(x => {
-        html += `<tr><td class="xls-ex-label" style="${XS}${ELS}">${esc(x.label)}</td><td class="xls-ex-qty" style="${XS}${EQS}">${esc(x.qty || '')}</td></tr>`;
+        html += `<tr><td class="xls-ex-label" style="${XS}${ELS}width:${X.extraLabelW}%;">${esc(x.label)}</td><td class="xls-ex-qty" style="${XS}${EQS}">${esc(x.qty || '')}</td></tr>`;
       });
       html += `</tbody></table>`;
     }
@@ -529,9 +567,10 @@ function buildExcelDoc() {
 function cellTrio(p, no, CS, isLeft) {
   const sep = isLeft ? ' xls-sep' : '';
   const AN = ca('name'), AR = ca('rowNo'), AC = ca('code');
-  const W = cw();                                   // عرض ستون‌ها از تنظیمات کاربر
-  const WR = `width:${(W.rowNo / 2).toFixed(2)}%;`;  // دو بلوک کنار هم → نصف عرض
-  const WC = `width:${(W.code / 2).toFixed(2)}%;`;
+  const X = xlsCfg();
+  const nb = X.twoBlocks ? 2 : 1;
+  const WR = `width:${(X.noW / nb).toFixed(2)}%;`;
+  const WC = `width:${(X.codeW / nb).toFixed(2)}%;`;
   if (!p) return `<td class="xls-no${sep}" style="${CS}${AR}${WR}"></td><td class="xls-code" style="${CS}${AC}${WC}"></td><td class="xls-name" style="${CS}${AN}"></td>`;
   const ab = !!S.sheet.absent[p.id];
   return `<td class="xls-no${sep}" style="${CS}${AR}${WR}">${no}</td>` +

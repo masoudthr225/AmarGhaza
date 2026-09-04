@@ -75,6 +75,23 @@ function renderSetupControls() {
   if (_ub) _ub.classList.toggle('on', !!st.underline);
   const _nb = document.getElementById('psNoHeadBg');
   if (_nb) _nb.checked = !st.headBg;
+  /* --- فرم اکسل --- */
+  const X = st.xls || {};
+  setV('psXDateLabel',   X.dateLabel  || '');
+  setV('psXUnitLabel',   X.unitLabel  || '');
+  setV('psXDateW',       X.dateW      == null ? 45  : X.dateW);
+  setV('psXFoodPre',     X.foodPrefix == null ? '**' : X.foodPrefix);
+  setV('psXFoodSuf',     X.foodSuffix == null ? '**' : X.foodSuffix);
+  setV('psXFoodScale',   X.foodScale  == null ? 1.7 : X.foodScale);
+  setV('psXNoW',         X.noW        == null ? 11  : X.noW);
+  setV('psXCodeW',       X.codeW      == null ? 16  : X.codeW);
+  setC('psXTwoBlocks',   X.twoBlocks  !== false);
+  setC('psXShowExtras',  X.showExtras !== false);
+  setV('psXExtraLabelW', X.extraLabelW== null ? 60  : X.extraLabelW);
+  const _xn = document.getElementById('xlsNotice');
+  if (_xn) _xn.style.display = st.layout === 'excel' ? 'none' : 'block';
+  const _xt = document.getElementById('tabXls');
+  if (_xt) _xt.classList.toggle('dim', st.layout !== 'excel');
   document.getElementById('psCols').value = String(st.cols);
   document.getElementById('psShowCode').checked = st.showCode;
   document.getElementById('psShowRowNo').checked = st.showRowNo;
@@ -175,6 +192,26 @@ function saveSetup() {
   const vBc = gv('psBorderColor'); if (vBc  != null) st.borderColor = vBc;
   const vZe = gc('psZebra');       if (vZe  != null) st.zebra       = vZe;
   const vIn = gv('psIndent');      if (vIn  != null) st.indent      = Math.max(0, Math.min(20, parseFloat(vIn) || 0));
+  if (!st.xls) st.xls = {};
+  const xv = (id, k, min, max, def) => {
+    const e = document.getElementById(id); if (!e) return;
+    const n = parseFloat(e.value);
+    st.xls[k] = isNaN(n) ? def : Math.max(min, Math.min(max, n));
+  };
+  const xs = (id, k) => { const e = document.getElementById(id); if (e) st.xls[k] = e.value; };
+  const xc = (id, k) => { const e = document.getElementById(id); if (e) st.xls[k] = e.checked; };
+  xs('psXDateLabel', 'dateLabel');
+  xs('psXUnitLabel', 'unitLabel');
+  xs('psXFoodPre',   'foodPrefix');
+  xs('psXFoodSuf',   'foodSuffix');
+  xv('psXDateW',       'dateW',       20, 80, 45);
+  xv('psXFoodScale',   'foodScale',    1,  4, 1.7);
+  xv('psXNoW',         'noW',          4, 40, 11);
+  xv('psXCodeW',       'codeW',        4, 40, 16);
+  xv('psXExtraLabelW', 'extraLabelW', 20, 90, 60);
+  xc('psXTwoBlocks',  'twoBlocks');
+  xc('psXShowExtras', 'showExtras');
+
   const _nb2 = document.getElementById('psNoHeadBg');
   const vBg  = gv('psHeadBg');
   if (_nb2 && _nb2.checked) st.headBg = '';

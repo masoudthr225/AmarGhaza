@@ -22,6 +22,15 @@ const DEFAULT_SETUP = {
   borderStyle: 'solid', borderColor: '#000000', borderWidth: 0.5,
   headBg: '', zebra: false,           // پس‌زمینه عنوان و ردیف‌های یک‌درمیان
   indent: 0,                          // تورفتگی متن نام (mm)
+  /* --- ویرایش قالب فرم اکسل --- */
+  xls: {
+    dateLabel: '', unitLabel: '',      // پیشوند خانه تاریخ و واحد
+    foodPrefix: '**', foodSuffix: '**',
+    dateW: 45, foodScale: 1.7,         // عرض خانه تاریخ ٪ و بزرگی نام غذا
+    noW: 11, codeW: 16,                // عرض ستون شماره و کد ٪
+    twoBlocks: true,                   // دو ستونه بودن اسامی
+    showExtras: true, extraLabelW: 60,
+  },
   /* اقلام زیر جدول: خوراک / حاضری / 50% / تخم مرغ */
   extraAlignLabel: 'center', extraAlignQty: 'center',
   extraWidth: 100, extraQtyW: 40, extraAlignPage: 'center', extraBold: true,
@@ -108,6 +117,11 @@ function migrateAlign() {
   if (st.headBg      == null) st.headBg      = '';
   if (st.zebra       == null) st.zebra       = false;
   if (st.indent      == null) st.indent      = 0;
+  if (!st.xls) st.xls = {};
+  const dx = { dateLabel:'', unitLabel:'', foodPrefix:'**', foodSuffix:'**',
+               dateW:45, foodScale:1.7, noW:11, codeW:16, twoBlocks:true,
+               showExtras:true, extraLabelW:60 };
+  Object.keys(dx).forEach(k => { if (st.xls[k] == null) st.xls[k] = dx[k]; });
   if (st.headRowH == null)  st.headRowH = 0;
   if (st.extraRowH == null) st.extraRowH = 0;
   if (st.headBold == null)  st.headBold = true;

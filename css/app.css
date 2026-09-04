@@ -606,3 +606,5 @@
     border: 1px solid var(--border); border-radius: 8px; background: #fff;
   }
   .pgs-row input[type="color"] { flex: none; }
+
+  .pgs-tab.dim { opacity: .55; }

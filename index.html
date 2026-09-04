@@ -267,6 +267,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <button class="pgs-tab" onclick="pgsGo('pg-table',this)">جدول</button>
           <button class="pgs-tab" onclick="pgsGo('pg-cols',this)">ستون‌ها</button>
           <button class="pgs-tab" onclick="pgsGo('pg-extras',this)">اقلام</button>
+          <button class="pgs-tab" id="tabXls" onclick="pgsGo('pg-xls',this)">فرم اکسل</button>
           <button class="pgs-tab" onclick="pgsGo('pg-hf',this)">سربرگ</button>
         </nav>
 
@@ -397,6 +398,43 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <select id="psExtraAlignQty" onchange="saveSetup()"><option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option></select></div>
             <div class="pgs-f"><label>ارتفاع سطر (mm)</label><input type="number" id="psExtraRowH" min="0" max="30" step="0.5" onchange="saveSetup()"></div>
             <label class="pgs-chk"><input type="checkbox" id="psExtraBold" onchange="saveSetup()"><span>متن ضخیم</span></label>
+          </section>
+
+          <!-- ---------- ویرایش فرم اکسل ---------- -->
+          <section class="pgs-sec" id="pg-xls">
+            <div class="pgs-hint" id="xlsNotice" style="display:none">
+              این تنظیمات فقط وقتی اعمال می‌شود که «قالب» روی <b>مطابق فرم اکسل</b> باشد.
+              <button class="pgs-mini" style="margin-top:7px" onclick="pgsUseExcel()">فعال کردن قالب اکسل</button>
+            </div>
+
+            <h4>سربرگ فرم</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>پیشوند خانه تاریخ</label><input type="text" id="psXDateLabel" onchange="saveSetup()" placeholder="مثلا: تاریخ:"></div>
+              <div class="pgs-f"><label>پیشوند خانه واحد</label><input type="text" id="psXUnitLabel" onchange="saveSetup()" placeholder="مثلا: واحد:"></div>
+            </div>
+            <div class="pgs-f"><label>عرض خانه تاریخ ٪ (بقیه سهم واحد است)</label><input type="number" id="psXDateW" min="20" max="80" step="1" onchange="saveSetup()"></div>
+
+            <h4>کادر نام غذا</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>نشانه ابتدا</label><input type="text" id="psXFoodPre" onchange="saveSetup()" placeholder="**"></div>
+              <div class="pgs-f"><label>نشانه انتها</label><input type="text" id="psXFoodSuf" onchange="saveSetup()" placeholder="**"></div>
+            </div>
+            <div class="pgs-f"><label>بزرگی نام غذا (برابر اندازه قلم)</label><input type="number" id="psXFoodScale" min="1" max="4" step="0.1" onchange="saveSetup()"></div>
+
+            <h4>ستون‌های فرم</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>عرض ستون شماره ٪</label><input type="number" id="psXNoW" min="4" max="40" step="0.5" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>عرض ستون کد ٪</label><input type="number" id="psXCodeW" min="4" max="40" step="0.5" onchange="saveSetup()"></div>
+            </div>
+            <label class="pgs-chk"><input type="checkbox" id="psXTwoBlocks" onchange="saveSetup()"><span>اسامی در دو بلوک کنار هم</span></label>
+
+            <h4>اقلام پایین فرم</h4>
+            <label class="pgs-chk"><input type="checkbox" id="psXShowExtras" onchange="saveSetup()"><span>نمایش اقلام (خوراک، حاضری، ۵۰٪، تخم مرغ)</span></label>
+            <div class="pgs-f"><label>عرض ستون نام قلم ٪</label><input type="number" id="psXExtraLabelW" min="20" max="90" step="1" onchange="saveSetup()"></div>
+
+            <div class="pgs-foot" style="padding:11px 0 0;border:none;background:none">
+              <button class="pgs-btn ghost" onclick="resetXls()">بازگشت فرم اکسل به پیش‌فرض</button>
+            </div>
           </section>
 
           <!-- ---------- سربرگ ---------- -->
