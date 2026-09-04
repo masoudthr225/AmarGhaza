@@ -11,8 +11,8 @@ echo stop > stop.flag
 :: 2) Kill the web server listening on port 3000
 powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
 
-:: 3) Kill the app (python) processes
-powershell -NoProfile -Command "Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { ($_.Name -eq 'pythonw.exe' -or $_.Name -eq 'python.exe') -and $_.CommandLine -like '*app.py*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+:: 3) Kill the app (python) processes AND old Node.js version of this program
+powershell -NoProfile -Command "Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { (($_.Name -eq 'pythonw.exe' -or $_.Name -eq 'python.exe') -and $_.CommandLine -like '*app.py*') -or (($_.Name -eq 'node.exe') -and ($_.CommandLine -like '*rey*' -or $_.CommandLine -like '*gold*' -or $_.CommandLine -like '*server.js*' -or $_.CommandLine -like '*next*')) } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
 
 timeout /t 2 /nobreak >nul
 del stop.flag >nul 2>&1

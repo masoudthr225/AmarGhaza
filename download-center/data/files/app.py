@@ -1270,8 +1270,82 @@ class Handler(BaseHTTPRequestHandler):
                 pass
 
 
+def _is_old_instance(cmdline):
+    """آیا این فرایند، نمونهٔ قدیمی همین برنامه است؟ (app.py یا نسخهٔ Node قبلی)"""
+    low = str(cmdline or '').lower()
+    if 'app.py' in low:
+        return True
+    if 'node' in low and any(k in low for k in ('rey', 'gold', 'server.js', 'next')):
+        return True
+    return False
+
+
+def free_port_if_busy(port):
+    """اگر پورت در اختیار نسخهٔ قدیمی همین برنامه است، آن را ببند (فقط ویندوز)"""
+    if os.name != 'nt':
+        return
+    import socket as _socket
+    s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+    try:
+        s.bind((HOST, port))
+        return  # پورت آزاد است
+    except OSError:
+        pass
+    finally:
+        s.close()
+    no_win = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+    log('⚠️ پورت %d اشغال است — تلاش برای بستن نسخهٔ قدیمی...' % port)
+    try:
+        out = subprocess.run(
+            ['powershell', '-NoProfile', '-Command',
+             'Get-NetTCPConnection -LocalPort %d -State Listen | '
+             'Select-Object -ExpandProperty OwningProcess -Unique' % port],
+            capture_output=True, text=True, timeout=15, creationflags=no_win
+        ).stdout or ''
+    except Exception as e:
+        log('   بررسی فرایندها ممکن نشد: %s' % e)
+        return
+    pids = [p.strip() for p in out.split() if p.strip().isdigit()]
+    for pid in pids:
+        if pid == str(os.getpid()):
+            continue
+        try:
+            cli = subprocess.run(
+                ['powershell', '-NoProfile', '-Command',
+                 '(Get-CimInstance Win32_Process -Filter "ProcessId=%s").CommandLine' % pid],
+                capture_output=True, text=True, timeout=15, creationflags=no_win
+            ).stdout or ''
+        except Exception:
+            cli = ''
+        if not _is_old_instance(cli):
+            log('   فرایند %s مربوط به این برنامه نیست — دست نمی‌زنیم' % pid)
+            continue
+        try:
+            subprocess.run(
+                ['powershell', '-NoProfile', '-Command', 'Stop-Process -Id %s -Force' % pid],
+                capture_output=True, timeout=15, creationflags=no_win
+            )
+            log('   ✅ نسخهٔ قدیمی بسته شد (PID %s)' % pid)
+        except Exception as e:
+            log('   بستن فرایند %s ناموفق: %s' % (pid, e))
+    # چند لحظه صبر تا پورت آزاد شود
+    for _ in range(12):
+        s2 = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+        try:
+            s2.bind((HOST, port))
+            s2.close()
+            log('   ✅ پورت %d آزاد شد' % port)
+            return
+        except OSError:
+            pass
+        finally:
+            s2.close()
+        time.sleep(0.5)
+
+
 def serve_main():
     init_db()
+    free_port_if_busy(PORT)
     try:
         server = ThreadingHTTPServer((HOST, PORT), Handler)
     except OSError as e:
