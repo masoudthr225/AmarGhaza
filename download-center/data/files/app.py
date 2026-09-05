@@ -38,7 +38,22 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 # ─────────────────────────── مسیرها و تنظیمات ───────────────────────────
 APP_PATH = os.path.abspath(__file__)
-BASE_DIR = os.path.dirname(APP_PATH)
+# حالت EXE (PyInstaller): داده‌های کاربر کنار exe؛ فایل‌های همراه از داخل بسته
+_FROZEN = getattr(sys, 'frozen', False)
+if _FROZEN:
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+    RES_DIR = getattr(sys, '_MEIPASS', BASE_DIR)
+else:
+    BASE_DIR = os.path.dirname(APP_PATH)
+    RES_DIR = BASE_DIR
+
+
+def _res(name):
+    """فایل همراه (ui.html / assets): اول کنار برنامه، بعد از داخل بستهٔ exe"""
+    p = os.path.join(BASE_DIR, name)
+    return p if os.path.exists(p) else os.path.join(RES_DIR, name)
+
+
 DB_PATH = os.path.join(BASE_DIR, 'db', 'custom.db')
 BACKUP_DIR = os.path.join(BASE_DIR, 'db', 'backups')
 SETTINGS_PATH = os.path.join(BASE_DIR, 'db', 'settings.json')
@@ -47,8 +62,8 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 LOG_FILE = os.path.join(LOG_DIR, 'launcher.log')
 LOCK_FILE = os.path.join(BASE_DIR, '.run.lock')
 STOP_FLAG = os.path.join(BASE_DIR, 'stop.flag')
-UI_FILE = os.path.join(BASE_DIR, 'ui.html')
-ASSETS_DIR = os.path.join(BASE_DIR, 'assets')
+UI_FILE = _res('ui.html')
+ASSETS_DIR = _res('assets')
 
 PORT = int(os.environ.get('PORT', '3000'))
 # به‌صورت پیش‌فرض فقط همین کامپیوتر (امن)؛ برای پیش‌نمایش وب می‌توان با HOST=0.0.0.0 تغییر داد
@@ -1445,7 +1460,7 @@ def watchdog_main():
             except Exception:
                 errf = None
             proc = subprocess.Popen(
-                [sys.executable, APP_PATH, '--serve'],
+                [sys.executable, '--serve'] if _FROZEN else [sys.executable, APP_PATH, '--serve'],
                 stdout=errf or subprocess.DEVNULL,
                 stderr=errf or subprocess.DEVNULL,
                 creationflags=creation,
