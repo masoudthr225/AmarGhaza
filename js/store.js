@@ -22,6 +22,7 @@ const DEFAULT_SETUP = {
   borderStyle: 'solid', borderColor: '#000000', borderWidth: 0.5,
   headBg: '', zebra: false,           // پس‌زمینه عنوان و ردیف‌های یک‌درمیان
   indent: 0,                          // تورفتگی متن نام (mm)
+  sortKey: 'name', sortDir: 1,        // مرتب‌سازی اسامی (در نمایش و چاپ)
   unitTitleAlign: 'center',           // چیدمان نوار «واحد: …»
   unitTitleSize: 1,                   // بزرگی نوار واحد (برابر قلم)
   /* اندازه مستقل هر ستون: ارتفاع سطر و فاصله داخلی (mm) */
@@ -123,6 +124,8 @@ function migrateAlign() {
   if (st.headBg      == null) st.headBg      = '';
   if (st.zebra       == null) st.zebra       = false;
   if (st.indent         == null) st.indent         = 0;
+  if (st.sortKey        == null) st.sortKey        = 'name';
+  if (st.sortDir        == null) st.sortDir        = 1;
   if (st.unitTitleAlign == null) st.unitTitleAlign = 'center';
   if (st.unitTitleSize  == null) st.unitTitleSize  = 1;
   const zc = { rowNo:0, name:0, code:0, unit:0, sign:0 };

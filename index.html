@@ -134,15 +134,31 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
       <div style="max-height:480px;overflow:auto">
         <table class="list" id="peopleTable">
           <thead><tr><th>#</th>
-            <th class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
-                onblur="updHead('name',this)" id="thName">نام و نام خانوادگی</th>
-            <th class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
-                onblur="updHead('code',this)" id="thCode">کد پرسنلی</th>
-            <th class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
-                onblur="updHead('unit',this)" id="thUnit">واحد</th>
+            <th>
+              <div class="th-wrap">
+                <span class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
+                      onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                      onblur="updHead('name',this)" id="thName">نام و نام خانوادگی</span>
+                <button class="sort-btn" data-key="name" onclick="setSort('name')">⇅</button>
+                <button class="sort-btn" data-key="family" onclick="setSort('family')" title="مرتب‌سازی بر اساس نام خانوادگی">خ</button>
+              </div>
+            </th>
+            <th>
+              <div class="th-wrap">
+                <span class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
+                      onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                      onblur="updHead('code',this)" id="thCode">کد پرسنلی</span>
+                <button class="sort-btn" data-key="code" onclick="setSort('code')">⇅</button>
+              </div>
+            </th>
+            <th>
+              <div class="th-wrap">
+                <span class="edit-cell" contenteditable="true" title="سرستون قابل ویرایش — Enter برای ذخیره"
+                      onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+                      onblur="updHead('unit',this)" id="thUnit">واحد</span>
+                <button class="sort-btn" data-key="unit" onclick="setSort('unit')">⇅</button>
+              </div>
+            </th>
             <th style="width:110px">عملیات</th></tr></thead>
           <tbody></tbody>
         </table>

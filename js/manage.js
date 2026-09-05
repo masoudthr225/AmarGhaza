@@ -42,7 +42,7 @@ function renderPeople() {
   const q = document.getElementById('searchPerson').value.trim();
   const fu = document.getElementById('filterUnit').value;
   const tb = document.querySelector('#peopleTable tbody');
-  let list = S.people.slice().sort((a,b)=>faCompare(a.name,b.name));
+  let list = sortPeople(S.people);
   if (fu) list = list.filter(p=>p.unitId===fu);
   if (q) list = list.filter(p=>p.name.includes(q) || (p.code||'').includes(q));
   tb.innerHTML = list.map((p,i)=>{
@@ -59,6 +59,33 @@ function renderPeople() {
       <button class="icon-btn" onclick="openPersonModal('${p.id}')">✏️</button>
       <button class="icon-btn" onclick="delPerson('${p.id}')">🗑️</button></td></tr>`;
   }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">موردی یافت نشد</td></tr>';
+}
+
+/* ---------- مرتب‌سازی سرستون‌ها (روی نمایش و چاپ) ---------- */
+function setSort(key) {
+  const st = S.setup;
+  if (st.sortKey === key) st.sortDir = (st.sortDir === -1 ? 1 : -1);
+  else { st.sortKey = key; st.sortDir = 1; }
+  save();
+  renderPeople();
+  renderSortArrows();
+  if (typeof renderAttendance === 'function') renderAttendance();
+  if (typeof renderPreview === 'function') renderPreview();
+  const names = { name:'نام', family:'نام خانوادگی', code:'کد پرسنلی', unit:'واحد' };
+  toast(`مرتب‌سازی بر اساس ${names[key] || key} — ${st.sortDir === 1 ? 'صعودی' : 'نزولی'}`);
+}
+
+/* نشان دادن جهت مرتب‌سازی روی دکمه‌ها */
+function renderSortArrows() {
+  const st = S.setup;
+  document.querySelectorAll('#peopleTable .sort-btn').forEach(b => {
+    const on = b.dataset.key === st.sortKey;
+    b.classList.toggle('on', on);
+    b.textContent = on ? (st.sortDir === 1 ? '▲' : '▼') : '⇅';
+    b.title = on
+      ? `مرتب‌سازی ${st.sortDir === 1 ? 'صعودی' : 'نزولی'} — برای برعکس کردن کلیک کنید`
+      : 'مرتب‌سازی بر اساس این ستون';
+  });
 }
 
 /* ویرایش سرستون‌ها — در جدول برنامه و چاپ اعمال می‌شود */

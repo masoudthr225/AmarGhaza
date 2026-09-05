@@ -665,3 +665,14 @@
 
   .pgs-matrix th { line-height: 1.35; }
   .pgs-matrix input[type="number"] { width: 52px; }
+
+  /* ---------- مرتب‌سازی سرستون‌های جدول پرسنل ---------- */
+  #peopleTable .th-wrap { display: flex; align-items: center; gap: 5px; }
+  #peopleTable .th-wrap .edit-cell { flex: 1; min-width: 0; }
+  .sort-btn {
+    flex: none; border: 1px solid var(--border); background: #fff; color: var(--muted);
+    border-radius: 6px; min-width: 24px; height: 24px; padding: 0 5px;
+    font-size: .72rem; font-weight: 700; cursor: pointer; transition: .15s; line-height: 1;
+  }
+  .sort-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .sort-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }

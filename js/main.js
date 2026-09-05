@@ -3,6 +3,7 @@ function renderAll() {
   renderSheetControls(); renderUnitChecks(); renderAttendance();
   renderUnits(); renderPeople(); renderMeals(); renderFoods();
   if (typeof renderHeads==='function') renderHeads();
+  if (typeof renderSortArrows==='function') renderSortArrows();
   renderSetupControls();
   if (typeof renderQuickSetup==='function') renderQuickSetup();
   if (typeof renderPickInfo==='function') renderPickInfo();

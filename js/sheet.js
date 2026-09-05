@@ -58,8 +58,44 @@ function selectedUnits() {
 /* مرتب‌سازی بر اساس حروف الفبای فارسی (با نرمال‌سازی ی/ي و ک/ك) */
 function faSortNorm(s){ return String(s||'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/\u200c/g,' ').replace(/\s+/g,' ').trim(); }
 function faCompare(a,b){ return faSortNorm(a).localeCompare(faSortNorm(b),'fa'); }
+/* مرتب‌سازی مشترک: هم در «مدیریت پرسنل» و هم در «چاپ» اعمال می‌شود */
+function sortPeople(list) {
+  const key = (S.setup && S.setup.sortKey) || 'name';
+  const dir = (S.setup && S.setup.sortDir) === -1 ? -1 : 1;
+  const unitName = p => { const u = S.units.find(x => x.id === p.unitId); return u ? u.name : ''; };
+  const arr = list.slice();
+  arr.sort((a, b) => {
+    let r;
+    if (key === 'code') {
+      // کد پرسنلی عددی است؛ عددی مقایسه شود نه رشته‌ای
+      const na = parseFloat(String(a.code || '').replace(/[^\d.]/g, ''));
+      const nb = parseFloat(String(b.code || '').replace(/[^\d.]/g, ''));
+      const aNaN = isNaN(na), bNaN = isNaN(nb);
+      if (aNaN && bNaN) r = faCompare(a.code || '', b.code || '');
+      else if (aNaN) r = 1;          // بدون کد همیشه آخر
+      else if (bNaN) r = -1;
+      else r = na - nb;
+    } else if (key === 'unit') {
+      r = faCompare(unitName(a), unitName(b)) || faCompare(a.name, b.name);
+    } else if (key === 'family') {
+      r = faCompare(familyOf(a.name), familyOf(b.name)) || faCompare(a.name, b.name);
+    } else {
+      r = faCompare(a.name, b.name);
+    }
+    if (r === 0) r = faCompare(a.name, b.name);
+    return r * dir;
+  });
+  return arr;
+}
+
+/* نام خانوادگی = آخرین بخش نام */
+function familyOf(name) {
+  const t = String(name || '').trim().split(/\s+/);
+  return t.length > 1 ? t[t.length - 1] : t[0] || '';
+}
+
 function unitPeople(uId) {
-  return S.people.filter(p=>p.unitId===uId).sort((a,b)=>faCompare(a.name,b.name));
+  return sortPeople(S.people.filter(p => p.unitId === uId));
 }
 
 /* ---- اقلام زیر جدول (خوراک، حاضری، تخم مرغ و ...) ---- */
