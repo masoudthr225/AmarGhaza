@@ -475,7 +475,7 @@
   .pgs-btn.ghost { color: var(--muted); }
 
   /* ---------- بدنه: پیش‌نمایش + پنل ---------- */
-  .pgs-body { display: grid; grid-template-columns: 1fr minmax(330px, 380px); gap: 10px; align-items: start; }
+  .pgs-body { display: grid; grid-template-columns: 1fr minmax(430px, 500px); gap: 10px; align-items: start; }
 
   .pgs-view {
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -579,21 +579,22 @@
   .pgs-hint.warn { background: #fff6f2; border-color: #f0c7b4; color: #a4502c; }
 
   .pgs-tblwrap { overflow-x: auto; }
-  .pgs-matrix { width: 100%; border-collapse: collapse; min-width: 330px; }
+  .pgs-matrix { width: 100%; border-collapse: collapse; min-width: 560px; }
   .pgs-matrix th {
-    font-size: .68rem; color: var(--muted); font-weight: 700;
-    padding: 5px 3px; border-bottom: 1.5px solid var(--border); text-align: center;
+    font-size: .8rem; color: var(--muted); font-weight: 700;
+    padding: 8px 5px; border-bottom: 1.5px solid var(--border); text-align: center;
   }
   .pgs-matrix th:first-child, .pgs-matrix th:nth-child(2) { text-align: right; }
-  .pgs-matrix td { padding: 3px 2px; border-bottom: 1px solid #eef3f1; }
-  .pgs-matrix td.k { font-size: .78rem; font-weight: 700; white-space: nowrap; }
-  .pgs-matrix td.auto { font-size: .7rem; color: var(--muted); text-align: center; font-style: italic; }
+  .pgs-matrix td { padding: 6px 4px; border-bottom: 1px solid #eef3f1; }
+  .pgs-matrix td.k { font-size: .92rem; font-weight: 700; white-space: nowrap; padding-inline-end: 10px; }
+  .pgs-matrix td.auto { font-size: .78rem; color: var(--muted); text-align: center; font-style: italic; }
   .pgs-matrix input, .pgs-matrix select {
-    border: 1px solid var(--border); border-radius: 6px; padding: 5px 5px;
-    font-size: .76rem; background: #fff; width: 100%;
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 8px;
+    font-size: .86rem; background: #fff; width: 100%; min-height: 36px;
   }
-  .pgs-matrix input[type="number"] { width: 56px; text-align: center; }
-  .pgs-matrix input:focus, .pgs-matrix select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  .pgs-matrix select { cursor: pointer; }
+  .pgs-matrix input[type="number"] { width: 74px; text-align: center; }
+  .pgs-matrix input:focus, .pgs-matrix select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
   .pgs-foot { display: flex; gap: 8px; padding: 11px 13px; border-top: 1px solid var(--border); background: #fafcfb; }
   .pgs-foot .pgs-btn { flex: 1; }
@@ -663,8 +664,7 @@
     width: 100%; height: 100%; border: none; padding: 0;
   }
 
-  .pgs-matrix th { line-height: 1.35; }
-  .pgs-matrix input[type="number"] { width: 52px; }
+  .pgs-matrix th { line-height: 1.45; }
 
   /* ---------- مرتب‌سازی سرستون‌های جدول پرسنل ---------- */
   #peopleTable .th-wrap { display: flex; align-items: center; gap: 5px; }
