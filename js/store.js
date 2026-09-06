@@ -60,6 +60,7 @@ const DEFAULT_SETUP = {
   unitSepColor: '#000000',
   unitSepGap: 4,                      // فاصله بالا و پایین خط (mm)
   rollCut: true,                      // پرینتر حرارتی: هر واحد جدا (برش بین واحدها)
+  rollCutH: 200,                      // طول هر برش روی رول (mm) — کاغذ رول ارتفاع ثابت ندارد
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',
   headerDate: true, headerMeal: true,
   footerOn: true, footerText: '', footerSign: true, footerTime: false,
@@ -166,6 +167,7 @@ function migrateAlign() {
   if (st.unitSepColor  == null) st.unitSepColor  = '#000000';
   if (st.unitSepGap    == null) st.unitSepGap    = 4;
   if (st.rollCut       == null) st.rollCut       = true;
+  if (st.rollCutH      == null) st.rollCutH      = 200;
   const zc = { rowNo:0, name:0, code:0, unit:0, sign:0 };
   if (!st.cellH)  st.cellH  = { ...zc };
   if (!st.cellP)  st.cellP  = { ...zc };

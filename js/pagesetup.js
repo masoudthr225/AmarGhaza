@@ -69,6 +69,7 @@ function renderSetupControls() {
   setEl('psUnitSepGap',    MM2CM(st.unitSepGap   == null ? 4   : st.unitSepGap));
   setEl('psUnitSepColor',  st.unitSepColor || '#000000');
   setCk('psRollCut',       st.rollCut !== false);
+  setEl('psRollCutH',      MM2CM(st.rollCutH == null ? 200 : st.rollCutH));
 
   /* ---- سلول منوی غذا ---- */
   setEl('psFoodSize',   st.foodSize == null ? 1.3 : st.foodSize);
@@ -249,6 +250,8 @@ function saveSetup() {
   if (_usg) st.unitSepGap = Math.max(0, Math.min(30, CM2MM(parseFloat(_usg.value) || 0)));
   const _usc = gEl('psUnitSepColor'); if (_usc && _usc.value) st.unitSepColor = _usc.value;
   const _rc = gEl('psRollCut');       if (_rc) st.rollCut = _rc.checked;
+  const _rch = gEl('psRollCutH');
+  if (_rch) st.rollCutH = Math.max(80, Math.min(600, CM2MM(parseFloat(_rch.value)) || 200));
 
   /* ---- سلول منوی غذا ---- */
   const _fsz = gEl('psFoodSize');

@@ -85,9 +85,10 @@ function unitSepHtml() {
   const sty = st.unitSepStyle || 'dashed';
   const w   = Math.max(0.1, +st.unitSepWidth || 0.4);
   const col = st.unitSepColor || '#000000';
-  const gap = Math.max(0, +st.unitSepGap == null ? 4 : +st.unitSepGap);
+  const gap = Math.max(0, st.unitSepGap == null ? 4 : (+st.unitSepGap || 0));
+  // ارتفاع واقعی به سلول داده می‌شود تا روی کاغذ رول هم دیده شود
   return `<div class="unit-sep" style="border-top:${w.toFixed(2)}mm ${sty} ${col};` +
-         `margin:${gap}mm 0;"></div>`;
+         `margin-top:${gap}mm;margin-bottom:${gap}mm;"></div>`;
 }
 
 /* پرینتر حرارتی: هر واحد روی برگه/برش جدا */
@@ -464,9 +465,11 @@ function updatePgsHints() {
       rh.textContent = 'کاغذ فعلی رول حرارتی نیست؛ این گزینه فقط روی کاغذ ۵۸ و ۸۰ میلی‌متری اثر دارد.';
       rh.className = 'pgs-hint';
     } else if (st.rollCut !== false) {
-      rh.textContent = n > 1
-        ? `روشن — ${n} واحد انتخاب شده و هر کدام جدا چاپ می‌شود.`
-        : 'روشن — اگر بیش از یک واحد انتخاب کنید، هر واحد جدا چاپ می‌شود.';
+      const L = ((+st.rollCutH || 200) / 10).toFixed(1);
+      rh.textContent = (n > 1
+        ? `روشن — ${n} واحد انتخاب شده و هر کدام جدا چاپ می‌شود. `
+        : 'روشن — اگر بیش از یک واحد انتخاب کنید، هر واحد جدا چاپ می‌شود. ') +
+        `طول هر برش ${L} سانتی‌متر است؛ اگر بین دو لیست کاغذ خالی زیاد آمد این عدد را کم کنید.`;
       rh.className = 'pgs-hint';
     } else {
       rh.textContent = 'خاموش — همه واحدها پشت سر هم روی یک رول پیوسته چاپ می‌شوند.';
@@ -569,7 +572,16 @@ function openPrintDialog() {
   }
   const d = orientedDims();
   const st = S.setup;
-  const sizeRule = d.h ? `size: ${d.w}mm ${d.h}mm;` : `size: ${d.w}mm auto;`;
+
+  /* روی کاغذ رول (T58/T80) ارتفاع «auto» است، یعنی مرورگر یک صفحه بی‌نهایت
+     می‌سازد و page-break-before هیچ اثری ندارد. پس اگر کاربر خواسته هر واحد
+     جدا چاپ شود، باید ارتفاع مشخصی به صفحه بدهیم تا برش واقعاً انجام شود. */
+  const cutting = selectedUnits().length > 1 &&
+                  (st.unitNewPage || (st.rollCut !== false && isRollPaper()));
+  let ph = d.h;
+  if (!ph && cutting) ph = Math.max(120, +st.rollCutH || 200);
+
+  const sizeRule = ph ? `size: ${d.w}mm ${ph}mm;` : `size: ${d.w}mm auto;`;
   document.getElementById('printPageStyle').textContent = `
     @page { ${sizeRule} margin: ${st.mt}mm ${st.mr}mm ${st.mb}mm ${st.ml}mm; }
     @media print {
@@ -577,6 +589,14 @@ function openPrintDialog() {
       #printArea .ptab { page-break-inside: auto; }
       #printArea tr { page-break-inside: avoid; }
       #printArea .unit-title { page-break-after: avoid; }
+      /* خط‌چین بین واحدها باید حتماً چاپ شود (مرورگرها رنگ کادر را حذف می‌کنند) */
+      #printArea .unit-sep {
+        display: block !important; width: 100% !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        page-break-inside: avoid; break-inside: avoid;
+        page-break-after: avoid;
+      }
+      #printArea .unit-block { page-break-inside: auto; }
       #printArea .doc .unit-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }`;
   document.getElementById('printArea').innerHTML = buildDoc();
