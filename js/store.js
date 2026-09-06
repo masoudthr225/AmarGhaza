@@ -53,6 +53,13 @@ const DEFAULT_SETUP = {
   extraWidth: 100, extraQtyW: 40, extraAlignPage: 'center', extraBold: true,
   cols: 1, showCode: true, showRowNo: true, showSign: false,
   showAbsent: true, showSummary: true, noFill: false, unitNewPage: false,
+  /* --- جداکننده بین واحدها در چاپ --- */
+  unitSep: true,                      // نمایش خط جداکننده بین دو واحد
+  unitSepStyle: 'dashed',             // dashed | dotted | solid | double
+  unitSepWidth: 0.4,                  // ضخامت (mm)
+  unitSepColor: '#000000',
+  unitSepGap: 4,                      // فاصله بالا و پایین خط (mm)
+  rollCut: true,                      // پرینتر حرارتی: هر واحد جدا (برش بین واحدها)
   headerOn: true, headerTitle: 'آمار غذای پرسنل', headerSub: '',
   headerDate: true, headerMeal: true,
   footerOn: true, footerText: '', footerSign: true, footerTime: false,
@@ -152,6 +159,13 @@ function migrateAlign() {
   if (st.foodPrefix    == null) st.foodPrefix    = '**';
   if (st.foodSuffix    == null) st.foodSuffix    = '**';
   if (st.foodLabel     == null) st.foodLabel     = '';
+  /* جداکننده واحدها و برش رول */
+  if (st.unitSep       == null) st.unitSep       = true;
+  if (st.unitSepStyle  == null) st.unitSepStyle  = 'dashed';
+  if (st.unitSepWidth  == null) st.unitSepWidth  = 0.4;
+  if (st.unitSepColor  == null) st.unitSepColor  = '#000000';
+  if (st.unitSepGap    == null) st.unitSepGap    = 4;
+  if (st.rollCut       == null) st.rollCut       = true;
   const zc = { rowNo:0, name:0, code:0, unit:0, sign:0 };
   if (!st.cellH)  st.cellH  = { ...zc };
   if (!st.cellP)  st.cellP  = { ...zc };
@@ -231,17 +245,44 @@ function toast(msg) {
 
 /* ذخیره صریح با تأیید — دکمه «ذخیره تغییرات» */
 function saveNow() {
-  // اول مقادیر فرم‌های باز را بخوان (تنظیمات صفحه و آمار روز)
+  /* ۱) خانه‌ای که همین حالا در حال ویرایش است را نهایی کن.
+        سلول‌های contenteditable فقط با blur ذخیره می‌شوند، پس اگر کاربر
+        وسط تایپ دکمه ذخیره را بزند بدون این مرحله تغییرش از دست می‌رفت. */
+  try {
+    const a = document.activeElement;
+    if (a && a !== document.body) {
+      const tag = (a.tagName || '').toLowerCase();
+      if (a.isContentEditable || tag === 'input' || tag === 'select' || tag === 'textarea') {
+        a.blur();   // رویدادهای change/blur شلیک و مقدار ثبت می‌شود
+      }
+    }
+  } catch (e) {}
+
+  /* ۲) مقادیر همه فرم‌های باز را بخوان — حتی تب‌هایی که الان دیده نمی‌شوند */
   try { if (typeof saveSetup === 'function' && document.getElementById('psPaper')) saveSetup(); } catch(e){}
   try { if (typeof saveSheet === 'function' && document.getElementById('sheetDate')) saveSheet(); } catch(e){}
-  localStorage.setItem(LS_KEY, JSON.stringify(S));
-  // راستی‌آزمایی: دوباره بخوان و مقایسه کن
-  let ok = false;
-  try { ok = localStorage.getItem(LS_KEY) === JSON.stringify(S); } catch(e){}
-  if (ok) {
-    toast('💾 همه تغییرات ذخیره شد ✅ (تنظیمات چاپ، پرسنل، منو و آمار)');
-  } else {
-    toast('⚠️ خطا در ذخیره‌سازی! فضای مرورگر را بررسی کنید');
+  try { if (typeof saveHeads === 'function') saveHeads(); } catch(e){}
+  try { if (typeof saveColW  === 'function') saveColW();  } catch(e){}
+
+  /* ۳) ذخیره و راستی‌آزمایی */
+  let ok = false, err = '';
+  try {
+    const json = JSON.stringify(S);
+    localStorage.setItem(LS_KEY, json);
+    ok = localStorage.getItem(LS_KEY) === json;   // دوباره بخوان و مقایسه کن
+  } catch (e) {
+    err = (e && e.name === 'QuotaExceededError') ? 'فضای ذخیره‌سازی مرورگر پر است' : 'خطای مرورگر';
   }
-  save();
+
+  if (ok) {
+    const n = (S.people || []).length, u = (S.units || []).length;
+    toast(`💾 همه تغییرات ذخیره شد ✅ — ${n} نفر، ${u} واحد، تنظیمات چاپ، منو و آمار روز`);
+  } else {
+    toast('⚠️ ذخیره نشد! ' + (err || 'فضای مرورگر را بررسی کنید') +
+          ' — از دکمه «پشتیبان‌گیری» فایل JSON بگیرید.');
+  }
+
+  /* ۴) صفحه را با مقادیر ذخیره‌شده تازه کن تا کاربر نتیجه را ببیند */
+  try { if (typeof renderPreview === 'function') renderPreview(); } catch(e){}
+  return ok;
 }

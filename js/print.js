@@ -72,6 +72,34 @@ function foodCellText(name) {
   return [lbl, pre, name, suf].filter(s => String(s).trim() !== '').join(' ');
 }
 
+/* آیا کاغذ از نوع رول حرارتی است؟ */
+function isRollPaper() {
+  const p = (S.setup && S.setup.paper) || '';
+  return p === 'T58' || p === 'T80' || p === 'T80R';
+}
+
+/* خط جداکننده بین دو واحد در چاپ */
+function unitSepHtml() {
+  const st = S.setup;
+  if (st.unitSep === false) return '';
+  const sty = st.unitSepStyle || 'dashed';
+  const w   = Math.max(0.1, +st.unitSepWidth || 0.4);
+  const col = st.unitSepColor || '#000000';
+  const gap = Math.max(0, +st.unitSepGap == null ? 4 : +st.unitSepGap);
+  return `<div class="unit-sep" style="border-top:${w.toFixed(2)}mm ${sty} ${col};` +
+         `margin:${gap}mm 0;"></div>`;
+}
+
+/* پرینتر حرارتی: هر واحد روی برگه/برش جدا */
+function unitCutStyle(ui) {
+  const st = S.setup;
+  if (ui === 0) return '';
+  // «هر واحد صفحه جدید» برای همه کاغذها، «برش رول» فقط برای کاغذ حرارتی
+  if (st.unitNewPage) return ' style="page-break-before:always"';
+  if (st.rollCut !== false && isRollPaper()) return ' style="page-break-before:always"';
+  return '';
+}
+
 /* کادر سلول‌ها — معادل کلاس Border در پروژه Page Setup Pro */
 function cellBorder() {
   const st = S.setup;
@@ -276,7 +304,11 @@ function buildDoc() {
     const allAbs = base.filter(p=>S.sheet.absent[p.id]).length;
     grandTot += base.length; grandAbs += allAbs;
 
-    html += `<div class="unit-block" ${st.unitNewPage && ui>0 ? 'style="page-break-before:always"' : ''}>`;
+    // خط جداکننده بین دو واحد (وقتی روی صفحه/برش جدا نمی‌روند)
+    const cut = unitCutStyle(ui);
+    if (ui > 0 && !cut) html += unitSepHtml();
+
+    html += `<div class="unit-block"${cut}>`;
     html += `<div class="unit-title" style="${unitTitleStyle()}"><span>واحد: ${esc(u.name)}</span></div>`;
 
     // تقسیم به ستون‌ها
@@ -423,6 +455,24 @@ function updatePgsHints() {
   }
   const fn = document.getElementById('foodNotice');
   if (fn) fn.style.display = st.headerMeal ? 'none' : '';
+
+  // راهنمای زندهٔ برش رول و جداکننده
+  const rh = document.getElementById('rollCutHint');
+  if (rh) {
+    const n = (typeof selectedUnits === 'function' ? selectedUnits().length : 0);
+    if (!isRollPaper()) {
+      rh.textContent = 'کاغذ فعلی رول حرارتی نیست؛ این گزینه فقط روی کاغذ ۵۸ و ۸۰ میلی‌متری اثر دارد.';
+      rh.className = 'pgs-hint';
+    } else if (st.rollCut !== false) {
+      rh.textContent = n > 1
+        ? `روشن — ${n} واحد انتخاب شده و هر کدام جدا چاپ می‌شود.`
+        : 'روشن — اگر بیش از یک واحد انتخاب کنید، هر واحد جدا چاپ می‌شود.';
+      rh.className = 'pgs-hint';
+    } else {
+      rh.textContent = 'خاموش — همه واحدها پشت سر هم روی یک رول پیوسته چاپ می‌شوند.';
+      rh.className = 'pgs-hint';
+    }
+  }
 }
 
 /* بزرگ‌نمایی: 1 = زیاد، -1 = کم، 0 = اندازه مناسب */
@@ -591,7 +641,9 @@ function buildExcelDoc() {
     let ppl = all;
     if (!st.showAbsent) ppl = ppl.filter(p => !S.sheet.absent[p.id]);
 
-    html += `<div class="xls-block" ${st.unitNewPage && ui > 0 ? 'style="page-break-before:always"' : ''}>`;
+    const xcut = unitCutStyle(ui);
+    if (ui > 0 && !xcut) html += unitSepHtml();
+    html += `<div class="xls-block"${xcut}>`;
 
     /* --- سربرگ: تاریخ + نام واحد --- */
     html += `<table class="xls-head"><tr>

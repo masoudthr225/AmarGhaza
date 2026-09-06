@@ -59,9 +59,18 @@ function renderSetupControls() {
   const _uts0 = document.getElementById('psUnitTitleSize');
   if (_uts0) _uts0.value = (st.unitTitleSize == null ? 1 : st.unitTitleSize);
 
-  /* ---- سلول منوی غذا ---- */
   const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
   const setCk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+
+  /* ---- جداکننده بین واحدها و برش رول ---- */
+  setCk('psUnitSep',       st.unitSep !== false);
+  setEl('psUnitSepStyle',  st.unitSepStyle || 'dashed');
+  setEl('psUnitSepWidth',  MM2CM(st.unitSepWidth == null ? 0.4 : st.unitSepWidth));
+  setEl('psUnitSepGap',    MM2CM(st.unitSepGap   == null ? 4   : st.unitSepGap));
+  setEl('psUnitSepColor',  st.unitSepColor || '#000000');
+  setCk('psRollCut',       st.rollCut !== false);
+
+  /* ---- سلول منوی غذا ---- */
   setEl('psFoodSize',   st.foodSize == null ? 1.3 : st.foodSize);
   setEl('psFoodH',      MM2CM(st.foodH || 0));
   setEl('psFoodP',      MM2CM(st.foodP == null ? 1 : st.foodP));
@@ -229,8 +238,19 @@ function saveSetup() {
   const _uts = document.getElementById('psUnitTitleSize');
   if (_uts) st.unitTitleSize = Math.max(0.5, Math.min(3, parseFloat(_uts.value) || 1));
 
-  /* ---- سلول منوی غذا ---- */
   const gEl = id => document.getElementById(id);
+
+  /* ---- جداکننده بین واحدها و برش رول ---- */
+  const _us = gEl('psUnitSep');       if (_us) st.unitSep = _us.checked;
+  const _uss = gEl('psUnitSepStyle'); if (_uss && _uss.value) st.unitSepStyle = _uss.value;
+  const _usw = gEl('psUnitSepWidth');
+  if (_usw) st.unitSepWidth = Math.max(0.1, Math.min(3, CM2MM(parseFloat(_usw.value)) || 0.4));
+  const _usg = gEl('psUnitSepGap');
+  if (_usg) st.unitSepGap = Math.max(0, Math.min(30, CM2MM(parseFloat(_usg.value) || 0)));
+  const _usc = gEl('psUnitSepColor'); if (_usc && _usc.value) st.unitSepColor = _usc.value;
+  const _rc = gEl('psRollCut');       if (_rc) st.rollCut = _rc.checked;
+
+  /* ---- سلول منوی غذا ---- */
   const _fsz = gEl('psFoodSize');
   if (_fsz) st.foodSize = Math.max(0.5, Math.min(4, parseFloat(_fsz.value) || 1.3));
   const _fh = gEl('psFoodH');
