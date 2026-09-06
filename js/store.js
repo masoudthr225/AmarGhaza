@@ -25,6 +25,16 @@ const DEFAULT_SETUP = {
   sortKey: 'name', sortDir: 1,        // مرتب‌سازی اسامی (در نمایش و چاپ)
   unitTitleAlign: 'center',           // چیدمان نوار «واحد: …»
   unitTitleSize: 1,                   // بزرگی نوار واحد (برابر قلم)
+  /* --- سلول منوی غذا در چاپ --- */
+  foodSize: 1.3,                      // بزرگی قلم نام غذا (برابر قلم سند)
+  foodH: 0,                           // ارتفاع سلول (mm) — ۰ یعنی خودکار
+  foodP: 1,                           // فاصله داخلی (mm)
+  foodAlign: 'center',                // چیدمان متن
+  foodBold: true, foodItalic: false, foodUnderline: false,
+  foodBorder: true,                   // نمایش کادر دور سلول
+  foodBg: '', foodColor: '',          // رنگ پس‌زمینه و رنگ متن
+  foodPrefix: '**', foodSuffix: '**', // متن دو طرف نام غذا
+  foodLabel: '',                      // برچسب پیش از نام غذا مثل «منوی امروز:»
   /* اندازه مستقل هر ستون: ارتفاع سطر و فاصله داخلی (mm) */
   cellH: { rowNo:0, name:0, code:0, unit:0, sign:0 },
   cellP: { rowNo:0, name:0, code:0, unit:0, sign:0 },
@@ -128,6 +138,20 @@ function migrateAlign() {
   if (st.sortDir        == null) st.sortDir        = 1;
   if (st.unitTitleAlign == null) st.unitTitleAlign = 'center';
   if (st.unitTitleSize  == null) st.unitTitleSize  = 1;
+  /* سلول منوی غذا */
+  if (st.foodSize      == null) st.foodSize      = 1.3;
+  if (st.foodH         == null) st.foodH         = 0;
+  if (st.foodP         == null) st.foodP         = 1;
+  if (st.foodAlign     == null) st.foodAlign     = 'center';
+  if (st.foodBold      == null) st.foodBold      = true;
+  if (st.foodItalic    == null) st.foodItalic    = false;
+  if (st.foodUnderline == null) st.foodUnderline = false;
+  if (st.foodBorder    == null) st.foodBorder    = true;
+  if (st.foodBg        == null) st.foodBg        = '';
+  if (st.foodColor     == null) st.foodColor     = '';
+  if (st.foodPrefix    == null) st.foodPrefix    = '**';
+  if (st.foodSuffix    == null) st.foodSuffix    = '**';
+  if (st.foodLabel     == null) st.foodLabel     = '';
   const zc = { rowNo:0, name:0, code:0, unit:0, sign:0 };
   if (!st.cellH)  st.cellH  = { ...zc };
   if (!st.cellP)  st.cellP  = { ...zc };

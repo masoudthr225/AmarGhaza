@@ -292,6 +292,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           <button class="pgs-tab active" onclick="pgsGo('pg-margins',this)">حاشیه</button>
           <button class="pgs-tab" onclick="pgsGo('pg-table',this)">جدول</button>
           <button class="pgs-tab" onclick="pgsGo('pg-cols',this)">ستون‌ها</button>
+          <button class="pgs-tab" onclick="pgsGo('pg-food',this)">منوی غذا</button>
           <button class="pgs-tab" onclick="pgsGo('pg-extras',this)">اقلام</button>
           <button class="pgs-tab" id="tabXls" onclick="pgsGo('pg-xls',this)">فرم اکسل</button>
           <button class="pgs-tab" onclick="pgsGo('pg-hf',this)">سربرگ</button>
@@ -430,6 +431,69 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
           </section>
 
           <!-- ---------- اقلام ---------- -->
+          <!-- ---------- سلول منوی غذا ---------- -->
+          <section class="pgs-sec" id="pg-food">
+            <div class="pgs-hint" id="foodNotice" style="display:none">
+              سلول منوی غذا وقتی چاپ می‌شود که در تب <b>سربرگ</b> گزینه «وعده و غذا» روشن باشد
+              و در تب <b>آمار روز</b> یک غذا انتخاب شده باشد.
+            </div>
+
+            <h4>اندازه سلول</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>بزرگی قلم (برابر قلم سند)</label>
+                <input type="number" id="psFoodSize" min="0.5" max="4" step="0.1" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع سلول (cm)</label>
+                <input type="number" id="psFoodH" min="0" max="5" step="0.05" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>فاصله داخلی (cm)</label>
+                <input type="number" id="psFoodP" min="0" max="2" step="0.05" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>چیدمان متن</label>
+                <select id="psFoodAlign" onchange="saveSetup()">
+                  <option value="right">راست</option><option value="center">وسط</option><option value="left">چپ</option>
+                </select></div>
+            </div>
+            <div class="pgs-hint">ارتفاع ۰ یعنی سلول خودش را با اندازه قلم تنظیم کند.</div>
+
+            <h4>سبک قلم</h4>
+            <div class="pgs-toolrow">
+              <button class="pgs-tgl" id="psFoodBoldBtn" onclick="pgsToggleStyle('psFoodBold','psFoodBoldBtn')" title="ضخیم (Bold)" aria-label="ضخیم">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h6.2a3.8 3.8 0 0 1 0 7.6H7z"/><path d="M7 12.6h7a3.9 3.9 0 0 1 0 7.8H7z"/><path d="M7 5v15.4"/></svg>
+              </button>
+              <button class="pgs-tgl" id="psFoodItalicBtn" onclick="pgsToggleStyle('psFoodItalic','psFoodItalicBtn')" title="مورب (Italic)" aria-label="مورب">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5h-5"/><path d="M14 19H9"/><path d="M14.5 5 10 19"/></svg>
+              </button>
+              <button class="pgs-tgl" id="psFoodUnderBtn" onclick="pgsToggleStyle('psFoodUnderline','psFoodUnderBtn')" title="زیرخط (Underline)" aria-label="زیرخط">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v6.5a5 5 0 0 0 10 0V4"/><path d="M5.5 20h13"/></svg>
+              </button>
+              <label class="pgs-swatch" id="psFoodColorBox" title="رنگ متن">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 15 12 4l5.5 11"/><path d="M8.4 11.4h7.2"/></svg>
+                <span class="pgs-swatch-bar" id="psFoodColorBar"></span>
+                <input type="color" id="psFoodColor" onchange="saveSetup()" aria-label="رنگ متن غذا">
+              </label>
+              <input type="checkbox" id="psFoodBold" onchange="saveSetup()" hidden>
+              <input type="checkbox" id="psFoodItalic" onchange="saveSetup()" hidden>
+              <input type="checkbox" id="psFoodUnderline" onchange="saveSetup()" hidden>
+            </div>
+
+            <h4>کادر و رنگ</h4>
+            <label class="pgs-chk"><input type="checkbox" id="psFoodBorder" onchange="saveSetup()"><span>نمایش کادر دور سلول</span></label>
+            <div class="pgs-row"><span>رنگ پس‌زمینه</span><input type="color" id="psFoodBg" onchange="saveSetup()" aria-label="رنگ پس‌زمینه غذا"></div>
+            <label class="pgs-chk"><input type="checkbox" id="psNoFoodBg" onchange="pgsClearFoodBg()"><span>بدون رنگ پس‌زمینه</span></label>
+
+            <h4>متن سلول</h4>
+            <div class="pgs-f"><label>برچسب ابتدای متن</label>
+              <input type="text" id="psFoodLabel" onchange="saveSetup()" placeholder="مثلاً: منوی امروز"></div>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>پیشوند</label><input type="text" id="psFoodPrefix" onchange="saveSetup()" placeholder="**"></div>
+              <div class="pgs-f"><label>پسوند</label><input type="text" id="psFoodSuffix" onchange="saveSetup()" placeholder="**"></div>
+            </div>
+            <div class="pgs-hint" id="foodPreviewHint"></div>
+
+            <div class="pgs-savebar">
+              <button class="pgs-btn primary" onclick="pgsSaveSection(this)">💾 ذخیره منوی غذا</button>
+              <span class="pgs-saved">ذخیره شد ✓</span>
+            </div>
+          </section>
+
           <section class="pgs-sec" id="pg-extras">
             <h4>اقلام زیر جدول</h4>
             <div class="pgs-grid2">

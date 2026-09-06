@@ -40,6 +40,38 @@ function unitTitleStyle() {
   return css;
 }
 
+/* سلول منوی غذا در چاپ — اندازه، قلم، رنگ و کادر */
+function foodCellStyle() {
+  const st = S.setup;
+  const base = +st.fontSize || 11;
+  const sc = +st.foodSize || 1.3;
+  const H = +st.foodH || 0;
+  const P = (st.foodP == null ? 1 : +st.foodP);
+  const a = st.foodAlign || 'center';
+
+  let css = `text-align:${a};font-size:${(base * sc).toFixed(1)}pt;`;
+  css += `font-weight:${st.foodBold === false ? '400' : '800'};`;
+  if (st.foodItalic)    css += 'font-style:italic;';
+  if (st.foodUnderline) css += 'text-decoration:underline;';
+  if (P > 0) css += `padding:${P}mm ${(P + 1).toFixed(2)}mm;`;
+  else       css += 'padding:0;';
+  if (H > 0) css += `height:${H}mm;display:flex;align-items:center;` +
+                    `justify-content:${a === 'center' ? 'center' : (a === 'left' ? 'flex-start' : 'flex-end')};`;
+  if (st.foodBorder === false) css += 'border:none;';
+  else css += cellBorder() + 'border-radius:4px;';
+  if (st.foodBg)    css += `background:${st.foodBg};`;
+  if (st.foodColor) css += `color:${st.foodColor};`;
+  return css;
+}
+/* متن کامل سلول غذا با برچسب و پیشوند/پسوند */
+function foodCellText(name) {
+  const st = S.setup;
+  const pre = (st.foodPrefix == null ? '**' : st.foodPrefix);
+  const suf = (st.foodSuffix == null ? '**' : st.foodSuffix);
+  const lbl = st.foodLabel || '';
+  return [lbl, pre, name, suf].filter(s => String(s).trim() !== '').join(' ');
+}
+
 /* کادر سلول‌ها — معادل کلاس Border در پروژه Page Setup Pro */
 function cellBorder() {
   const st = S.setup;
@@ -182,7 +214,7 @@ function buildDoc() {
     if (st.headerDate && S.sheet.date) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
     if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
-    if (st.headerMeal && food) html += `<div class="food-line" style="text-align:${AH}">** ${esc(food.name)} **</div>`;
+    if (st.headerMeal && food) html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(food.name))}</div>`;
   }
 
   let grandTot=0, grandAbs=0;
@@ -383,6 +415,14 @@ function updatePgsHints() {
     c.textContent = `ستون نام: ${(nameMM / 10).toFixed(2)} سانتی‌متر` +
       (nameMM < 15 ? ' — برای نام کوتاه است؛ عرض بقیه ستون‌ها را کم کنید.' : ' (کافی)');
   }
+  // نمونه زندهٔ متن سلول منوی غذا
+  const fp = document.getElementById('foodPreviewHint');
+  if (fp) {
+    const f = S.foods && S.foods.find(x => x.id === S.sheet.foodId);
+    fp.textContent = 'نمونه متن چاپی: ' + foodCellText(f ? f.name : 'چلو مرغ');
+  }
+  const fn = document.getElementById('foodNotice');
+  if (fn) fn.style.display = st.headerMeal ? 'none' : '';
 }
 
 /* بزرگ‌نمایی: 1 = زیاد، -1 = کم، 0 = اندازه مناسب */
@@ -415,6 +455,13 @@ function pgsToggleStyle(cbId, btnId) {
 }
 /* حذف پس‌زمینه عنوان */
 function pgsClearHeadBg() {
+  saveSetup();
+  renderSetupControls();
+  renderPreview();
+}
+
+/* حذف رنگ پس‌زمینه سلول منوی غذا */
+function pgsClearFoodBg() {
   saveSetup();
   renderSetupControls();
   renderPreview();

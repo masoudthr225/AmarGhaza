@@ -236,7 +236,8 @@
     border: 1px solid #000; border-radius: 4px; padding: 3px 8px; margin: 5px 0;
     font-weight: 700;
   }
-  .doc .food-line { text-align: center; font-weight: 800; border: 1.5px solid #000; border-radius: 4px; padding: 3px 6px; margin: 4px 0; }
+  /* سلول منوی غذا — همه جزئیات از تنظیمات صفحه به‌صورت inline تزریق می‌شود */
+  .doc .food-line { margin: 4px 0; overflow-wrap: anywhere; }
   .doc .unit-title {
     font-weight: 800; background: #000; color: #fff;
     padding: 3px 8px; margin-top: 7px; border-radius: 3px;
@@ -663,6 +664,22 @@
     position: absolute; inset: 0; opacity: 0; cursor: pointer;
     width: 100%; height: 100%; border: none; padding: 0;
   }
+
+  /* ---------- ردیف آیکون‌های قالب‌بندی داخل پنل تنظیمات ---------- */
+  .pgs-toolrow {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 8px 10px; margin: 4px 0 10px;
+    border: 1px solid var(--border); border-radius: 10px; background: #fafbfc;
+  }
+  .pgs-toolrow .pgs-tgl {
+    width: 38px; height: 38px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; cursor: pointer;
+  }
+  .pgs-toolrow .pgs-tgl:hover { border-color: var(--primary); }
+  .pgs-toolrow .pgs-tgl.on { background: var(--primary); border-color: var(--primary); }
+  .pgs-toolrow .pgs-tgl svg { width: 19px; height: 19px; }
+  .pgs-toolrow .pgs-swatch { width: 38px; height: 38px; }
 
   .pgs-matrix th { line-height: 1.45; }
 

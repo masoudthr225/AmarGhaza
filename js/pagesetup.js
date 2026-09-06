@@ -58,6 +58,36 @@ function renderSetupControls() {
   if (_uta0) _uta0.value = st.unitTitleAlign || 'center';
   const _uts0 = document.getElementById('psUnitTitleSize');
   if (_uts0) _uts0.value = (st.unitTitleSize == null ? 1 : st.unitTitleSize);
+
+  /* ---- سلول منوی غذا ---- */
+  const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
+  const setCk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = !!v; };
+  setEl('psFoodSize',   st.foodSize == null ? 1.3 : st.foodSize);
+  setEl('psFoodH',      MM2CM(st.foodH || 0));
+  setEl('psFoodP',      MM2CM(st.foodP == null ? 1 : st.foodP));
+  setEl('psFoodAlign',  st.foodAlign || 'center');
+  setEl('psFoodLabel',  st.foodLabel || '');
+  setEl('psFoodPrefix', st.foodPrefix == null ? '**' : st.foodPrefix);
+  setEl('psFoodSuffix', st.foodSuffix == null ? '**' : st.foodSuffix);
+  setEl('psFoodColor',  st.foodColor || '#000000');
+  setEl('psFoodBg',     st.foodBg || '#ffffff');
+  setCk('psFoodBold',      st.foodBold !== false);
+  setCk('psFoodItalic',    !!st.foodItalic);
+  setCk('psFoodUnderline', !!st.foodUnderline);
+  setCk('psFoodBorder',    st.foodBorder !== false);
+  setCk('psNoFoodBg',      !st.foodBg);
+  const onCls = (btn, v) => { const b = document.getElementById(btn); if (b) b.classList.toggle('on', !!v); };
+  onCls('psFoodBoldBtn',   st.foodBold !== false);
+  onCls('psFoodItalicBtn', st.foodItalic);
+  onCls('psFoodUnderBtn',  st.foodUnderline);
+  const _fbar = document.getElementById('psFoodColorBar');
+  if (_fbar) _fbar.style.background = st.foodColor || '#000000';
+  const _fnotice = document.getElementById('foodNotice');
+  if (_fnotice) _fnotice.style.display = st.headerMeal ? 'none' : '';
+  const _fprev = document.getElementById('foodPreviewHint');
+  if (_fprev && typeof foodCellText === 'function') {
+    _fprev.textContent = 'نمونه متن چاپی: ' + foodCellText('چلو مرغ');
+  }
   const _erh = document.getElementById('psExtraRowH'); if (_erh) _erh.value = MM2CM(st.extraRowH || 0);
   const _xw  = document.getElementById('psExtraWidth');      if (_xw)  _xw.value  = st.extraWidth == null ? 100 : st.extraWidth;
   const _xq  = document.getElementById('psExtraQtyW');       if (_xq)  _xq.value  = st.extraQtyW  == null ? 40  : st.extraQtyW;
@@ -198,6 +228,33 @@ function saveSetup() {
   if (_uta && _uta.value) st.unitTitleAlign = _uta.value;
   const _uts = document.getElementById('psUnitTitleSize');
   if (_uts) st.unitTitleSize = Math.max(0.5, Math.min(3, parseFloat(_uts.value) || 1));
+
+  /* ---- سلول منوی غذا ---- */
+  const gEl = id => document.getElementById(id);
+  const _fsz = gEl('psFoodSize');
+  if (_fsz) st.foodSize = Math.max(0.5, Math.min(4, parseFloat(_fsz.value) || 1.3));
+  const _fh = gEl('psFoodH');
+  if (_fh) st.foodH = Math.max(0, Math.min(50, CM2MM(parseFloat(_fh.value) || 0)));
+  const _fp = gEl('psFoodP');
+  if (_fp) st.foodP = Math.max(0, Math.min(20, CM2MM(parseFloat(_fp.value) || 0)));
+  const _fa = gEl('psFoodAlign');
+  if (_fa && _fa.value) st.foodAlign = _fa.value;
+  const _flb = gEl('psFoodLabel');  if (_flb) st.foodLabel  = _flb.value;
+  const _fpr = gEl('psFoodPrefix'); if (_fpr) st.foodPrefix = _fpr.value;
+  const _fsf = gEl('psFoodSuffix'); if (_fsf) st.foodSuffix = _fsf.value;
+  const _fb  = gEl('psFoodBold');      if (_fb)  st.foodBold      = _fb.checked;
+  const _fi  = gEl('psFoodItalic');    if (_fi)  st.foodItalic    = _fi.checked;
+  const _fu  = gEl('psFoodUnderline'); if (_fu)  st.foodUnderline = _fu.checked;
+  const _fbd = gEl('psFoodBorder');    if (_fbd) st.foodBorder    = _fbd.checked;
+  const _fc  = gEl('psFoodColor');
+  if (_fc) {
+    st.foodColor = (_fc.value && _fc.value !== '#000000') ? _fc.value : '';
+    const fbar = gEl('psFoodColorBar');
+    if (fbar) fbar.style.background = _fc.value || '#000000';
+  }
+  const _nfg = gEl('psNoFoodBg'), _fbg = gEl('psFoodBg');
+  if (_nfg && _nfg.checked) st.foodBg = '';
+  else if (_fbg) st.foodBg = (_fbg.value && _fbg.value !== '#ffffff') ? _fbg.value : '';
   const _erh = document.getElementById('psExtraRowH');
   if (_erh) st.extraRowH = Math.max(0, Math.min(30, CM2MM(_erh.value)));
   const _xw = document.getElementById('psExtraWidth');
