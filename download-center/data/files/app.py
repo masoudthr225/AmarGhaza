@@ -29,6 +29,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+import threading
 import webbrowser
 import zipfile
 import xml.etree.ElementTree as ET
@@ -66,6 +67,7 @@ UI_FILE = _res('ui.html')
 ASSETS_DIR = _res('assets')
 
 PORT = int(os.environ.get('PORT', '3000'))
+APP_VERSION = '2.5'
 # به‌صورت پیش‌فرض فقط همین کامپیوتر (امن)؛ برای پیش‌نمایش وب می‌توان با HOST=0.0.0.0 تغییر داد
 HOST = os.environ.get('HOST', '127.0.0.1')
 DISPLAY_HOST = '127.0.0.1' if HOST in ('0.0.0.0', '::') else HOST
@@ -1061,6 +1063,25 @@ class Handler(BaseHTTPRequestHandler):
                     'configured': bool(str(cfg.get('outputDir') or '').strip()),
                 }})
 
+            if path == '/api/tools/info':
+                conn = db()
+                try:
+                    count = conn.execute(
+                        'SELECT COUNT(*) FROM ReyGiri WHERE deletedAt IS NULL').fetchone()[0]
+                finally:
+                    conn.close()
+                backups = len(list_backups()) if os.path.isdir(BACKUP_DIR) else 0
+                return self.send_json({'success': True, 'data': {
+                    'version': APP_VERSION,
+                    'records': count,
+                    'backups': backups,
+                    'dbPath': DB_PATH,
+                    'outputDir': get_output_dir(),
+                    'port': PORT,
+                    'python': ('Python %s' % sys.version.split()[0]),
+                    'frozen': bool(_FROZEN),
+                }})
+
             if path == '/api/rey-giri/export':
                 conn = db()
                 try:
@@ -1191,6 +1212,50 @@ class Handler(BaseHTTPRequestHandler):
                 if err:
                     return self.send_json({'success': False, 'error': err}, status)
                 return self.send_json(result)
+
+            if path == '/api/tools/exit':
+                # خروج کامل از برنامه (پرچم توقف برای نگهبان + خروج خود فرایند)
+                try:
+                    with open(STOP_FLAG, 'w') as f:
+                        f.write('stop')
+                except OSError:
+                    return self.send_json({'success': False, 'error': 'خروج ممکن نشد'}, 500)
+
+                def _self_exit():
+                    time.sleep(2.5)
+                    os._exit(0)
+                threading.Thread(target=_self_exit, daemon=True).start()
+                return self.send_json({'success': True,
+                                       'message': 'برنامه در حال بسته شدن است — می‌توانید پنجرهٔ مرورگر را ببندید'})
+
+            if path == '/api/tools/shortcut':
+                if os.name != 'nt':
+                    return self.send_json({'success': False,
+                                           'error': 'ساخت میان‌بر فقط روی ویندوز امکان دارد'}, 400)
+                target = os.path.join(BASE_DIR, 'اجرای برنامه.vbs')
+                if not os.path.exists(target):
+                    return self.send_json({'success': False,
+                                           'error': 'فایل «اجرای برنامه.vbs» کنار برنامه پیدا نشد'}, 404)
+                import base64
+                ps = ("$sh=New-Object -ComObject WScript.Shell;"
+                      "$d=$sh.SpecialFolders('Desktop');"
+                      "$s=$sh.CreateShortcut($d+'\\سیستم ری‌گیری طلا.lnk');"
+                      "$s.TargetPath='%s';$s.WorkingDirectory='%s';"
+                      "$s.IconLocation='%%SystemRoot%%\\System32\\shell32.dll,13';"
+                      "$s.Description='سیستم ثبت ری‌گیری طلا';$s.Save()") % (target, BASE_DIR)
+                enc = base64.b64encode(ps.encode('utf-16-le')).decode('ascii')
+                try:
+                    r = subprocess.run(
+                        ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass',
+                         '-EncodedCommand', enc],
+                        capture_output=True, timeout=20,
+                        creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                except Exception as e:
+                    return self.send_json({'success': False, 'error': 'خطا در ساخت میان‌بر: %s' % e}, 500)
+                if r.returncode == 0:
+                    return self.send_json({'success': True,
+                                           'message': 'میان‌بر «سیستم ری‌گیری طلا» روی دسکتاپ ساخته شد'})
+                return self.send_json({'success': False, 'error': 'ساخت میان‌بر ناموفق بود'}, 500)
 
             if path == '/api/rey-giri/backup/restore':
                 ctype = self.headers.get('Content-Type') or ''

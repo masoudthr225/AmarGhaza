@@ -195,7 +195,7 @@ tbody tr:hover{background:#f5f3ff}
       <div class="logo">⚖️</div>
       <div>
         <h1>سیستم ثبت ری‌گیری طلا</h1>
-        <div class="sub">مدیریت و پیگیری نمونه‌های ری‌گیری · <b style="color:var(--indigo)">نسخهٔ ۲٫۴</b></div>
+        <div class="sub">مدیریت و پیگیری نمونه‌های ری‌گیری · <b style="color:var(--indigo)">نسخهٔ ۲٫۵</b></div>
         <div class="hint">کلید میانبر ثبت جدید: Insert</div>
       </div>
     </div>
@@ -340,6 +340,15 @@ tbody tr:hover{background:#f5f3ff}
         <button class="btn" id="btn-backup-upload" style="width:100%;border-color:var(--amber)">📤 آپلود و بازیابی از فایل بکاپ (.db)</button>
         <div class="fhint" style="margin:10px 0 8px">یا از میان نسخه‌های ذخیره‌شده انتخاب کنید:</div>
         <div class="blist" id="backup-list"><div class="spin-lg"></div></div>
+      </div>
+      <div class="sec" style="border-color:#c7d2fe;background:#f8fafc">
+        <h4>⚙️ ابزارهای برنامه</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="btn-tool-shortcut">🔗 ساخت میان‌بر دسکتاپ</button>
+          <button class="btn" id="btn-tool-info">🩺 اطلاعات سلامت</button>
+          <button class="btn danger" id="btn-tool-exit">🚪 خروج کامل از برنامه</button>
+        </div>
+        <div class="fhint" id="tool-info" style="display:none;margin-top:10px"></div>
       </div>
       <div class="sec" style="border-color:#fca5a5;background:#fef2f2">
         <h4 style="color:#991b1b">⚠️ صفر کردن برنامه</h4>
@@ -763,6 +772,40 @@ $('btn-reset-all').addEventListener('click',async ()=>{
     else toast(j.error||'خطا در صفر کردن برنامه','err');
   }catch(e){toast('خطا در ارتباط با سرور','err')}
   btn.disabled=false;btn.innerHTML='🗑 صفر کردن برنامه (حذف همهٔ اطلاعات)';
+});
+
+/* ═══════════════ ابزارهای برنامه ═══════════════ */
+$('btn-tool-shortcut').addEventListener('click',async ()=>{
+  const btn=$('btn-tool-shortcut');btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال ساخت…';
+  try{
+    const r=await fetch('/api/tools/shortcut',{method:'POST'});const j=await r.json();
+    if(j.success)toast(j.message,'ok');
+    else toast(j.error||'خطا در ساخت میان‌بر','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+  btn.disabled=false;btn.innerHTML='🔗 ساخت میان‌بر دسکتاپ';
+});
+$('btn-tool-info').addEventListener('click',async ()=>{
+  const box=$('tool-info');
+  if(box.style.display==='block'){box.style.display='none';return;}
+  try{
+    const r=await fetch('/api/tools/info');const j=await r.json();
+    if(j.success){
+      const d=j.data;
+      box.innerHTML='نسخهٔ برنامه: <b>'+esc(d.version)+'</b> · رکوردها: <b>'+faNum(d.records)+'</b> · نسخه‌های پشتیبان: <b>'+faNum(d.backups)+'</b><br>'+
+        'پایتون: <span dir="ltr">'+esc(d.python)+'</span> · پورت: <span dir="ltr">'+faNum(d.port)+'</span>'+(d.frozen?' · حالت EXE':'')+'<br>'+
+        'مسیر دیتابیس: <span dir="ltr" style="font-size:.68rem">'+esc(d.dbPath)+'</span><br>'+
+        'مسیر خروجی: <span dir="ltr" style="font-size:.68rem">'+esc(d.outputDir)+'</span>';
+      box.style.display='block';
+    }else toast(j.error||'خطا در دریافت اطلاعات','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
+});
+$('btn-tool-exit').addEventListener('click',async ()=>{
+  if(!confirm('برنامه کامل بسته شود؟\n\n(داده‌ها ضرری نمی‌بینند؛ برای اجرای دوباره، «اجرای برنامه.vbs» یا میان‌بر دسکتاپ را باز کنید)'))return;
+  try{
+    const r=await fetch('/api/tools/exit',{method:'POST'});const j=await r.json();
+    if(j.success)toast(j.message,'ok');
+    else toast(j.error||'خطا در خروج','err');
+  }catch(e){toast('خطا در ارتباط با سرور','err')}
 });
 
 /* ═══════════════ متفرقه ═══════════════ */
