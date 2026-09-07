@@ -85,6 +85,19 @@ function perUnitFood() {
   return ids.size > 1;   // واحدها غذاهای متفاوت دارند
 }
 
+/* غذای مؤثر وقتی همه واحدها یک غذا دارند (یا فقط یک واحد انتخاب شده).
+   باید انتخاب خودِ واحد را برگرداند، نه غذای عمومی روز — وگرنه اگر کاربر
+   برای واحدش غذایی انتخاب کند ولی با بقیه یکی باشد، انتخابش نادیده می‌رفت. */
+function commonFood() {
+  const units = selectedUnits();
+  if (typeof unitFoodId === 'function' && units.length) {
+    const id = unitFoodId(units[0].id);
+    if (id) return S.foods.find(f => f.id === id) || null;
+    return null;
+  }
+  return S.foods.find(f => f.id === S.sheet.foodId) || null;
+}
+
 /* سلول غذای یک واحد مشخص */
 function unitFoodHtml(uId) {
   const st = S.setup;
@@ -265,10 +278,12 @@ function buildDoc() {
     if (st.headerDate && S.sheet.date) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
     if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
-    /* اگر منوی هر واحد جداگانه چاپ می‌شود و واحدها غذاهای متفاوتی دارند،
-       سلول غذا داخل هر واحد می‌آید نه در سربرگ. */
-    if (st.headerMeal && food && !perUnitFood())
-      html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(food.name))}</div>`;
+    /* اگر واحدها غذاهای متفاوتی دارند، سلول غذا داخل هر واحد می‌آید نه سربرگ.
+       در غیر این صورت غذای مشترکِ خودِ واحدها چاپ می‌شود (نه غذای عمومی روز). */
+    if (st.headerMeal && !perUnitFood()) {
+      const cf = commonFood();
+      if (cf) html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(cf.name))}</div>`;
+    }
   }
 
   let grandTot=0, grandAbs=0;
