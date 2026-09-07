@@ -26,9 +26,15 @@ function renderSheetControls() {
 function saveSheet() {
   S.sheet.date = document.getElementById('sheetDate').value.trim();
   S.sheet.mealId = document.getElementById('sheetMeal').value;
-  S.sheet.foodId = document.getElementById('sheetFood').value;
+  const newFood = document.getElementById('sheetFood').value;
+  /* «غذای امروز» غذای همه واحدهاست: با تغییر آن، منوی اختصاصی واحدها
+     پاک می‌شود تا همگی غذای جدید روز را بگیرند. اگر بعداً برای واحدی
+     غذای متفاوتی لازم بود، از همان کادر زیر واحد انتخاب می‌شود. */
+  if (newFood !== S.sheet.foodId) S.sheet.unitFood = {};
+  S.sheet.foodId = newFood;
   S.sheet.note = document.getElementById('sheetNote').value.trim();
   save();
+  if (typeof renderAttendance === 'function') renderAttendance();
   renderPreview();
 }
 
@@ -165,7 +171,7 @@ function renderAttendance() {
         </div>`;}).join('') || '<span class="att-note">این واحد پرسنلی ندارد.</span>'
       }</div>
       <div class="unit-food">
-        <span class="uf-label">🍽️ منوی غذای این واحد</span>
+        <span class="uf-label">🍽️ غذای متفاوت برای این واحد</span>
         <select onchange="setUnitFood('${u.id}', this.value)">
           <option value="">— همان غذای روز ${S.foods.find(f=>f.id===S.sheet.foodId) ? '(' + esc(S.foods.find(f=>f.id===S.sheet.foodId).name) + ')' : ''} —</option>
           ${S.foods.map(f=>`<option value="${f.id}" ${S.sheet.unitFood && S.sheet.unitFood[u.id]===f.id ? 'selected':''}>${esc(f.name)}</option>`).join('')}

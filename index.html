@@ -63,8 +63,8 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         <select id="sheetMeal" onchange="saveSheet()"></select>
       </div>
       <div class="field">
-        <label>غذای امروز (از منو)</label>
-        <select id="sheetFood" onchange="saveSheet()"></select>
+        <label>غذای امروز (برای همه واحدها)</label>
+        <select id="sheetFood" onchange="saveSheet()" title="با تغییر این گزینه، همه واحدها همین غذا را می‌گیرند"></select>
       </div>
     </div>
     <div class="field">
