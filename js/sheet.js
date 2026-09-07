@@ -98,6 +98,24 @@ function unitPeople(uId) {
   return sortPeople(S.people.filter(p => p.unitId === uId));
 }
 
+/* ---- منوی غذای هر واحد ---- */
+/* اگر برای واحد غذایی انتخاب نشده باشد، غذای عمومی روز استفاده می‌شود */
+function unitFoodId(uId) {
+  if (!S.sheet.unitFood) S.sheet.unitFood = {};
+  const v = S.sheet.unitFood[uId];
+  return (v == null || v === '') ? (S.sheet.foodId || '') : v;
+}
+function unitFood(uId) {
+  const id = unitFoodId(uId);
+  return id ? S.foods.find(f => f.id === id) : null;
+}
+function setUnitFood(uId, foodId) {
+  if (!S.sheet.unitFood) S.sheet.unitFood = {};
+  if (foodId) S.sheet.unitFood[uId] = foodId;
+  else delete S.sheet.unitFood[uId];   // خالی = پیروی از غذای عمومی روز
+  save(); renderAttendance(); renderPreview();
+}
+
 /* ---- اقلام زیر جدول (خوراک، حاضری، تخم مرغ و ...) ---- */
 function unitExtras(uId) {
   if (!S.sheet.extras) S.sheet.extras = {};
@@ -146,6 +164,13 @@ function renderAttendance() {
           <span class="num">${i+1}</span><span class="pname">${esc(p.name)}</span><span class="code">${esc(p.code||'')}</span>
         </div>`;}).join('') || '<span class="att-note">این واحد پرسنلی ندارد.</span>'
       }</div>
+      <div class="unit-food">
+        <span class="uf-label">🍽️ منوی غذای این واحد</span>
+        <select onchange="setUnitFood('${u.id}', this.value)">
+          <option value="">— همان غذای روز ${S.foods.find(f=>f.id===S.sheet.foodId) ? '(' + esc(S.foods.find(f=>f.id===S.sheet.foodId).name) + ')' : ''} —</option>
+          ${S.foods.map(f=>`<option value="${f.id}" ${S.sheet.unitFood && S.sheet.unitFood[u.id]===f.id ? 'selected':''}>${esc(f.name)}</option>`).join('')}
+        </select>
+      </div>
       <div class="extras-box">
         <div class="extras-head">
           <span>🍳 اقلام زیر جدول</span>

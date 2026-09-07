@@ -72,6 +72,28 @@ function foodCellText(name) {
   return [lbl, pre, name, suf].filter(s => String(s).trim() !== '').join(' ');
 }
 
+/* آیا سلول منوی غذا باید داخل هر واحد چاپ شود؟
+   فقط وقتی که تنظیم روشن باشد و واقعاً بیش از یک غذای متفاوت در کار باشد،
+   وگرنه چاپ یک غذای تکراری بالای هر واحد بی‌فایده است. */
+function perUnitFood() {
+  const st = S.setup;
+  if (st.foodPerUnit === false) return false;
+  if (typeof unitFoodId !== 'function') return false;
+  const units = selectedUnits();
+  if (units.length < 2) return false;
+  const ids = new Set(units.map(u => unitFoodId(u.id)));
+  return ids.size > 1;   // واحدها غذاهای متفاوت دارند
+}
+
+/* سلول غذای یک واحد مشخص */
+function unitFoodHtml(uId) {
+  const st = S.setup;
+  if (!st.headerMeal || !perUnitFood()) return '';
+  const f = (typeof unitFood === 'function') ? unitFood(uId) : null;
+  if (!f) return '';
+  return `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(f.name))}</div>`;
+}
+
 /* آیا کاغذ از نوع رول حرارتی است؟ */
 function isRollPaper() {
   const p = (S.setup && S.setup.paper) || '';
@@ -243,7 +265,10 @@ function buildDoc() {
     if (st.headerDate && S.sheet.date) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
     if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
-    if (st.headerMeal && food) html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(food.name))}</div>`;
+    /* اگر منوی هر واحد جداگانه چاپ می‌شود و واحدها غذاهای متفاوتی دارند،
+       سلول غذا داخل هر واحد می‌آید نه در سربرگ. */
+    if (st.headerMeal && food && !perUnitFood())
+      html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(food.name))}</div>`;
   }
 
   let grandTot=0, grandAbs=0;
@@ -311,6 +336,7 @@ function buildDoc() {
 
     html += `<div class="unit-block"${cut}>`;
     html += `<div class="unit-title" style="${unitTitleStyle()}"><span>واحد: ${esc(u.name)}</span></div>`;
+    html += unitFoodHtml(u.id);   // منوی غذای همین واحد
 
     // تقسیم به ستون‌ها
     const per = Math.ceil(ppl.length / cols) || 1;
@@ -456,6 +482,27 @@ function updatePgsHints() {
   }
   const fn = document.getElementById('foodNotice');
   if (fn) fn.style.display = st.headerMeal ? 'none' : '';
+
+  // راهنمای زندهٔ منوی هر واحد
+  const fpu = document.getElementById('foodPerUnitHint');
+  if (fpu) {
+    const us = (typeof selectedUnits === 'function' ? selectedUnits() : []);
+    if (st.foodPerUnit === false) {
+      fpu.textContent = 'خاموش — یک منوی مشترک بالای برگه چاپ می‌شود.';
+    } else if (us.length < 2) {
+      fpu.textContent = 'روشن — با انتخاب دو واحد یا بیشتر، منوی هر واحد بالای همان واحد چاپ می‌شود.';
+    } else if (perUnitFood()) {
+      const names = us.map(u => {
+        const f = (typeof unitFood === 'function') ? unitFood(u.id) : null;
+        return `${u.name}: ${f ? f.name : '—'}`;
+      }).join(' | ');
+      fpu.textContent = 'روشن — ' + names;
+    } else {
+      fpu.textContent = 'همه واحدها یک غذا دارند، پس منو یک‌بار بالای برگه می‌آید. ' +
+        'برای هر واحد غذای جدا، در تب «آمار روز» زیر هر واحد منوی آن را انتخاب کنید.';
+    }
+    fpu.className = 'pgs-hint';
+  }
 
   // راهنمای زندهٔ برش رول و جداکننده
   const rh = document.getElementById('rollCutHint');
@@ -671,8 +718,9 @@ function buildExcelDoc() {
       <td class="xls-unit" style="${CS}width:${100 - X.dateW}%;">${esc(X.unitLabel)}${esc(u.name)}</td>
     </tr></table>`;
 
-    /* --- نام غذا در یک کادر تمام‌عرض --- */
-    if (food) html += `<div class="xls-food" style="font-size:${(st.fontSize * X.foodScale).toFixed(1)}pt;text-align:${AH}">${esc(X.foodPrefix)} ${esc(food.name)} ${esc(X.foodSuffix)}</div>`;
+    /* --- نام غذا در یک کادر تمام‌عرض (منوی همین واحد) --- */
+    const uf = (typeof unitFood === 'function') ? (unitFood(u.id) || food) : food;
+    if (uf) html += `<div class="xls-food" style="font-size:${(st.fontSize * X.foodScale).toFixed(1)}pt;text-align:${AH}">${esc(X.foodPrefix)} ${esc(uf.name)} ${esc(X.foodSuffix)}</div>`;
 
     /* --- جدول اسامی: یک یا دو بلوک کنار هم --- */
     const nb = X.twoBlocks ? 2 : 1;

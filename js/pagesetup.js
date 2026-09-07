@@ -85,6 +85,7 @@ function renderSetupControls() {
   setCk('psFoodItalic',    !!st.foodItalic);
   setCk('psFoodUnderline', !!st.foodUnderline);
   setCk('psFoodBorder',    st.foodBorder !== false);
+  setCk('psFoodPerUnit',   st.foodPerUnit !== false);
   setCk('psNoFoodBg',      !st.foodBg);
   const onCls = (btn, v) => { const b = document.getElementById(btn); if (b) b.classList.toggle('on', !!v); };
   onCls('psFoodBoldBtn',   st.foodBold !== false);
@@ -269,6 +270,7 @@ function saveSetup() {
   const _fi  = gEl('psFoodItalic');    if (_fi)  st.foodItalic    = _fi.checked;
   const _fu  = gEl('psFoodUnderline'); if (_fu)  st.foodUnderline = _fu.checked;
   const _fbd = gEl('psFoodBorder');    if (_fbd) st.foodBorder    = _fbd.checked;
+  const _fpu = gEl('psFoodPerUnit');   if (_fpu) st.foodPerUnit   = _fpu.checked;
   const _fc  = gEl('psFoodColor');
   if (_fc) {
     st.foodColor = (_fc.value && _fc.value !== '#000000') ? _fc.value : '';

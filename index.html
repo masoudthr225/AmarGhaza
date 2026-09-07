@@ -478,6 +478,10 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             </div>
             <div class="pgs-hint">ارتفاع ۰ یعنی سلول خودش را با اندازه قلم تنظیم کند.</div>
 
+            <h4>منوی جداگانه برای هر واحد</h4>
+            <label class="pgs-chk"><input type="checkbox" id="psFoodPerUnit" onchange="saveSetup()"><span>منوی غذا برای هر واحد جدا چاپ شود</span></label>
+            <div class="pgs-hint" id="foodPerUnitHint"></div>
+
             <h4>سبک قلم</h4>
             <div class="pgs-toolrow">
               <button class="pgs-tgl" id="psFoodBoldBtn" onclick="pgsToggleStyle('psFoodBold','psFoodBoldBtn')" title="ضخیم (Bold)" aria-label="ضخیم">
