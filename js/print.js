@@ -79,10 +79,14 @@ function perUnitFood() {
   const st = S.setup;
   if (st.foodPerUnit === false) return false;
   if (typeof unitFoodId !== 'function') return false;
+  /* قالب «flat» یک جدول یکپارچه است و بلوک جداگانه‌ای برای هر واحد ندارد،
+     پس منو باید بالای برگه بماند. */
+  if (st.layout === 'flat') return false;
   const units = selectedUnits();
   if (units.length < 2) return false;
-  const ids = new Set(units.map(u => unitFoodId(u.id)));
-  return ids.size > 1;   // واحدها غذاهای متفاوت دارند
+  /* منوی غذا زیر عنوان هر واحد چاپ می‌شود — حتی اگر همه واحدها یک غذا
+     داشته باشند. هر برگه/برش واحد باید منوی خودش را کامل داشته باشد. */
+  return true;
 }
 
 /* غذای مؤثر وقتی همه واحدها یک غذا دارند (یا فقط یک واحد انتخاب شده).
@@ -513,8 +517,8 @@ function updatePgsHints() {
       }).join(' | ');
       fpu.textContent = 'روشن — ' + names;
     } else {
-      fpu.textContent = 'همه واحدها یک غذا دارند، پس منو یک‌بار بالای برگه می‌آید. ' +
-        'برای هر واحد غذای جدا، در تب «آمار روز» زیر هر واحد منوی آن را انتخاب کنید.';
+      fpu.textContent = 'قالب «جدول یکپارچه» بلوک جداگانه برای هر واحد ندارد، ' +
+        'پس منو یک‌بار بالای برگه چاپ می‌شود.';
     }
     fpu.className = 'pgs-hint';
   }
