@@ -22,7 +22,7 @@ const DEFAULT_SETUP = {
   borderStyle: 'solid', borderColor: '#000000', borderWidth: 0.5,
   headBg: '', zebra: false,           // پس‌زمینه عنوان و ردیف‌های یک‌درمیان
   indent: 0,                          // تورفتگی متن نام (mm)
-  sortKey: 'name', sortDir: 1,        // مرتب‌سازی اسامی (در نمایش و چاپ)
+  sortKey: 'code', sortDir: 1,        // مرتب‌سازی پیش‌فرض: کد پرسنلی از کم به زیاد
   unitTitleAlign: 'center',           // چیدمان نوار «واحد: …»
   unitTitleSize: 1,                   // بزرگی نوار واحد (برابر قلم)
   /* --- سلول منوی غذا در چاپ --- */
@@ -110,6 +110,7 @@ function load() {
       migrateDefaults();
       migrateAlign();
       migrateRollFit();
+      migrateSortCode();
       return;
     }
   } catch(e){}
@@ -117,6 +118,7 @@ function load() {
   S.__extrasV2 = true;
   S.__defaultsV3 = true;   // پیش‌فرض‌ها از قبل اعمال‌اند؛ مهاجرت نباید بعداً تنظیمات کاربر را بازنویسی کند
   S.__rollFitV1 = true;
+  S.__sortCodeV1 = true;
   save();
 }
 /* یک‌بار: انتقال چیدمان‌های تکی قدیمی به مدل جدید colAlign */
@@ -143,7 +145,7 @@ function migrateAlign() {
   if (st.headBg      == null) st.headBg      = '';
   if (st.zebra       == null) st.zebra       = false;
   if (st.indent         == null) st.indent         = 0;
-  if (st.sortKey        == null) st.sortKey        = 'name';
+  if (st.sortKey        == null) st.sortKey        = 'code';
   if (st.sortDir        == null) st.sortDir        = 1;
   if (st.unitTitleAlign == null) st.unitTitleAlign = 'center';
   if (st.unitTitleSize  == null) st.unitTitleSize  = 1;
@@ -209,6 +211,20 @@ function migrateRollFit() {
     if (usable < 70 && (+st.cols || 0) > 1) st.cols = 1;
   }
   S.__rollFitV1 = true;
+  save();
+}
+
+/* یک‌بار: مرتب‌سازی پیش‌فرض جدول پرسنل روی «کد پرسنلی، از کم به زیاد».
+   فقط نصب‌هایی که هنوز روی مرتب‌سازی پیش‌فرض قدیمی (نام) مانده‌اند تغییر
+   می‌کنند؛ اگر کاربر خودش ستون دیگری را انتخاب کرده باشد دست‌نخورده می‌ماند. */
+function migrateSortCode() {
+  if (S.__sortCodeV1) return;
+  const st = S.setup;
+  if (st && st.sortKey === 'name' && (st.sortDir === 1 || st.sortDir == null)) {
+    st.sortKey = 'code';
+    st.sortDir = 1;
+  }
+  S.__sortCodeV1 = true;
   save();
 }
 

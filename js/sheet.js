@@ -70,16 +70,18 @@ function sortPeople(list) {
   const dir = (S.setup && S.setup.sortDir) === -1 ? -1 : 1;
   const unitName = p => { const u = S.units.find(x => x.id === p.unitId); return u ? u.name : ''; };
   const arr = list.slice();
+  const numCode = p => parseFloat(String(p.code || '').replace(/[^\d.]/g, ''));
   arr.sort((a, b) => {
     let r;
     if (key === 'code') {
       // کد پرسنلی عددی است؛ عددی مقایسه شود نه رشته‌ای
-      const na = parseFloat(String(a.code || '').replace(/[^\d.]/g, ''));
-      const nb = parseFloat(String(b.code || '').replace(/[^\d.]/g, ''));
+      const na = numCode(a), nb = numCode(b);
       const aNaN = isNaN(na), bNaN = isNaN(nb);
-      if (aNaN && bNaN) r = faCompare(a.code || '', b.code || '');
-      else if (aNaN) r = 1;          // بدون کد همیشه آخر
-      else if (bNaN) r = -1;
+      // نفرات بدون کد در هر دو جهت (صعودی/نزولی) انتهای لیست می‌مانند،
+      // پس نتیجه‌شان نباید در dir ضرب شود.
+      if (aNaN && bNaN) r = faCompare(a.name, b.name);
+      else if (aNaN) return 1;
+      else if (bNaN) return -1;
       else r = na - nb;
     } else if (key === 'unit') {
       r = faCompare(unitName(a), unitName(b)) || faCompare(a.name, b.name);

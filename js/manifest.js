@@ -3,9 +3,9 @@ window.APP_MANIFEST = {
  "date": "2026-09-07",
  "files": {
   "css/app.css": "f958d7ad65",
-  "js/store.js": "8d8ffa5b9a",
+  "js/store.js": "ffd5e33737",
   "js/jalali.js": "783d52ba23",
-  "js/sheet.js": "a765cfef51",
+  "js/sheet.js": "cbfa348df6",
   "js/manage.js": "1be0019966",
   "js/pagesetup.js": "6c2f2f5f7a",
   "js/print.js": "4fc2b0ee83",
