@@ -100,8 +100,7 @@ function commonFood() {
 
 /* سلول غذای یک واحد مشخص */
 function unitFoodHtml(uId) {
-  const st = S.setup;
-  if (!st.headerMeal || !perUnitFood()) return '';
+  if (!perUnitFood()) return '';
   const f = (typeof unitFood === 'function') ? unitFood(uId) : null;
   if (!f) return '';
   return `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(f.name))}</div>`;
@@ -278,12 +277,13 @@ function buildDoc() {
     if (st.headerDate && S.sheet.date) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
     if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
-    /* اگر واحدها غذاهای متفاوتی دارند، سلول غذا داخل هر واحد می‌آید نه سربرگ.
-       در غیر این صورت غذای مشترکِ خودِ واحدها چاپ می‌شود (نه غذای عمومی روز). */
-    if (st.headerMeal && !perUnitFood()) {
-      const cf = commonFood();
-      if (cf) html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(cf.name))}</div>`;
-    }
+  }
+
+  /* سلول منوی غذا — مستقل از سربرگ چاپ می‌شود.
+     اگر واحدها غذاهای متفاوتی دارند، داخل هر واحد می‌آید نه اینجا. */
+  if (!perUnitFood()) {
+    const cf = commonFood();
+    if (cf) html += `<div class="food-line" style="${foodCellStyle()}">${esc(foodCellText(cf.name))}</div>`;
   }
 
   let grandTot=0, grandAbs=0;
@@ -496,7 +496,7 @@ function updatePgsHints() {
     fp.textContent = 'نمونه متن چاپی: ' + foodCellText(f ? f.name : 'چلو مرغ');
   }
   const fn = document.getElementById('foodNotice');
-  if (fn) fn.style.display = st.headerMeal ? 'none' : '';
+  if (fn) fn.style.display = 'none';   // سلول غذا دیگر وابسته به سربرگ نیست
 
   // راهنمای زندهٔ منوی هر واحد
   const fpu = document.getElementById('foodPerUnitHint');
