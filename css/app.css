@@ -249,6 +249,9 @@
   }
   /* سلول منوی غذا — همه جزئیات از تنظیمات صفحه به‌صورت inline تزریق می‌شود */
   .doc .food-line { margin: 4px 0; overflow-wrap: anywhere; }
+  /* خط تاریخ زیر عنوان هر واحد — جزئیات inline از تنظیمات می‌آید */
+  .doc .unit-date { overflow-wrap: anywhere; page-break-after: avoid; }
+
   /* خط جداکننده بین دو واحد — جزئیات از تنظیمات صفحه inline می‌آید */
   .doc .unit-sep { width: 100%; height: 0; page-break-inside: avoid; break-inside: avoid; }
   .doc .unit-title {

@@ -102,6 +102,33 @@ function commonFood() {
   return S.foods.find(f => f.id === S.sheet.foodId) || null;
 }
 
+/* آیا تاریخ باید زیر عنوان هر واحد چاپ شود؟
+   مثل منوی غذا فقط جایی معنی دارد که هر واحد بلوک جدا داشته باشد. */
+function perUnitDate() {
+  const st = S.setup;
+  if (st.datePerUnit === false) return false;
+  if (!S.sheet.date) return false;
+  if (st.layout === 'flat') return false;
+  return selectedUnits().length >= 2;
+}
+
+/* خط تاریخ زیر عنوان یک واحد */
+function unitDateHtml() {
+  if (!perUnitDate()) return '';
+  return `<div class="unit-date" style="${unitDateStyle()}">تاریخ: ${esc(S.sheet.date)}</div>`;
+}
+
+/* استایل خط تاریخِ هر واحد — از همان قلم و چیدمان نوار واحد پیروی می‌کند */
+function unitDateStyle() {
+  const st = S.setup;
+  const a = st.unitTitleAlign || 'center';
+  const base = +st.fontSize || 11;
+  let css = `text-align:${a};font-size:${(base * 0.95).toFixed(1)}pt;font-weight:700;`;
+  const P = (st.foodP == null ? 1 : +st.foodP);
+  css += P > 0 ? `padding:${(P * 0.6).toFixed(2)}mm 1mm;` : 'padding:0;';
+  return css;
+}
+
 /* سلول غذای یک واحد مشخص */
 function unitFoodHtml(uId) {
   if (!perUnitFood()) return '';
@@ -278,7 +305,8 @@ function buildDoc() {
     if (st.headerSub) html += `<div class="hsub" style="font-size:${st.fontSize*0.95}pt">${esc(st.headerSub)}</div>`;
     html += `</div>`;
     const metas = [];
-    if (st.headerDate && S.sheet.date) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
+    // اگر تاریخ زیر هر واحد می‌آید، در سربرگ تکرار نشود
+    if (st.headerDate && S.sheet.date && !perUnitDate()) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
     if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
   }
@@ -355,6 +383,7 @@ function buildDoc() {
 
     html += `<div class="unit-block"${cut}>`;
     html += `<div class="unit-title" style="${unitTitleStyle()}"><span>واحد: ${esc(u.name)}</span></div>`;
+    html += unitDateHtml();       // تاریخ همین واحد
     html += unitFoodHtml(u.id);   // منوی غذای همین واحد
 
     // تقسیم به ستون‌ها
@@ -521,6 +550,21 @@ function updatePgsHints() {
         'پس منو یک‌بار بالای برگه چاپ می‌شود.';
     }
     fpu.className = 'pgs-hint';
+  }
+
+  // راهنمای زندهٔ تاریخِ هر واحد
+  const dpu = document.getElementById('datePerUnitHint');
+  if (dpu) {
+    if (st.datePerUnit === false) {
+      dpu.textContent = 'خاموش — تاریخ فقط یک‌بار در سربرگ چاپ می‌شود.';
+    } else if (!S.sheet.date) {
+      dpu.textContent = 'در تب «آمار روز» تاریخی ثبت نشده است.';
+    } else if (perUnitDate()) {
+      dpu.textContent = `روشن — «تاریخ: ${S.sheet.date}» زیر عنوان هر واحد می‌آید و در سربرگ تکرار نمی‌شود.`;
+    } else {
+      dpu.textContent = 'با انتخاب دو واحد یا بیشتر، تاریخ زیر عنوان هر واحد چاپ می‌شود.';
+    }
+    dpu.className = 'pgs-hint';
   }
 
   // راهنمای زندهٔ برش رول و جداکننده

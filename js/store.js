@@ -36,6 +36,7 @@ const DEFAULT_SETUP = {
   foodPrefix: '**', foodSuffix: '**', // متن دو طرف نام غذا
   foodLabel: '',                      // برچسب پیش از نام غذا مثل «منوی امروز:»
   foodPerUnit: true,                  // منوی غذا برای هر واحد جداگانه چاپ شود
+  datePerUnit: true,                  // تاریخ زیر عنوان هر واحد چاپ شود
   /* اندازه مستقل هر ستون: ارتفاع سطر و فاصله داخلی (mm) */
   cellH: { rowNo:0, name:0, code:0, unit:0, sign:0 },
   cellP: { rowNo:0, name:0, code:0, unit:0, sign:0 },
@@ -164,6 +165,7 @@ function migrateAlign() {
   if (st.foodSuffix    == null) st.foodSuffix    = '**';
   if (st.foodLabel     == null) st.foodLabel     = '';
   if (st.foodPerUnit   == null) st.foodPerUnit   = true;
+  if (st.datePerUnit   == null) st.datePerUnit   = true;
   /* جداکننده واحدها و برش رول */
   if (st.unitSep       == null) st.unitSep       = true;
   if (st.unitSepStyle  == null) st.unitSepStyle  = 'dashed';
