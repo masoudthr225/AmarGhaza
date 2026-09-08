@@ -7,6 +7,7 @@ function renderAll() {
   renderSetupControls();
   if (typeof renderQuickSetup==='function') renderQuickSetup();
   if (typeof renderPickInfo==='function') renderPickInfo();
+  if (typeof renderSoundBtn==='function') renderSoundBtn();
   renderPreview();
 }
 load();

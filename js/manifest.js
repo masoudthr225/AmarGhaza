@@ -2,8 +2,9 @@ window.APP_MANIFEST = {
  "version": "1.10.0",
  "date": "2026-09-08",
  "files": {
-  "css/app.css": "751b1b7bc5",
-  "js/store.js": "74e4e0741c",
+  "css/app.css": "d623a726bb",
+  "js/sound.js": "ee4e51a08b",
+  "js/store.js": "bbc1b1a406",
   "js/jalali.js": "783d52ba23",
   "js/sheet.js": "cbfa348df6",
   "js/manage.js": "1be0019966",
@@ -11,8 +12,8 @@ window.APP_MANIFEST = {
   "js/print.js": "b5952144da",
   "js/excel.js": "cdbf2354ac",
   "js/updater.js": "e87974ff08",
-  "js/main.js": "d072333fd4",
+  "js/main.js": "937cd8b696",
   "js/xlsx.full.min.js": "31e9848e80",
-  "index.html": "2cf27bb865"
+  "index.html": "071d40f565"
  }
 };

@@ -85,6 +85,25 @@
   .btn.orange { background: var(--accent); }
   .btn.danger { background: var(--danger); }
   .btn.ghost { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+
+  /* ---------- کنترل آوای تأیید در نوار بالا ---------- */
+  .snd-box {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px 3px 4px; border-radius: 20px;
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3);
+  }
+  .snd-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.05rem; line-height: 1; padding: 3px 2px;
+    filter: none; transition: opacity .15s;
+  }
+  .snd-btn.off { opacity: .55; }
+  .snd-btn:hover { opacity: 1; transform: scale(1.1); }
+  .snd-box input[type="range"] {
+    width: 62px; height: 4px; cursor: pointer; accent-color: #ffd54f;
+    background: transparent; padding: 0; margin: 0; border: none;
+  }
+  @media (max-width: 720px) { .snd-box input[type="range"] { display: none; } }
   .btn.sm { padding: 4px 10px; font-size: .8rem; border-radius: 6px; }
   .btn.big { padding: 13px 26px; font-size: 1.05rem; }
 

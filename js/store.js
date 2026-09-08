@@ -275,6 +275,8 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
   clearTimeout(t._tm); t._tm = setTimeout(()=>t.style.display='none', 2200);
+  // آوای تأیید متناسب با نوع پیام
+  try { if (typeof sndForMessage === 'function') sndForMessage(msg)(); } catch(e){}
 }
 
 /* ذخیره صریح با تأیید — دکمه «ذخیره تغییرات» */

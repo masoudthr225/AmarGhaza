@@ -29,6 +29,11 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     <div class="sub"><span id="appVersion">نسخه —</span> · <a href="#" style="color:#ffd" onclick="checkForUpdate(false);return false">🔄 بررسی به‌روزرسانی</a></div>
   </div>
   <div class="spacer"></div>
+  <span class="snd-box" title="آوای تأیید">
+    <button class="snd-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+    <input type="range" id="soundVol" min="0" max="1" step="0.1" onchange="setSoundVol(this.value)"
+           title="بلندی صدا" aria-label="بلندی آوای تأیید">
+  </span>
   <button class="btn" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
   <button class="btn orange" onclick="openPrintDialog()">🖨️ چاپ</button>
   <button class="btn" style="background:#1d6f42" onclick="exportExcel()">📥 دانلود اکسل</button>
@@ -646,6 +651,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 (function () {
   var files = [
     'js/xlsx.full.min.js',
+    'js/sound.js',
     'js/store.js',
     'js/jalali.js',
     'js/sheet.js',
