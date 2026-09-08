@@ -66,7 +66,13 @@ function flushPendingEdits() {
 window.addEventListener('beforeunload', flushPendingEdits);
 window.addEventListener('pagehide', flushPendingEdits);
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') flushPendingEdits();
+  if (document.visibilityState === 'hidden') { flushPendingEdits(); return; }
+  /* اگر برنامه از دیشب باز مانده باشد، با برگشت کاربر تاریخ روی امروز بیاید */
+  if (typeof refreshSheetDate === 'function' && refreshSheetDate()) {
+    if (typeof renderSheetControls === 'function') renderSheetControls();
+    if (typeof renderPreview === 'function') renderPreview();
+    if (typeof toast === 'function') toast('📅 تاریخ آمار روی امروز تنظیم شد: ' + S.sheet.date);
+  }
 });
 
 

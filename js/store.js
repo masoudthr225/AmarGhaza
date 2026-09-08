@@ -95,6 +95,17 @@ function todayJalali() {
   } catch(e) { return new Date().toLocaleDateString('fa-IR'); }
 }
 
+/* با هر بار باز شدن برنامه، تاریخ «مشخصات آمار» روی امروز تنظیم شود.
+   فقط خود تاریخ عوض می‌شود؛ حضور/غیاب و بقیه داده‌ها دست‌نخورده می‌مانند. */
+function refreshSheetDate() {
+  if (!S.sheet) return false;
+  const today = todayJalali();
+  if (S.sheet.date === today) return false;
+  S.sheet.date = today;
+  save();
+  return true;
+}
+
 let S; // state
 function load() {
   try {
@@ -112,6 +123,7 @@ function load() {
       migrateAlign();
       migrateRollFit();
       migrateSortCode();
+      refreshSheetDate();
       return;
     }
   } catch(e){}
