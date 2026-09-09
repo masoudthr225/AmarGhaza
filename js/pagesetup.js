@@ -87,6 +87,10 @@ function renderSetupControls() {
   setCk('psFoodBorder',    st.foodBorder !== false);
   setCk('psFoodPerUnit',   st.foodPerUnit !== false);
   setCk('psDatePerUnit',   st.datePerUnit !== false);
+  setEl('psDateSize',      st.dateSize == null ? 0.95 : st.dateSize);
+  setEl('psDateH',         MM2CM(st.dateH || 0));
+  setEl('psDateP',         MM2CM(st.dateP == null ? 0.6 : st.dateP));
+  setCk('psDateBold',      st.dateBold !== false);
   setCk('psNoFoodBg',      !st.foodBg);
   const onCls = (btn, v) => { const b = document.getElementById(btn); if (b) b.classList.toggle('on', !!v); };
   onCls('psFoodBoldBtn',   st.foodBold !== false);
@@ -273,6 +277,13 @@ function saveSetup() {
   const _fbd = gEl('psFoodBorder');    if (_fbd) st.foodBorder    = _fbd.checked;
   const _fpu = gEl('psFoodPerUnit');   if (_fpu) st.foodPerUnit   = _fpu.checked;
   const _dpu = gEl('psDatePerUnit');    if (_dpu) st.datePerUnit   = _dpu.checked;
+  const _dsz = gEl('psDateSize');
+  if (_dsz) st.dateSize = Math.max(0.4, Math.min(4, parseFloat(_dsz.value) || 0.95));
+  const _dh = gEl('psDateH');
+  if (_dh) st.dateH = Math.max(0, Math.min(50, CM2MM(parseFloat(_dh.value) || 0)));
+  const _dp = gEl('psDateP');
+  if (_dp) st.dateP = Math.max(0, Math.min(20, CM2MM(parseFloat(_dp.value) || 0)));
+  const _db = gEl('psDateBold');        if (_db) st.dateBold = _db.checked;
   const _fc  = gEl('psFoodColor');
   if (_fc) {
     st.foodColor = (_fc.value && _fc.value !== '#000000') ? _fc.value : '';

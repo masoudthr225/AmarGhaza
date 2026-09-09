@@ -118,14 +118,40 @@ function unitDateHtml() {
   return `<div class="unit-date" style="${unitDateStyle()}">تاریخ: ${esc(S.sheet.date)}</div>`;
 }
 
-/* استایل خط تاریخِ هر واحد — از همان قلم و چیدمان نوار واحد پیروی می‌کند */
+/* اندازه قلم فیلد تاریخ در چاپ (pt) */
+function dateFontPt() {
+  const st = S.setup;
+  const base = +st.fontSize || 11;
+  const sc = (st.dateSize == null ? 0.95 : +st.dateSize) || 0.95;
+  return base * sc;
+}
+
+/* استایل خط تاریخِ هر واحد — اندازه از تنظیمات «فیلد تاریخ» می‌آید */
 function unitDateStyle() {
   const st = S.setup;
   const a = st.unitTitleAlign || 'center';
-  const base = +st.fontSize || 11;
-  let css = `text-align:${a};font-size:${(base * 0.95).toFixed(1)}pt;font-weight:700;`;
-  const P = (st.foodP == null ? 1 : +st.foodP);
-  css += P > 0 ? `padding:${(P * 0.6).toFixed(2)}mm 1mm;` : 'padding:0;';
+  let css = `text-align:${a};font-size:${dateFontPt().toFixed(1)}pt;`;
+  css += `font-weight:${st.dateBold === false ? '400' : '700'};`;
+  const P = (st.dateP == null ? 0.6 : +st.dateP);
+  css += P > 0 ? `padding:${P.toFixed(2)}mm 1mm;` : 'padding:0;';
+  const H = +st.dateH || 0;
+  if (H > 0) {
+    css += `height:${H}mm;display:flex;align-items:center;` +
+           `justify-content:${a === 'center' ? 'center' : (a === 'left' ? 'flex-start' : 'flex-end')};`;
+  }
+  return css;
+}
+
+/* استایل نوار تاریخ/وعده در سربرگ — از همان اندازه پیروی می‌کند */
+function metaLineStyle(AH) {
+  const st = S.setup;
+  const jc = AH === 'center' ? 'center' : (AH === 'left' ? 'flex-start' : 'flex-end');
+  let css = `justify-content:${jc};font-size:${dateFontPt().toFixed(1)}pt;`;
+  css += `font-weight:${st.dateBold === false ? '400' : '700'};`;
+  const P = (st.dateP == null ? 0.6 : +st.dateP);
+  css += `padding:${P.toFixed(2)}mm ${(P + 1.4).toFixed(2)}mm;`;
+  const H = +st.dateH || 0;
+  if (H > 0) css += `height:${H}mm;align-items:center;`;
   return css;
 }
 
@@ -308,7 +334,7 @@ function buildDoc() {
     // اگر تاریخ زیر هر واحد می‌آید، در سربرگ تکرار نشود
     if (st.headerDate && S.sheet.date && !perUnitDate()) metas.push(`تاریخ: ${esc(S.sheet.date)}`);
     if (st.headerMeal && meal) metas.push(`وعده: ${esc(meal.name)}`);
-    if (metas.length) html += `<div class="meta-line" style="justify-content:${AH==='center'?'center':(AH==='left'?'flex-start':'flex-end')}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
+    if (metas.length) html += `<div class="meta-line" style="${metaLineStyle(AH)}">${metas.map(m=>`<span>${m}</span>`).join('')}</div>`;
   }
 
   /* سلول منوی غذا — مستقل از سربرگ چاپ می‌شود.

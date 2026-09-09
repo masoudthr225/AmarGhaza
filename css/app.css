@@ -261,10 +261,10 @@
   .doc .doc-header { text-align: center; }
   .doc .doc-header .htitle { font-weight: 800; }
   .doc .doc-header .hsub { }
+  /* نوار تاریخ/وعده — اندازه و فاصله از تنظیمات «فیلد تاریخ» inline می‌آید */
   .doc .meta-line {
     display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-    border: 1px solid #000; border-radius: 4px; padding: 3px 8px; margin: 5px 0;
-    font-weight: 700;
+    border: 1px solid #000; border-radius: 4px; margin: 5px 0;
   }
   /* سلول منوی غذا — همه جزئیات از تنظیمات صفحه به‌صورت inline تزریق می‌شود */
   .doc .food-line { margin: 4px 0; overflow-wrap: anywhere; }

@@ -486,6 +486,19 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
             <label class="pgs-chk"><input type="checkbox" id="psDatePerUnit" onchange="saveSetup()"><span>تاریخ زیر عنوان هر واحد چاپ شود</span></label>
             <div class="pgs-hint" id="datePerUnitHint"></div>
 
+            <h4>اندازه فیلد تاریخ در چاپ</h4>
+            <div class="pgs-grid2">
+              <div class="pgs-f"><label>بزرگی قلم (برابر قلم سند)</label>
+                <input type="number" id="psDateSize" min="0.4" max="4" step="0.05" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>ارتفاع کادر (cm)</label>
+                <input type="number" id="psDateH" min="0" max="5" step="0.05" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>فاصله داخلی (cm)</label>
+                <input type="number" id="psDateP" min="0" max="2" step="0.05" onchange="saveSetup()"></div>
+              <div class="pgs-f"><label>متن ضخیم</label>
+                <label class="pgs-chk"><input type="checkbox" id="psDateBold" onchange="saveSetup()"><span>ضخیم</span></label></div>
+            </div>
+            <div class="pgs-hint" id="dateSizeHint">ارتفاع ۰ یعنی کادر خودش را با اندازه قلم تنظیم کند. این تنظیم هم روی تاریخ زیر هر واحد و هم روی نوار تاریخ سربرگ اثر دارد.</div>
+
             <h4>سبک قلم</h4>
             <div class="pgs-toolrow">
               <button class="pgs-tgl" id="psFoodBoldBtn" onclick="pgsToggleStyle('psFoodBold','psFoodBoldBtn')" title="ضخیم (Bold)" aria-label="ضخیم">
