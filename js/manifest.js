@@ -1,6 +1,6 @@
 window.APP_MANIFEST = {
  "version": "1.10.0",
- "date": "2026-09-08",
+ "date": "2026-09-09",
  "files": {
   "css/app.css": "d623a726bb",
   "js/sound.js": "ee4e51a08b",
@@ -9,7 +9,7 @@ window.APP_MANIFEST = {
   "js/sheet.js": "cbfa348df6",
   "js/manage.js": "1be0019966",
   "js/pagesetup.js": "72eb260a16",
-  "js/print.js": "b5952144da",
+  "js/print.js": "f21d950b8a",
   "js/excel.js": "cdbf2354ac",
   "js/updater.js": "e87974ff08",
   "js/main.js": "937cd8b696",

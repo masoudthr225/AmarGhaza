@@ -379,7 +379,9 @@ function buildDoc() {
 
     // خط جداکننده بین دو واحد (وقتی روی صفحه/برش جدا نمی‌روند)
     const cut = unitCutStyle(ui);
-    if (ui > 0 && !cut) html += unitSepHtml();
+    /* خط‌چین هر وقت کاربر خواسته باشد چاپ می‌شود. روی کاغذ رول که هر واحد
+       برش جدا می‌خورد، خط‌چین انتهای برش قبلی محل قیچی کردن را نشان می‌دهد. */
+    if (ui > 0) html += unitSepHtml();
 
     html += `<div class="unit-block"${cut}>`;
     html += `<div class="unit-title" style="${unitTitleStyle()}"><span>واحد: ${esc(u.name)}</span></div>`;
@@ -772,7 +774,7 @@ function buildExcelDoc() {
     if (!st.showAbsent) ppl = ppl.filter(p => !S.sheet.absent[p.id]);
 
     const xcut = unitCutStyle(ui);
-    if (ui > 0 && !xcut) html += unitSepHtml();
+    if (ui > 0) html += unitSepHtml();
     html += `<div class="xls-block"${xcut}>`;
 
     /* --- سربرگ: تاریخ + نام واحد --- */
