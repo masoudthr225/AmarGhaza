@@ -86,6 +86,17 @@
   .btn.danger { background: var(--danger); }
   .btn.ghost { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
 
+  /* ---------- کارت نگهداری اطلاعات ---------- */
+  .hint-p { font-size: .88rem; color: var(--muted); line-height: 1.8; margin: 0 0 10px; }
+  .hint-p b { color: var(--text); }
+  .storage-info {
+    display: grid; gap: 6px;
+    background: #f7faf8; border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .storage-info .st-row { font-size: .87rem; line-height: 1.7; }
+  .storage-info .st-row.no { color: var(--muted); }
+
   /* ---------- کنترل آوای تأیید در نوار بالا ---------- */
   .snd-box {
     display: inline-flex; align-items: center; gap: 6px;

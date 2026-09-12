@@ -112,25 +112,28 @@ function refreshSheetDate() {
 }
 
 let S; // state
+
+/* داده خوانده‌شده را به‌عنوان وضعیت برنامه بپذیر و مهاجرت‌ها را اجرا کن */
+function adoptState(data) {
+  S = data;
+  S.setup = {...DEFAULT_SETUP, ...S.setup};
+  // سازگاری با نسخه‌های قدیمی‌تر: نبود هر یک از لیست‌ها برنامه را خراب نکند
+  const seed = seedData();
+  ['units','people','meals','foods'].forEach(k=>{ if (!Array.isArray(S[k])) S[k] = seed[k]; });
+  if (!S.sheet) S.sheet = seed.sheet;
+  if (!S.foods.length) S.foods = seed.foods;
+  migrateExtras();
+  migrateDefaults();
+  migrateAlign();
+  migrateRollFit();
+  migrateSortCode();
+  refreshSheetDate();
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) {
-      S = JSON.parse(raw);
-      S.setup = {...DEFAULT_SETUP, ...S.setup};
-      // سازگاری با نسخه‌های قدیمی‌تر: نبود هر یک از لیست‌ها برنامه را خراب نکند
-      const seed = seedData();
-      ['units','people','meals','foods'].forEach(k=>{ if (!Array.isArray(S[k])) S[k] = seed[k]; });
-      if (!S.sheet) S.sheet = seed.sheet;
-      if (!S.foods.length) S.foods = seed.foods;
-      migrateExtras();
-      migrateDefaults();
-      migrateAlign();
-      migrateRollFit();
-      migrateSortCode();
-      refreshSheetDate();
-      return;
-    }
+    if (raw) { adoptState(JSON.parse(raw)); return; }
   } catch(e){}
   S = seedData();
   S.__extrasV2 = true;
@@ -139,6 +142,32 @@ function load() {
   S.__sortCodeV1 = true;
   save();
 }
+/* پس از بالا آمدن برنامه، لایه‌های پایدار را بررسی کن.
+   اگر حافظه مرورگر پاک شده باشد (مثلاً با پاک کردن History) ولی نسخه
+   تازه‌تری در پایگاه داده یا فایل پشتیبان باشد، داده‌ها برمی‌گردند. */
+async function recoverFromDurableLayers() {
+  if (typeof loadNewest !== 'function') return false;
+  let r;
+  try { r = await loadNewest(); } catch (e) { return false; }
+  if (!r || !r.data) return false;
+
+  const cur = (+(S && S.__savedAt)) || 0;
+  const found = (+r.data.__savedAt) || 0;
+  // فقط وقتی جایگزین کن که واقعاً تازه‌تر باشد
+  if (found <= cur) return false;
+
+  try { adoptState(r.data); } catch (e) { return false; }
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+  if (typeof renderAll === 'function') renderAll();
+
+  const src = r.from === 'file' ? 'فایل پشتیبان روی دیسک' : 'پایگاه داده مرورگر';
+  const lost = !r.hadLocal;
+  toast(lost
+    ? `♻️ حافظه مرورگر خالی بود — اطلاعات از ${src} بازیابی شد (${S.people.length} پرسنل)`
+    : `♻️ نسخه تازه‌تری از ${src} بارگذاری شد`);
+  return true;
+}
+
 /* یک‌بار: انتقال چیدمان‌های تکی قدیمی به مدل جدید colAlign */
 function migrateAlign() {
   const st = S.setup; if (!st) return;
@@ -272,7 +301,11 @@ function migrateExtras() {
 }
 
 function save() {
-  localStorage.setItem(LS_KEY, JSON.stringify(S));
+  try { if (typeof stampState === 'function') stampState(); } catch(e){}
+  const json = JSON.stringify(S);
+  localStorage.setItem(LS_KEY, json);
+  // همزمان در لایه‌های پایدار هم نوشته شود (IndexedDB و فایل روی دیسک)
+  try { if (typeof persistAll === 'function') persistAll(json); } catch(e){}
   const el = document.getElementById('saveStatus');
   if (el) {
     const t = new Date().toLocaleTimeString('fa-IR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -311,17 +344,27 @@ function saveNow() {
 
   /* ۳) ذخیره و راستی‌آزمایی */
   let ok = false, err = '';
+  let json = '';
   try {
-    const json = JSON.stringify(S);
+    if (typeof stampState === 'function') stampState();
+    json = JSON.stringify(S);
     localStorage.setItem(LS_KEY, json);
     ok = localStorage.getItem(LS_KEY) === json;   // دوباره بخوان و مقایسه کن
   } catch (e) {
     err = (e && e.name === 'QuotaExceededError') ? 'فضای ذخیره‌سازی مرورگر پر است' : 'خطای مرورگر';
   }
 
+  /* ۴) نوشتن در لایه‌های پایدار: پایگاه داده مرورگر و فایل روی دیسک */
+  let onFile = false;
+  try {
+    if (json && typeof idbSet === 'function') idbSet(DB_KEY, json).catch(()=>{});
+    if (json && typeof fsWrite === 'function') { onFile = !!_fileHandle; fsWrite(json); }
+  } catch (e) {}
+
   if (ok) {
     const n = (S.people || []).length, u = (S.units || []).length;
-    toast(`💾 همه تغییرات ذخیره شد ✅ — ${n} نفر، ${u} واحد، تنظیمات چاپ، منو و آمار روز`);
+    toast(`💾 همه تغییرات ذخیره شد ✅ — ${n} نفر، ${u} واحد` +
+          (onFile ? ' — روی فایل پشتیبان هم نوشته شد 🔒' : ''));
   } else {
     toast('⚠️ ذخیره نشد! ' + (err || 'فضای مرورگر را بررسی کنید') +
           ' — از دکمه «پشتیبان‌گیری» فایل JSON بگیرید.');

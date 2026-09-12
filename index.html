@@ -196,6 +196,25 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     </div>
 
   </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>🔒 نگهداری اطلاعات</h2>
+    <p class="hint-p">
+      اطلاعات برنامه به‌صورت خودکار در چند جا نگهداری می‌شود تا با خاموش شدن سیستم از بین نرود.
+      برای اینکه با <b>پاک کردن History مرورگر</b> هم چیزی گم نشود، ذخیره روی فایل را فعال کنید.
+    </p>
+    <div id="storageInfo" class="storage-info"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="btnChooseFile" onclick="chooseBackupFile()">🔒 فعال کردن ذخیره روی فایل</button>
+      <button class="btn ghost" id="btnForgetFile" onclick="forgetBackupFile()" style="display:none">غیرفعال کردن</button>
+      <button class="btn secondary" onclick="exportData()">💾 گرفتن فایل پشتیبان</button>
+    </div>
+    <p class="hint-p" style="margin-top:10px">
+      نکته: یک‌بار روی «فعال کردن ذخیره روی فایل» بزنید و محلی مثل
+      <b>Documents</b> را انتخاب کنید. از آن پس هر ذخیره‌سازی روی همان فایل هم نوشته می‌شود
+      و اگر حافظه مرورگر پاک شود، برنامه خودش اطلاعات را از فایل برمی‌گرداند.
+    </p>
+  </div>
 </section>
 
 
@@ -665,6 +684,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   var files = [
     'js/xlsx.full.min.js',
     'js/sound.js',
+    'js/storage.js',
     'js/store.js',
     'js/jalali.js',
     'js/sheet.js',

@@ -12,6 +12,14 @@ function renderAll() {
 }
 load();
 renderAll();
+
+/* بازیابی از لایه‌های پایدار + درخواست حافظه ماندگار از مرورگر.
+   بدون معطل کردن بالا آمدن برنامه انجام می‌شود. */
+(async () => {
+  try { if (typeof requestPersistentStorage === 'function') await requestPersistentStorage(); } catch (e) {}
+  try { if (typeof recoverFromDurableLayers === 'function') await recoverFromDurableLayers(); } catch (e) {}
+  try { if (typeof renderStorageInfo === 'function') renderStorageInfo(); } catch (e) {}
+})();
 window.addEventListener('keydown', e=>{
   if ((e.ctrlKey||e.metaKey) && e.key==='p') { e.preventDefault(); openPrintDialog(); }
   if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveNow(); }
