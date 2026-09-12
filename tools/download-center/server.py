@@ -29,8 +29,10 @@ UP_DIR = os.path.join(ROOT, '_uploads')
 HTML_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'index.html')
 
 # مواردی که داخل فایل فشرده پروژه نمی‌آیند
+# AppData پروفایل مرورگر کاربر است (نه داده برنامه) و نباید داخل بسته برود
 EXCLUDE_DIRS = {'.git', '_downloads', '_uploads', 'node_modules', '__pycache__',
-                '.arena', '.cache', 'dist', 'build', 'out'}
+                '.arena', '.cache', 'dist', 'build', 'out',
+                'AppData', 'dist-win', 'app'}
 
 TEHRAN = timezone(timedelta(hours=3, minutes=30))
 
