@@ -2,7 +2,7 @@ window.APP_MANIFEST = {
  "version": "1.10.0",
  "date": "2026-11-16",
  "files": {
-  "css/app.css": "c3d22e61e2",
+  "css/app.css": "34ff4ee7de",
   "js/sound.js": "ee4e51a08b",
   "js/storage.js": "17111cf4ff",
   "js/store.js": "70dececb52",
@@ -16,6 +16,6 @@ window.APP_MANIFEST = {
   "js/updater.js": "e87974ff08",
   "js/main.js": "531b7b8ffb",
   "js/xlsx.full.min.js": "31e9848e80",
-  "index.html": "bcc8f1de89"
+  "index.html": "91df089a94"
  }
 };
