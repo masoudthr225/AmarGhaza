@@ -807,3 +807,16 @@ body.glass-buttons[data-glass-color="amber"] { --glass-color:#a45e26; }
 body.glass-buttons[data-glass-color="slate"] { --glass-color:#46576b; }
 body.glass-buttons:not([data-glass-color="original"]) .btn:not(.ghost) { background-color:var(--glass-color) !important; color:#fff; }
 body.glass-buttons:not([data-glass-color="original"]) .btn:not(.ghost) { background-image:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.02) 53%,rgba(0,0,0,.08)) !important; }
+/* اندازه پنجره بین تب‌ها ثابت می‌ماند؛ فقط محتوای تب پیمایش می‌شود. */
+.settings-panel { height:min(720px, calc(100vh - 32px)); display:flex; flex-direction:column; overflow:hidden; }
+.settings-heading, .settings-tabs, .settings-actions { flex:none; }
+.settings-panel > [role="tabpanel"]:not([hidden]) { flex:1 1 auto; min-height:0; overflow-y:auto; padding:2px 2px 8px; }
+.settings-color-row { border:0; padding:0; min-width:0; }
+.settings-color-row legend { font-weight:700; font-size:.88rem; margin-bottom:8px; }
+.glass-samples { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.glass-option { display:flex; align-items:center; gap:5px; padding:6px; border:1px solid var(--border); border-radius:10px; cursor:pointer; }
+.glass-option:has(input:checked) { border-color:var(--primary); background:var(--primary-light); box-shadow:0 0 0 1px var(--primary); }
+.glass-option input { accent-color:var(--primary); flex:none; }
+.glass-sample { flex:1; min-width:0; text-align:center; color:#fff; border:1px solid rgba(255,255,255,.45); border-radius:8px; padding:7px 3px; font-size:.8rem; font-weight:700; background-image:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.04) 53%,rgba(0,0,0,.12)); box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 3px 6px rgba(0,0,0,.2); }
+.sample-original { background-color:var(--primary); } .sample-green { background-color:#1a6b54; } .sample-blue { background-color:#2463a1; } .sample-purple { background-color:#7053a3; } .sample-amber { background-color:#a45e26; } .sample-slate { background-color:#46576b; }
+@media (max-width:480px) { .glass-samples { grid-template-columns:repeat(2,minmax(0,1fr)); } }

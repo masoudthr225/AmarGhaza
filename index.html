@@ -699,16 +699,18 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
       </div>
     </fieldset>
     <label class="settings-switch"><input type="checkbox" id="glassButtons"><span><b>دکمه‌های شیشه‌ای و برجسته</b><small>افزودن درخشش و سایه به دکمه‌های برنامه</small></span></label>
-    <div class="settings-color-row">
-      <label for="glassColor">رنگ دکمه‌های شیشه‌ای</label>
-      <select id="glassColor">
-        <option value="original">رنگ اصلی دکمه‌ها</option>
-        <option value="green">سبز</option><option value="blue">آبی</option>
-        <option value="purple">بنفش</option><option value="amber">کهربایی</option>
-        <option value="slate">خاکستری تیره</option>
-      </select>
-      <small>رنگ انتخابی هنگامی اعمال می‌شود که دکمه‌های شیشه‌ای روشن باشند.</small>
-    </div>
+    <fieldset class="settings-color-row">
+      <legend>رنگ دکمه‌های شیشه‌ای</legend>
+      <div class="glass-samples">
+        <label class="glass-option"><input type="radio" name="glassColor" value="original"><span class="glass-sample sample-original">رنگ اصلی</span></label>
+        <label class="glass-option"><input type="radio" name="glassColor" value="green"><span class="glass-sample sample-green">سبز</span></label>
+        <label class="glass-option"><input type="radio" name="glassColor" value="blue"><span class="glass-sample sample-blue">آبی</span></label>
+        <label class="glass-option"><input type="radio" name="glassColor" value="purple"><span class="glass-sample sample-purple">بنفش</span></label>
+        <label class="glass-option"><input type="radio" name="glassColor" value="amber"><span class="glass-sample sample-amber">کهربایی</span></label>
+        <label class="glass-option"><input type="radio" name="glassColor" value="slate"><span class="glass-sample sample-slate">خاکستری</span></label>
+      </div>
+      <small>یک نمونه را انتخاب کنید؛ رنگ فقط وقتی دکمه‌های شیشه‌ای روشن باشند اعمال می‌شود.</small>
+    </fieldset>
     <p class="settings-note">تم و ظاهر دکمه‌ها بر قالب چاپ اثری ندارند؛ تغییرات را با دکمه ذخیره و اعمال ثبت کنید.</p>
     </section>
     <section id="settings-sound" role="tabpanel" aria-labelledby="settings-tab-sound" hidden>

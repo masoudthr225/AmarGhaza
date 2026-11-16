@@ -15,7 +15,7 @@ function openAppSettings() {
   const appearance = currentAppearance();
   document.querySelectorAll('input[name="appTheme"]').forEach(r => { r.checked = r.value === appearance.theme; });
   document.getElementById('glassButtons').checked = appearance.glass;
-  document.getElementById('glassColor').value = appearance.glassColor;
+  document.querySelectorAll('input[name="glassColor"]').forEach(r => { r.checked = r.value === appearance.glassColor; });
   showSettingsTab('appearance');
   const panel = document.getElementById('appSettings');
   panel.hidden = false;
@@ -36,7 +36,8 @@ function saveAppSettings() {
   const selected = document.querySelector('input[name="appTheme"]:checked');
   const theme = selected && APP_THEMES.includes(selected.value) ? selected.value : 'green';
   const previous = S.setup.appearance;
-  const color = document.getElementById('glassColor').value;
+  const selectedColor = document.querySelector('input[name="glassColor"]:checked');
+  const color = selectedColor ? selectedColor.value : 'original';
   S.setup.appearance = { theme, glass: document.getElementById('glassButtons').checked, glassColor: GLASS_COLORS.includes(color) ? color : 'original' };
   try {
     save();
