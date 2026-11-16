@@ -730,6 +730,13 @@
   .pgs-matrix th { line-height: 1.45; }
 
   /* ---------- مرتب‌سازی سرستون‌های جدول پرسنل ---------- */
+  .sort-toolbar {
+    background: #f7faf8; border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 10px;
+  }
+  .sort-toolbar .sort-label { font-size: .82rem; font-weight: 700; color: var(--primary-dark); }
+  .sort-toolbar select { max-width: 185px; }
+  #peopleTable .family-cell.auto { color: var(--muted); font-style: italic; }
   #peopleTable .th-wrap { display: flex; align-items: center; gap: 5px; }
   #peopleTable .th-wrap .edit-cell { flex: 1; min-width: 0; }
   .sort-btn {

@@ -64,7 +64,7 @@ function selectedUnits() {
 /* مرتب‌سازی بر اساس حروف الفبای فارسی (با نرمال‌سازی ی/ي و ک/ك) */
 function faSortNorm(s){ return String(s||'').replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/\u200c/g,' ').replace(/\s+/g,' ').trim(); }
 function faCompare(a,b){ return faSortNorm(a).localeCompare(faSortNorm(b),'fa'); }
-/* مرتب‌سازی مشترک: هم در «مدیریت پرسنل» و هم در «چاپ» اعمال می‌شود */
+/* مرتبسازی مشترک: هم در «مدیریت پرسنل» و هم در «چاپ» اعمال میشود */
 function sortPeople(list) {
   const key = (S.setup && S.setup.sortKey) || 'name';
   const dir = (S.setup && S.setup.sortDir) === -1 ? -1 : 1;
@@ -74,11 +74,11 @@ function sortPeople(list) {
   arr.sort((a, b) => {
     let r;
     if (key === 'code') {
-      // کد پرسنلی عددی است؛ عددی مقایسه شود نه رشته‌ای
+      // کد پرسنلی عددی است؛ عددی مقایسه شود نه رشتهای
       const na = numCode(a), nb = numCode(b);
       const aNaN = isNaN(na), bNaN = isNaN(nb);
-      // نفرات بدون کد در هر دو جهت (صعودی/نزولی) انتهای لیست می‌مانند،
-      // پس نتیجه‌شان نباید در dir ضرب شود.
+      // نفرات بدون کد در هر دو جهت (صعودی/نزولی) انتهای لیست میمانند،
+      // پس نتیجهشان نباید در dir ضرب شود.
       if (aNaN && bNaN) r = faCompare(a.name, b.name);
       else if (aNaN) return 1;
       else if (bNaN) return -1;
@@ -86,7 +86,7 @@ function sortPeople(list) {
     } else if (key === 'unit') {
       r = faCompare(unitName(a), unitName(b)) || faCompare(a.name, b.name);
     } else if (key === 'family') {
-      r = faCompare(familyOf(a.name), familyOf(b.name)) || faCompare(a.name, b.name);
+      r = faCompare(familyOf(a), familyOf(b)) || faCompare(a.name, b.name);
     } else {
       r = faCompare(a.name, b.name);
     }
@@ -96,11 +96,42 @@ function sortPeople(list) {
   return arr;
 }
 
-/* نام خانوادگی = آخرین بخش نام */
-function familyOf(name) {
-  const t = String(name || '').trim().split(/\s+/);
-  return t.length > 1 ? t[t.length - 1] : t[0] || '';
+/* ---------------- نام خانوادگی ----------------
+   قالب جدید: هر پرسنل میتواند فیلد جداگانه «family» داشته باشد؛
+   اگر پر نشده باشد، از روی «نام کامل» استخراج میشود.
+   برخلاف نسخه قبل که فقط آخرین کلمه را برمیداشت، نامخانوادگیهای
+   چندبخشی مثل «قمشه ای» یا «محمدی مقدم» کامل در نظر گرفته میشوند. */
+const NAME_TITLES = ['سید','سیده','آقا','آقای','خانم','حاج','حاجی','دکتر','مهندس',
+                     'سرهنگ','استاد','جناب','سرکار','شیخ','حجت الاسلام','حجه الاسلام'];
+const TWO_WORD_FIRST = new Set([
+  'علی اکبر','علی اصغر','علی رضا','محمد علی','محمد حسین','محمد رضا','محمد تقی',
+  'محمد مهدی','محمد امین','محمد جواد','حسین علی','امیر حسین','امیر علی','عبد الله',
+]);
+
+/* متن قابلنمایش نام خانوادگی (بدون نرمالسازی مقایسهای) */
+function familyLabel(x) {
+  const obj = x && typeof x === 'object';
+  const explicit = obj ? String(x.family || '').trim() : '';
+  if (explicit) return explicit.replace(/\s+/g, ' ').trim();
+  const raw = String(obj ? (x.name || '') : (x || ''))
+    .replace(/\u200c/g, ' ')          // نیمفاصله مثل «قمشه‌ای» → «قمشه ای»
+    .replace(/[،,]/g, '،')
+    .replace(/\s+/g, ' ').trim();
+  if (!raw) return '';
+  const parts = raw.split(' ');
+  /* عنوانهای قبل از نام کوچک (سید، دکتر، ...) جزو نام خانوادگی نیستند */
+  while (parts.length > 2 && NAME_TITLES.some(t => faSortNorm(t) === faSortNorm(parts[0]))) parts.shift();
+  if (parts.length < 2) return parts[0] || '';
+  /* نامهای کوچک مرکب رایج: «علی اکبر محمدی مقدم» */
+  if (parts.length > 2 && TWO_WORD_FIRST.has(faSortNorm(parts.slice(0, 2).join(' ')))) {
+    return parts.slice(2).join(' ');
+  }
+  /* نخستین کلمه نام کوچک است؛ بقیه نام خانوادگی است حتی اگر چندبخشی باشد */
+  return parts.slice(1).join(' ');
 }
+
+/* کلید مرتبسازی نام خانوادگی، نرمالشده برای الفبای فارسی */
+function familyOf(x) { return faSortNorm(familyLabel(x)); }
 
 function unitPeople(uId) {
   return sortPeople(S.people.filter(p => p.unitId === uId));

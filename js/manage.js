@@ -44,13 +44,19 @@ function renderPeople() {
   const tb = document.querySelector('#peopleTable tbody');
   let list = sortPeople(S.people);
   if (fu) list = list.filter(p=>p.unitId===fu);
-  if (q) list = list.filter(p=>p.name.includes(q) || (p.code||'').includes(q));
+  if (q) list = list.filter(p=>p.name.includes(q) || (p.code||'').includes(q) || familyLabel(p).includes(q));
   tb.innerHTML = list.map((p,i)=>{
     const u = S.units.find(x=>x.id===p.unitId);
+    const fam = String(p.family||'').trim();
+    const shownFam = fam || familyLabel(p.name);
     return `<tr><td>${i+1}</td>
       <td class="edit-cell" contenteditable="true" title="برای ویرایش کلیک کنید"
           onkeydown="if(event.key==='Enter'){event.preventDefault();nextEditCell(this);}"
           onblur="updPersonInline('${p.id}','name',this)">${esc(p.name)}</td>
+      <td class="edit-cell family-cell ${fam?'':'auto'}" contenteditable="true"
+          title="${fam?'نام خانوادگی ثبتشده':'بهطور خودکار از نام کامل استخراج شده — برای تغییر کلیک کنید'}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();nextEditCell(this);}"
+          onblur="updPersonInline('${p.id}','family',this)">${esc(shownFam)}</td>
       <td class="edit-cell" contenteditable="true" title="برای ویرایش کلیک کنید"
           onkeydown="if(event.key==='Enter'){event.preventDefault();nextEditCell(this);}"
           onblur="updPersonInline('${p.id}','code',this)">${esc(p.code||'')}</td>
@@ -58,10 +64,11 @@ function renderPeople() {
       <td><button class="icon-btn" title="حذف نام کوچک (تبدیل به نام خانوادگی)" onclick="dropFirstName('${p.id}')">✂️</button>
       <button class="icon-btn" onclick="openPersonModal('${p.id}')">✏️</button>
       <button class="icon-btn" onclick="delPerson('${p.id}')">🗑️</button></td></tr>`;
-  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">موردی یافت نشد</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">موردی یافت نشد</td></tr>';
 }
 
-/* ---------- مرتب‌سازی سرستون‌ها (روی نمایش و چاپ) ---------- */
+/* ---------- مرتبسازی سرستونها (روی نمایش، حضور/غیاب و چاپ) ---------- */
+const SORT_NAMES = { name:'نام کامل', family:'نام خانوادگی', code:'کد پرسنلی', unit:'واحد' };
 function setSort(key) {
   const st = S.setup;
   if (st.sortKey === key) st.sortDir = (st.sortDir === -1 ? 1 : -1);
@@ -71,11 +78,24 @@ function setSort(key) {
   renderSortArrows();
   if (typeof renderAttendance === 'function') renderAttendance();
   if (typeof renderPreview === 'function') renderPreview();
-  const names = { name:'نام', family:'نام خانوادگی', code:'کد پرسنلی', unit:'واحد' };
-  toast(`مرتب‌سازی بر اساس ${names[key] || key} — ${st.sortDir === 1 ? 'صعودی' : 'نزولی'}`);
+  toast(`مرتبسازی بر اساس ${SORT_NAMES[key] || key} — ${st.sortDir === 1 ? 'صعودی' : 'نزولی'}`);
+}
+function toggleSortDir() { setSort(S.setup.sortKey || 'code'); }
+/* یک کلیک: حتماً روی نام خانوادگی و صعودی قرار بگیرد */
+function sortByFamily() {
+  const st = S.setup;
+  if (st.sortKey === 'family' && st.sortDir === 1) {
+    toast('در حال حاضر بر اساس نام خانوادگی صعودی مرتب است ✅');
+    return;
+  }
+  st.sortKey = 'family'; st.sortDir = 1;
+  save(); renderPeople(); renderSortArrows();
+  if (typeof renderAttendance === 'function') renderAttendance();
+  if (typeof renderPreview === 'function') renderPreview();
+  toast('🔤 مرتبسازی بر اساس نام خانوادگی — صعودی');
 }
 
-/* نشان دادن جهت مرتب‌سازی روی دکمه‌ها */
+/* نشان دادن جهت مرتبسازی روی دکمهها و هماهنگ کردن نوار ابزار */
 function renderSortArrows() {
   const st = S.setup;
   document.querySelectorAll('#peopleTable .sort-btn').forEach(b => {
@@ -83,12 +103,55 @@ function renderSortArrows() {
     b.classList.toggle('on', on);
     b.textContent = on ? (st.sortDir === 1 ? '▲' : '▼') : '⇅';
     b.title = on
-      ? `مرتب‌سازی ${st.sortDir === 1 ? 'صعودی' : 'نزولی'} — برای برعکس کردن کلیک کنید`
-      : 'مرتب‌سازی بر اساس این ستون';
+      ? `مرتبسازی ${st.sortDir === 1 ? 'صعودی' : 'نزولی'} — برای برعکس کردن کلیک کنید`
+      : 'مرتبسازی بر اساس این ستون';
   });
+  const sel = document.getElementById('sortKey');
+  if (sel) sel.value = st.sortKey || 'code';
+  const dirBtn = document.getElementById('sortDir');
+  if (dirBtn) {
+    const asc = st.sortDir !== -1;
+    dirBtn.textContent = asc ? '⬆ صعودی' : '⬇ نزولی';
+    dirBtn.title = asc ? 'برای نزولی کردن کلیک کنید' : 'برای صعودی کردن کلیک کنید';
+  }
+  const hint = document.getElementById('sortHint');
+  if (hint) hint.textContent = `اکنون: ${SORT_NAMES[st.sortKey] || st.sortKey} — ${st.sortDir === -1 ? 'نزولی' : 'صعودی'}`;
 }
 
-/* ویرایش سرستون‌ها — در جدول برنامه و چاپ اعمال می‌شود */
+/* ---------- قالب نام خانوادگی ---------- */
+function autoFillFamilies(silent) {
+  const fu = document.getElementById('filterUnit').value;
+  let list = fu ? S.people.filter(p=>p.unitId===fu) : S.people;
+  const targets = list.filter(p => !String(p.family||'').trim());
+  if (!targets.length) { if (!silent) toast('همه نامهای خانوادگی از قبل پر هستند ✅'); return 0; }
+  if (!silent) {
+    const scope = fu ? 'این واحد' : 'همه واحدها';
+    if (!confirm(`نام خانوادگی ${targets.length} نفر (${scope}) از روی نام کامل استخراج و ذخیره شود؟\nموارد خاص را بعداً در ستون «نام خانوادگی» ویرایش کنید.`)) return 0;
+  }
+  targets.forEach(p => { p.family = familyLabel(p.name); });
+  save();
+  if (!silent) {
+    renderPeople(); renderAttendance(); renderPreview();
+    toast(`🧩 ${targets.length} نام خانوادگی استخراج شد`);
+  }
+  return targets.length;
+}
+function applyFamilyTemplate() {
+  const st = S.setup;
+  st.sortKey = 'family'; st.sortDir = 1;
+  save();
+  if (typeof renderAll === 'function') renderAll();
+  toast('✅ مرتب‌سازی صعودی بر اساس نام خانوادگی فعال شد');
+}
+function autoFamilyFromName() {
+  const name = document.getElementById('pmName').value.trim();
+  const el = document.getElementById('pmFamily');
+  if (!el) return;
+  el.value = familyLabel(name);
+  if (!el.value) toast('ابتدا نام کامل را وارد کنید');
+  else el.focus();
+}
+
 function updHead(key, el) {
   if (!S.setup.heads) S.setup.heads = {};
   const def = { rowNo:'ر', name:'نام و نام خانوادگی', code:'کد پرسنلی', unit:'واحد', sign:'امضا' };
@@ -107,14 +170,27 @@ function renderHeads() {
   const elU = document.getElementById('thUnit'); if (elU) elU.textContent = h.unit;
 }
 
-/* ویرایش داخل جدول (سلول نام / کد) */
+/* ویرایش داخل جدول (سلول نام / نام خانوادگی / کد) */
 function updPersonInline(id, field, el) {
   const p = S.people.find(x=>x.id===id);
   if (!p) return;
   const val = el.textContent.replace(/\s+/g,' ').trim();
   if (field==='name' && !val) { el.textContent = p.name; return toast('نام نمی‌تواند خالی باشد'); }
+
+  if (field === 'family') {
+    const auto = familyLabel(p.name);
+    if (val === (p.family || auto)) return;
+    if (val) p.family = val;
+    else delete p.family; // پاک کردن → برگشت به حدس خودکار
+    save(); renderPeople(); renderAttendance(); renderPreview();
+    toast('✅ نام خانوادگی ذخیره شد: ' + (p.family || auto));
+    return;
+  }
+
   if (p[field] === val) { el.textContent = val; return; }
   p[field] = val;
+  /* با عوض شدن نام کامل، فقط وقتی نام خانوادگی صریح ثبت نشده باشد
+     همان حدس خودکار هم بهروز میشود (بقیه منطق در familyLabel است). */
   save(); renderPeople(); renderAttendance(); renderPreview();
   toast('✅ ذخیره شد: ' + (field==='name' ? val : p.name));
 }
@@ -151,10 +227,14 @@ function openPersonModal(id) {
   if (id) {
     const p = S.people.find(x=>x.id===id);
     document.getElementById('pmName').value = p.name;
+    document.getElementById('pmFamily').value = p.family || '';
+    document.getElementById('pmFamily').placeholder = familyLabel(p.name);
     document.getElementById('pmCode').value = p.code || '';
     document.getElementById('pmUnit').value = p.unitId;
   } else {
     document.getElementById('pmName').value = '';
+    document.getElementById('pmFamily').value = '';
+    document.getElementById('pmFamily').placeholder = 'مثال: قمشه ای';
     document.getElementById('pmCode').value = '';
     const fu = document.getElementById('filterUnit').value;
     if (fu) document.getElementById('pmUnit').value = fu;
@@ -166,14 +246,20 @@ function closePersonModal() { document.getElementById('personModal').classList.r
 function savePerson() {
   const id = document.getElementById('pmId').value;
   const name = document.getElementById('pmName').value.trim();
+  const familyEl = document.getElementById('pmFamily');
+  const family = familyEl ? familyEl.value.replace(/\s+/g,' ').trim() : '';
   const code = document.getElementById('pmCode').value.trim();
   const unitId = document.getElementById('pmUnit').value;
   if (!name) return toast('نام را وارد کنید');
+  const fam = family;
   if (id) {
     const p = S.people.find(x=>x.id===id);
     Object.assign(p, {name, code, unitId});
+    if (fam) p.family = fam; else delete p.family;
   } else {
-    S.people.push({id:uid(), name, code, unitId});
+    const p = {id:uid(), name, code, unitId};
+    if (fam) p.family = fam;
+    S.people.push(p);
   }
   save(); closePersonModal(); renderAll(); toast('ذخیره شد ✅');
 }

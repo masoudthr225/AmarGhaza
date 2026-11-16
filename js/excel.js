@@ -4,13 +4,13 @@ function exportExcel() {
     const wb = XLSX.utils.book_new();
 
     // شیت ۱: پرسنل
-    const pplRows = [['نام','کد پرسنلی','واحد']];
-    S.people.forEach(p=>{
+    const pplRows = [['نام','نام خانوادگی','کد پرسنلی','واحد']];
+    sortPeople(S.people).forEach(p=>{
       const u = S.units.find(x=>x.id===p.unitId);
-      pplRows.push([p.name, p.code||'', u?u.name:'']);
+      pplRows.push([p.name, familyLabel(p), p.code||'', u?u.name:'']);
     });
     const wsP = XLSX.utils.aoa_to_sheet(pplRows);
-    wsP['!cols'] = [{wch:26},{wch:12},{wch:18}];
+    wsP['!cols'] = [{wch:26},{wch:20},{wch:12},{wch:18}];
     XLSX.utils.book_append_sheet(wb, wsP, 'پرسنل');
 
     // شیت ۲: آمار امروز (با وضعیت حضور)
@@ -19,21 +19,21 @@ function exportExcel() {
     const stRows = [
       ['تاریخ', S.sheet.date||'', 'وعده', meal?meal.name:'', 'غذا', food?food.name:''],
       [],
-      ['ردیف','نام','کد پرسنلی','واحد','وضعیت'],
+      ['ردیف','نام','نام خانوادگی','کد پرسنلی','واحد','وضعیت'],
     ];
     let i=0, tot=0, abs=0;
     selectedUnits().forEach(u=>{
       unitPeople(u.id).forEach(p=>{
         const a = !!S.sheet.absent[p.id];
         tot++; if(a) abs++;
-        stRows.push([++i, p.name, p.code||'', u.name, a?'غایب':'حاضر']);
+        stRows.push([++i, p.name, familyLabel(p), p.code||'', u.name, a?'غایب':'حاضر']);
       });
     });
     stRows.push([]);
     stRows.push(['کل', tot, 'حاضر (پرس)', tot-abs, 'غایب', abs]);
     if (S.sheet.note) stRows.push(['توضیحات', S.sheet.note]);
     const wsS = XLSX.utils.aoa_to_sheet(stRows);
-    wsS['!cols'] = [{wch:6},{wch:26},{wch:12},{wch:18},{wch:10}];
+    wsS['!cols'] = [{wch:6},{wch:26},{wch:20},{wch:12},{wch:18},{wch:10}];
     XLSX.utils.book_append_sheet(wb, wsS, 'آمار امروز');
 
     // شیت ۳: منو
@@ -57,18 +57,48 @@ function exportExcel() {
 
 function downloadExcelTemplate() {
   const wb = XLSX.utils.book_new();
+  /* قالب پیشنهادی: نام و نام خانوادگی جدا هستند تا سورت دقیق باشد.
+     قالب قدیمی تکستون «نام» همچنان پذیرفته میشود. */
   const rows = [
-    ['نام','کد پرسنلی','واحد'],
-    ['علی محمدی','1001','CNC و تراش'],
-    ['رضا احمدی','1002','آبکاری'],
-    ['حسین کریمی','1003','مونتاژ'],
+    ['نام','نام خانوادگی','کد پرسنلی','واحد'],
+    ['محسن','قمشه ای','1001','CNC و تراش'],
+    ['رضا','احمدی','1002','آبکاری'],
+    ['علی اکبر','محمدی مقدم','1003','مونتاژ'],
   ];
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:26},{wch:12},{wch:18}];
+  ws['!cols'] = [{wch:22},{wch:20},{wch:12},{wch:18}];
   XLSX.utils.book_append_sheet(wb, ws, 'پرسنل');
+
+  const guide = XLSX.utils.aoa_to_sheet([
+    ['قالب پرسنل آمار غذا'],
+    ['ستون «نام» نام کوچک و «نام خانوادگی» فامیلی است؛ هر دو با هم نام کامل را میسازند.'],
+    ['اگر فایل قدیمی فقط ستون «نام» دارد هم قابل قبول است؛ برنامه نام خانوادگی را حدس میزند.'],
+    ['نام خانوادگیهای چندبخشی مثل «قمشه ای» یا «محمدی مقدم» را کامل در ستون دوم بنویسید.'],
+    ['پس از آپلود، از تب پرسنل دکمه «🔤 سورت نام خانوادگی» را بزنید.'],
+  ]);
+  guide['!cols'] = [{wch:95}];
+  XLSX.utils.book_append_sheet(wb, guide, 'راهنما');
   wb.Workbook = { Views: [{RTL:true}] };
   XLSX.writeFile(wb, 'nemune-personel.xlsx');
-  toast('فایل نمونه دانلود شد ⬇️');
+  toast('قالب اکسل نام / نام خانوادگی دانلود شد ⬇️');
+}
+
+/* تشخیص ستونهای فایل اکسل پرسنل.
+   هم قالب قدیمی «نام | کد | واحد» و هم قالب جدید
+   «نام | نام خانوادگی | کد | واحد» و قالب «نام کامل | نام خانوادگی | ...» را میپذیرد. */
+function personCols(head, targetId) {
+  const h = head.map(c => normFa(c));
+  const iFamily = h.findIndex(c => /^(?:نام\s*خانوادگی|نام\s*فامیل|فامیل|family(?:\s*name)?|last(?:\s*name)?)$/i.test(c));
+  const iFirst  = h.findIndex(c => /^(?:نام|نام کوچک|نام پرسنل|نام شخص|first name|first)$/i.test(c));
+  const iFull   = h.findIndex(c => /نام\s*و\s*نام\s*خانوادگی|نام\s*کامل|full\s*name|^full$/i.test(c));
+  const iCode   = h.findIndex(c => /کد|شماره|پرسنلی/i.test(c));
+  const iUnit   = h.findIndex(c => /واحد|قسمت|بخش/i.test(c));
+  const hasHeader = iFamily >= 0 || iFirst >= 0 || iFull >= 0 || iCode >= 0 || iUnit >= 0;
+  if (!hasHeader) {
+    return { start:0, iFirst:0, iFamily:-1, iFull:-1, iCode:1,
+             iUnit: targetId ? -1 : 2, hasHeader:false };
+  }
+  return { start:1, iFirst, iFamily, iFull, iCode, iUnit, hasHeader:true };
 }
 
 function normFa(s){ // نرمال‌سازی متن فارسی برای مقایسه
@@ -115,17 +145,10 @@ function importExcel(inp) {
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[shName], {header:1, defval:''});
       if (!rows.length) throw new Error('empty');
 
-      // تشخیص ستون‌ها از سطر عنوان (اگر بود)
-      let start=0, ci={name:0, code:1, unit:2};
+      // تشخیص ستونها: قالب قدیمی تکستون نام + قالب جدید نام/نام خانوادگی
       const head = rows[0].map(c=>normFa(c));
-      const iName = head.findIndex(c=>/نام/.test(c) && !/واحد/.test(c));
-      const iCode = head.findIndex(c=>/کد|شماره/.test(c));
-      const iUnit = head.findIndex(c=>/واحد|قسمت|بخش/.test(c));
-      if (iName>=0) { ci={name:iName, code:iCode, unit:iUnit}; start=1; }
-      else {
-        // بدون سطر عنوان: اگر ستون دوم عددی بود، همان نام+کد است
-        ci = {name:0, code:1, unit: targetId ? -1 : 2};
-      }
+      const ci = personCols(head, targetId);
+      const start = ci.start;
 
       const targetUnit = targetId ? S.units.find(x=>x.id===targetId) : null;
 
@@ -135,12 +158,24 @@ function importExcel(inp) {
 
       for (let r=start; r<rows.length; r++) {
         const row = rows[r];
-        const name = normFa(row[ci.name]);
+        let name='', family='';
+        if (ci.iFull >= 0) {
+          name = normFa(row[ci.iFull]);
+          if (ci.iFamily >= 0) family = normFa(row[ci.iFamily]);
+        } else if (ci.iFirst >= 0 && ci.iFamily >= 0) {
+          const first = normFa(row[ci.iFirst]);
+          family = normFa(row[ci.iFamily]);
+          /* اگر ستون «نام» خودش نام کامل بود، دیگر فامیلی تکرار نشود */
+          name = (family && (first === family || first.endsWith(' ' + family))) ? first : [first, family].filter(Boolean).join(' ');
+        } else {
+          name = normFa(row[ci.iFirst >= 0 ? ci.iFirst : 0]);
+          if (ci.iFamily >= 0) family = normFa(row[ci.iFamily]);
+        }
         if (!name) { continue; }
-        const code = ci.code>=0 ? String(row[ci.code]||'').trim() : '';
-        const unitName = (!targetUnit && ci.unit>=0) ? normFa(row[ci.unit]) : '';
+        const code = ci.iCode>=0 ? String(row[ci.iCode]||'').trim() : '';
+        const unitName = (!targetUnit && ci.iUnit>=0) ? normFa(row[ci.iUnit]) : '';
 
-        // واحد مقصد: واحد انتخاب‌شده > ستون واحدِ فایل > واحد اول
+        // واحد مقصد: واحد انتخابشده > ستون واحدِ فایل > واحد اول
         let unit = targetUnit;
         if (!unit) {
           if (unitName) {
@@ -157,9 +192,12 @@ function importExcel(inp) {
         if (!p) p = S.people.find(x=>normFa(x.name)===name && x.unitId===unit.id);
         if (p) {
           p.name = name; if (code) p.code = code; p.unitId = unit.id;
+          if (family) { p.family = family; }
           updated++;
         } else {
-          S.people.push({id:uid(), name, code, unitId:unit.id});
+          const np = {id:uid(), name, code, unitId:unit.id};
+          if (family) { np.family = family; }
+          S.people.push(np);
           added++;
         }
       }

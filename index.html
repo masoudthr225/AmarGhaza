@@ -136,6 +136,19 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
         <button class="btn sm ghost" onclick="downloadExcelTemplate()">⬇️ دریافت فایل نمونه اکسل</button>
         <button class="btn sm" style="background:#8e44ad" onclick="dropFirstNameAll()" title="حذف نام کوچک همه نفرات لیست — فقط نام خانوادگی بماند">✂️ همه → نام خانوادگی</button>
       </div>
+      <div class="row sort-toolbar" style="margin-bottom:12px">
+        <span class="sort-label">🔢 مرتبسازی:</span>
+        <select id="sortKey" onchange="setSort(this.value)" style="max-width:185px">
+          <option value="code">کد پرسنلی</option>
+          <option value="name">نام کامل</option>
+          <option value="family">نام خانوادگی</option>
+          <option value="unit">واحد</option>
+        </select>
+        <button class="btn sm ghost" id="sortDir" onclick="toggleSortDir()">⬆ صعودی</button>
+        <button class="btn sm" style="background:#8e44ad" onclick="sortByFamily()">🔤 سورت نام خانوادگی</button>
+        <button class="btn sm ghost" onclick="autoFillFamilies()" title="استخراج خودکار نام خانوادگی از نام کامل برای نفراتی که فیلد خالی دارند">🧩 تکمیل خودکار</button>
+        <span class="hint-p" id="sortHint" style="margin:0"></span>
+      </div>
       <div style="max-height:480px;overflow:auto">
         <table class="list" id="peopleTable">
           <thead><tr><th>#</th>
@@ -145,7 +158,12 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
                       onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
                       onblur="updHead('name',this)" id="thName">نام و نام خانوادگی</span>
                 <button class="sort-btn" data-key="name" onclick="setSort('name')">⇅</button>
-                <button class="sort-btn" data-key="family" onclick="setSort('family')" title="مرتب‌سازی بر اساس نام خانوادگی">خ</button>
+              </div>
+            </th>
+            <th>
+              <div class="th-wrap">
+                <span title="ستون مخصوص سورت بر اساس نام خانوادگی — مقدار هر سطر قابل ویرایش است">نام خانوادگی</span>
+                <button class="sort-btn" data-key="family" onclick="setSort('family')" title="مرتبسازی بر اساس نام خانوادگی">⇅</button>
               </div>
             </th>
             <th>
@@ -170,6 +188,19 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
       </div>
     </div>
 
+  </div>
+
+  <div class="card">
+    <h2>🧾 قالب نام خانوادگی</h2>
+    <p class="hint-p">
+      می‌توانید نام خانوادگی را جداگانه ثبت کنید تا مرتب‌سازی دقیق انجام شود؛ در غیر این صورت برنامه آن را از نام کامل حدس می‌زند.
+      برای نام‌های چندبخشی مثل «قمشه ای» یا «محمدی مقدم» مقدار حدس‌زده‌شده را بررسی کنید.
+      ترتیب انتخابشده در جدول پرسنل، لیست حضور/غیاب، پیشنمایش و برگه چاپ هم اعمال میشود و ذخیره میماند.
+    </p>
+    <div class="row">
+      <button class="btn sm" onclick="applyFamilyTemplate()">✅ اعمال قالب و سورت روی نام خانوادگی</button>
+      <button class="btn sm ghost" onclick="downloadExcelTemplate()">⬇️ دانلود قالب اکسل نام / نام خانوادگی</button>
+    </div>
   </div>
 </section>
 
@@ -661,6 +692,14 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     <h3 id="personModalTitle">افزودن پرسنل</h3>
     <input type="hidden" id="pmId">
     <div class="field"><label>نام و نام خانوادگی *</label><input type="text" id="pmName"></div>
+    <div class="field">
+      <label>نام خانوادگی (برای سورت)</label>
+      <div class="row">
+        <input type="text" id="pmFamily" placeholder="مثال: قمشه ای" style="flex:1;min-width:150px">
+        <button class="btn sm ghost" type="button" onclick="autoFamilyFromName()">🔤 استخراج</button>
+      </div>
+      <span class="hint-p" style="margin:0">اگر خالی بماند، برنامه بهطور خودکار از نام کامل حدس میزند. برای نامخانوادگیهای خاص همینجا تایپ کنید.</span>
+    </div>
     <div class="field"><label>کد پرسنلی</label><input type="text" id="pmCode"></div>
     <div class="field"><label>واحد *</label><select id="pmUnit"></select></div>
     <div class="row" style="justify-content:flex-end;margin-top:14px">
