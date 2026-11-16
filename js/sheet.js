@@ -188,7 +188,7 @@ function renderAttendance() {
     const abs = ppl.filter(p=>S.sheet.absent[p.id]).length;
     const exs = unitExtras(u.id);
     return `<div class="att-unit">
-      <h3><span>${esc(u.name)}</span><small>حاضر: ${ppl.length-abs} — غایب: ${abs}${
+      <h3><span>${esc(u.name)}</span><small>حاضر: ${ppl.length-abs} — مرخصی: ${abs}${
         pickModeOn() ? ` — 🖨️ چاپ: ${ppl.filter(p=>picked()[p.id]).length}` : ''}</small>
         ${pickModeOn() ? `<span class="pick-tools">
           <button class="btn sm ghost" onclick="pickUnit('${u.id}',true)">✅ همه این واحد</button>
@@ -239,7 +239,7 @@ function renderStats() {
   document.getElementById('sheetStats').innerHTML = `
     <div class="stat"><b>${tot}</b><span>کل نفرات</span></div>
     <div class="stat"><b>${tot-abs}</b><span>حاضر (پرس غذا)</span></div>
-    <div class="stat red"><b>${abs}</b><span>غایب</span></div>
+    <div class="stat red"><b>${abs}</b><span>مرخصی</span></div>
     <div class="stat"><b>${units.length}</b><span>واحد انتخابی</span></div>`;
 }
 

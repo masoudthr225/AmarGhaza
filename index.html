@@ -98,6 +98,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 
   <div class="card">
     <h2>۳) حضور و غیاب</h2>
+    <p class="hint-p">برای ثبت مرخصی روی نام شخص کلیک کنید؛ با کلیک دوباره، شخص حاضر می‌شود.</p>
     <div class="stats" id="sheetStats"></div>
     <div class="row" style="margin-bottom:10px">
       <button class="btn sm secondary" onclick="clearAbsents()">✔️ همه حاضر</button>
@@ -431,7 +432,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
               <label class="pgs-chk"><input type="checkbox" id="psShowRowNo" onchange="saveSetup()"><span>شماره ردیف</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psShowCode" onchange="saveSetup()"><span>کد پرسنلی</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psShowSign" onchange="saveSetup()"><span>ستون امضا</span></label>
-              <label class="pgs-chk"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"><span>نمایش غایبان</span></label>
+              <label class="pgs-chk"><input type="checkbox" id="psShowAbsent" onchange="saveSetup()"><span>نمایش افراد مرخصی</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psShowSummary" onchange="saveSetup()"><span>خط جمع‌بندی</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psNoFill" onchange="saveSetup()"><span>بدون پس‌زمینه</span></label>
               <label class="pgs-chk"><input type="checkbox" id="psUnitNewPage" onchange="saveSetup()"><span>هر واحد صفحه جدید</span></label>

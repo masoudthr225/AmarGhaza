@@ -373,7 +373,7 @@ function buildDoc() {
         const isAb = !!S.sheet.absent[r.p.id];
         html += `<tr class="${isAb?'ab':''}">`;
         if (st.showRowNo) html += `<td style="${CS}${ca('rowNo')}${colSize('rowNo')}">${ci*per+i+1}</td>`;
-        html += `<td style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        html += `<td style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(r.p.name)}</span>${isAb?' <span class="ab-tag">(مرخصی)</span>':''}</td>`;
         if (st.showCode) html += `<td style="${CS}${ca('code')}${colSize('code')}">${esc(r.p.code||'')}</td>`;
         html += `<td style="${CS}${ca('unit')}${colSize('unit')}">${esc(r.u.name)}</td>`;
         if (st.showSign) html += `<td style="${CS}${ca('sign')}${colSize('sign')}"></td>`;
@@ -430,7 +430,7 @@ function buildDoc() {
         const isAb = !!S.sheet.absent[p.id];
         html += `<tr class="${isAb?'ab':''}">`;
         if (st.showRowNo) html += `<td style="${CS}${ca('rowNo')}${colSize('rowNo')}">${ci*per+i+1}</td>`;
-        html += `<td style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(غایب)</span>':''}</td>`;
+        html += `<td style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(p.name)}</span>${isAb?' <span class="ab-tag">(مرخصی)</span>':''}</td>`;
         if (st.showCode) html += `<td style="${CS}${ca('code')}${colSize('code')}">${esc(p.code||'')}</td>`;
         if (st.showSign) html += `<td style="${CS}${ca('sign')}${colSize('sign')}"></td>`;
         html += `</tr>`;
@@ -455,7 +455,7 @@ function buildDoc() {
   if (S.sheet.note) html += `<div class="note-line">${esc(S.sheet.note)}</div>`;
 
   if (st.showSummary) {
-    html += `<div class="sum-line"><span>کل: ${grandTot}</span><span>حاضر: ${grandTot-grandAbs} پرس</span><span>غایب: ${grandAbs}</span></div>`;
+    html += `<div class="sum-line"><span>کل: ${grandTot}</span><span>حاضر: ${grandTot-grandAbs} پرس</span><span>مرخصی: ${grandAbs}</span></div>`;
   }
 
   if (st.footerOn) {
@@ -704,7 +704,7 @@ function openPrintDialog() {
   const total = selectedUnits().reduce((n, u) => n + printablePeople(u.id)
     .filter(p => S.setup.showAbsent || !S.sheet.absent[p.id]).length, 0);
   if (!total) {
-    toast('هیچ نفری برای چاپ وجود ندارد — تیک «نمایش غایبان» یا انتخاب نفرات را بررسی کنید');
+    toast('هیچ نفری برای چاپ وجود ندارد — تیک «نمایش افراد مرخصی» یا انتخاب نفرات را بررسی کنید');
     showTabById('tab-sheet');
     return;
   }
@@ -846,7 +846,7 @@ function buildExcelDoc() {
 
   if (S.sheet.note) html += `<div class="note-line">${esc(S.sheet.note)}</div>`;
   if (st.showSummary) {
-    html += `<div class="sum-line"><span>کل: ${grandTot}</span><span>حاضر: ${grandTot - grandAbs} پرس</span><span>غایب: ${grandAbs}</span></div>`;
+    html += `<div class="sum-line"><span>کل: ${grandTot}</span><span>حاضر: ${grandTot - grandAbs} پرس</span><span>مرخصی: ${grandAbs}</span></div>`;
   }
   if (st.footerOn) {
     html += `<div class="doc-footer" style="font-size:${st.fontSize * 0.9}pt">`;
@@ -872,7 +872,7 @@ function cellTrio(p, no, CS, isLeft) {
   const ab = !!S.sheet.absent[p.id];
   return `<td class="xls-no${sep}" style="${CS}${AR}${WR}">${no}</td>` +
          `<td class="xls-code ${ab ? 'ab' : ''}" style="${CS}${AC}${WC}">${esc(p.code || '')}</td>` +
-         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(p.name)}</span></td>`;
+         `<td class="xls-name ${ab ? 'ab' : ''}" style="${CS}${ca('name')}${colSize('name')}"><span class="nm">${esc(p.name)}</span>${ab ? ' <span class="ab-tag">(مرخصی)</span>' : ''}</td>`;
 }
 
 /* استایل مستقیم سلول: ارتفاع سطر و فاصله داخلی — روی همه مرورگرها و در چاپ قابل اتکاست */

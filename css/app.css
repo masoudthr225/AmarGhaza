@@ -173,7 +173,7 @@
     background: #fdeceb; border-color: #eebbb6;
   }
   .person.absent .pname { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--danger); color: #8c4a44; }
-  .person.absent::after { content: 'غایب'; color: var(--danger); font-size: .68rem; font-weight: 800; }
+  .person.absent::after { content: 'مرخصی'; color: var(--danger); font-size: .68rem; font-weight: 800; }
   .att-note { font-size: .78rem; color: var(--muted); margin: 6px 2px 12px; }
 
   /* ---------- اقلام زیر جدول (خوراک، حاضری، ...) ---------- */

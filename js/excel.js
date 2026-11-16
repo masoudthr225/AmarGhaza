@@ -26,11 +26,11 @@ function exportExcel() {
       unitPeople(u.id).forEach(p=>{
         const a = !!S.sheet.absent[p.id];
         tot++; if(a) abs++;
-        stRows.push([++i, p.name, familyLabel(p), p.code||'', u.name, a?'غایب':'حاضر']);
+        stRows.push([++i, p.name, familyLabel(p), p.code||'', u.name, a?'مرخصی':'حاضر']);
       });
     });
     stRows.push([]);
-    stRows.push(['کل', tot, 'حاضر (پرس)', tot-abs, 'غایب', abs]);
+    stRows.push(['کل', tot, 'حاضر (پرس)', tot-abs, 'مرخصی', abs]);
     if (S.sheet.note) stRows.push(['توضیحات', S.sheet.note]);
     const wsS = XLSX.utils.aoa_to_sheet(stRows);
     wsS['!cols'] = [{wch:6},{wch:26},{wch:20},{wch:12},{wch:18},{wch:10}];
