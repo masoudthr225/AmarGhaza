@@ -30,14 +30,8 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
   </div>
   <div class="spacer"></div>
   <button class="settings-gear" type="button" onclick="openAppSettings()" aria-label="تنظیمات برنامه" title="تنظیمات برنامه"><span aria-hidden="true">⚙</span></button>
-  <span class="snd-box" title="آوای تأیید">
-    <button class="snd-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
-    <input type="range" id="soundVol" min="0" max="1" step="0.1" onchange="setSoundVol(this.value)"
-           title="بلندی صدا" aria-label="بلندی آوای تأیید">
-  </span>
   <button class="btn" style="background:#0b5ed7" onclick="saveNow()">💾 ذخیره تغییرات</button>
   <button class="btn orange" onclick="openPrintDialog()">🖨️ چاپ</button>
-  <button class="btn ghost" style="color:#fff;border-color:#fff" onclick="document.getElementById('importFile').click()">📂 بازیابی</button>
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
   <input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this)">
 </header>
@@ -688,8 +682,14 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 <!-- تنظیمات ظاهری برنامه -->
 <div class="settings-overlay" id="appSettings" hidden onclick="if(event.target===this) closeAppSettings()">
   <section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-    <div class="settings-heading"><div><h2 id="settingsTitle">⚙️ تنظیمات برنامه</h2><p>ظاهر برنامه را به سلیقه خود تنظیم کنید.</p></div>
+    <div class="settings-heading"><div><h2 id="settingsTitle">⚙️ تنظیمات برنامه</h2><p>تنظیمات ظاهر، صدا و فایل‌ها را مدیریت کنید.</p></div>
       <button type="button" class="settings-close" onclick="closeAppSettings()" aria-label="بستن">×</button></div>
+    <div class="settings-tabs" role="tablist" aria-label="بخش‌های تنظیمات">
+      <button type="button" id="settings-tab-appearance" role="tab" aria-controls="settings-appearance" aria-selected="true" onclick="showSettingsTab('appearance')">🎨 ظاهر</button>
+      <button type="button" id="settings-tab-sound" role="tab" aria-controls="settings-sound" aria-selected="false" onclick="showSettingsTab('sound')">🔊 صدا</button>
+      <button type="button" id="settings-tab-files" role="tab" aria-controls="settings-files" aria-selected="false" onclick="showSettingsTab('files')">📁 فایل و پشتیبان</button>
+    </div>
+    <section id="settings-appearance" role="tabpanel" aria-labelledby="settings-tab-appearance">
     <fieldset class="theme-fieldset"><legend>🎨 انتخاب تم</legend>
       <div class="theme-options">
         <label class="theme-choice"><input type="radio" name="appTheme" value="green"><span class="theme-swatch green"></span><span>سبز کلاسیک</span></label>
@@ -699,19 +699,42 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
       </div>
     </fieldset>
     <label class="settings-switch"><input type="checkbox" id="glassButtons"><span><b>دکمه‌های شیشه‌ای و برجسته</b><small>افزودن درخشش و سایه به دکمه‌های برنامه</small></span></label>
+    <div class="settings-color-row">
+      <label for="glassColor">رنگ دکمه‌های شیشه‌ای</label>
+      <select id="glassColor">
+        <option value="original">رنگ اصلی دکمه‌ها</option>
+        <option value="green">سبز</option><option value="blue">آبی</option>
+        <option value="purple">بنفش</option><option value="amber">کهربایی</option>
+        <option value="slate">خاکستری تیره</option>
+      </select>
+      <small>رنگ انتخابی هنگامی اعمال می‌شود که دکمه‌های شیشه‌ای روشن باشند.</small>
+    </div>
+    <p class="settings-note">تم و ظاهر دکمه‌ها بر قالب چاپ اثری ندارند؛ تغییرات را با دکمه ذخیره و اعمال ثبت کنید.</p>
+    </section>
+    <section id="settings-sound" role="tabpanel" aria-labelledby="settings-tab-sound" hidden>
+      <h3>🔊 آوای تأیید</h3>
+      <p class="settings-note">صدا و بلندی آن بلافاصله ذخیره می‌شوند.</p>
+      <div class="settings-sound-controls">
+        <button type="button" class="btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+        <label for="soundVol">بلندی صدا</label>
+        <input type="range" id="soundVol" min="0" max="1" step="0.1" onchange="setSoundVol(this.value)" aria-label="بلندی آوای تأیید">
+      </div>
+    </section>
+    <section id="settings-files" role="tabpanel" aria-labelledby="settings-tab-files" hidden>
     <div class="settings-files" aria-label="فایل‌ها و پشتیبان">
       <h3>📁 اکسل و پشتیبان</h3>
       <div class="settings-file-actions">
         <button type="button" class="btn" style="background:#1d6f42" onclick="exportExcel()">📥 دانلود اکسل</button>
         <button type="button" class="btn" style="background:#2e7d5b" onclick="document.getElementById('importExcelFile').click()">📤 آپلود اکسل</button>
         <button type="button" class="btn secondary" onclick="exportData()">💾 پشتیبان</button>
+        <button type="button" class="btn ghost" onclick="document.getElementById('importFile').click()">📂 بازیابی</button>
       </div>
     </div>
     <div class="settings-shortcuts"><span>دسترسی به تنظیمات دیگر:</span>
       <button type="button" class="btn sm ghost" onclick="closeAppSettings();showTabById('tab-pagesetup')">🖨️ تنظیمات صفحه و چاپ</button>
       <button type="button" class="btn sm ghost" onclick="closeAppSettings();showTabById('tab-menu');document.getElementById('storageInfo').scrollIntoView({block:'center'})">🔒 نگهداری اطلاعات</button>
     </div>
-    <p class="settings-note">تم و ظاهر دکمه‌ها بر قالب چاپ اثری ندارند؛ تغییرات را با دکمه ذخیره و اعمال ثبت کنید.</p>
+    </section>
     <div class="settings-actions"><button type="button" class="btn ghost" onclick="closeAppSettings()">انصراف</button><button type="button" class="btn" onclick="saveAppSettings()">💾 ذخیره و اعمال تنظیمات</button></div>
   </section>
 </div>

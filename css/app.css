@@ -791,3 +791,19 @@ body.glass-buttons .btn:active, body.glass-buttons .pgs-btn:active { transform:t
 .settings-files { border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:16px; }
 .settings-files h3 { font-size:.92rem; color:var(--primary-dark); margin-bottom:10px; }
 .settings-file-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.settings-tabs { display:flex; gap:6px; overflow-x:auto; border-bottom:1px solid var(--border); margin-bottom:18px; }
+.settings-tabs button { border:0; border-bottom:3px solid transparent; background:transparent; color:var(--muted); padding:10px 12px; white-space:nowrap; cursor:pointer; font-weight:700; }
+.settings-tabs button[aria-selected="true"] { color:var(--primary); border-bottom-color:var(--primary); }
+.settings-panel [role="tabpanel"][hidden] { display:none; }
+.settings-color-row { margin-top:14px; display:grid; gap:7px; }
+.settings-color-row label { font-weight:700; font-size:.88rem; }
+.settings-color-row small { color:var(--muted); }
+.settings-sound-controls { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:16px; }
+.settings-sound-controls input[type="range"] { width:min(240px,100%); accent-color:var(--primary); }
+body.glass-buttons[data-glass-color="green"] { --glass-color:#1a6b54; }
+body.glass-buttons[data-glass-color="blue"] { --glass-color:#2463a1; }
+body.glass-buttons[data-glass-color="purple"] { --glass-color:#7053a3; }
+body.glass-buttons[data-glass-color="amber"] { --glass-color:#a45e26; }
+body.glass-buttons[data-glass-color="slate"] { --glass-color:#46576b; }
+body.glass-buttons:not([data-glass-color="original"]) .btn:not(.ghost) { background-color:var(--glass-color) !important; color:#fff; }
+body.glass-buttons:not([data-glass-color="original"]) .btn:not(.ghost) { background-image:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.02) 53%,rgba(0,0,0,.08)) !important; }
