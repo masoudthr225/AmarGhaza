@@ -746,3 +746,44 @@
   }
   .sort-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
   .sort-btn.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* تنظیمات ظاهر برنامه */
+:root[data-app-theme="blue"] { --primary:#2463a1; --primary-dark:#164678; --primary-light:#e6f1fc; --bg:#eef4fa; --border:#cfddea; --text:#263a4d; --muted:#60778b; }
+:root[data-app-theme="purple"] { --primary:#7053a3; --primary-dark:#49346f; --primary-light:#f0eaf9; --bg:#f5f1f9; --border:#ded4e9; --text:#392d47; --muted:#766b82; }
+:root[data-app-theme="amber"] { --primary:#a45e26; --primary-dark:#724019; --primary-light:#f9eddf; --bg:#fbf5ee; --border:#ead8c5; --text:#483527; --muted:#806e5f; }
+.settings-gear { width:44px; height:44px; border:1px solid rgba(255,255,255,.55); border-radius:14px; background:rgba(255,255,255,.18); color:#fff; cursor:pointer; box-shadow:inset 0 1px rgba(255,255,255,.45),0 4px 12px rgba(0,0,0,.15); }
+.settings-gear span { display:inline-block; font-size:26px; line-height:1; animation:gear-spin 8s linear infinite; }
+.settings-gear:hover { background:rgba(255,255,255,.28); }
+@keyframes gear-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .settings-gear span { animation:none; } }
+.settings-overlay[hidden] { display:none; }
+.settings-overlay { position:fixed; inset:0; z-index:3000; display:flex; justify-content:center; align-items:center; padding:16px; background:rgba(17,32,30,.58); }
+.settings-panel { width:min(100%,580px); max-height:90vh; overflow:auto; background:var(--card); color:var(--text); border-radius:20px; padding:24px; box-shadow:0 24px 70px rgba(0,0,0,.28); }
+.settings-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:20px; }
+.settings-heading h2 { color:var(--primary-dark); font-size:1.2rem; }
+.settings-heading p, .settings-note { color:var(--muted); font-size:.85rem; margin-top:6px; line-height:1.7; }
+.settings-close { border:0; border-radius:10px; background:var(--primary-light); color:var(--primary-dark); cursor:pointer; font-size:24px; width:38px; height:38px; line-height:1; }
+.theme-fieldset { border:0; padding:0; margin:0 0 18px; }
+.theme-fieldset legend { font-weight:700; margin-bottom:12px; }
+.theme-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.theme-choice { display:flex; align-items:center; gap:9px; padding:11px; border:1px solid var(--border); border-radius:12px; cursor:pointer; font-weight:700; font-size:.88rem; }
+.theme-choice:has(input:checked) { border-color:var(--primary); background:var(--primary-light); box-shadow:0 0 0 1px var(--primary); }
+.theme-choice input, .settings-switch input { accent-color:var(--primary); }
+.theme-swatch { width:28px; height:28px; flex:none; border-radius:9px; box-shadow:inset 0 1px 3px rgba(255,255,255,.5); }
+.theme-swatch.green { background:linear-gradient(135deg,#114a3a,#1a6b54); }
+.theme-swatch.blue { background:linear-gradient(135deg,#164678,#398bd4); }
+.theme-swatch.purple { background:linear-gradient(135deg,#49346f,#9873c9); }
+.theme-swatch.amber { background:linear-gradient(135deg,#724019,#e8a04c); }
+.settings-switch { display:flex; align-items:center; gap:12px; border:1px solid var(--border); border-radius:12px; padding:13px; cursor:pointer; }
+.settings-switch input { width:19px; height:19px; }
+.settings-switch small { display:block; color:var(--muted); margin-top:4px; }
+.settings-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:20px; }
+body.glass-buttons .btn, body.glass-buttons .pgs-btn, body.glass-buttons .sort-btn, body.glass-buttons .pgs-tgl {
+  background-image:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.02) 53%,rgba(0,0,0,.08));
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.65),0 4px 8px rgba(0,0,0,.18);
+  border:1px solid rgba(110,120,120,.32); transition:filter .15s,transform .15s,box-shadow .15s;
+}
+body.glass-buttons .btn:active, body.glass-buttons .pgs-btn:active { transform:translateY(2px); box-shadow:inset 0 2px 5px rgba(0,0,0,.18); }
+@media (max-width:480px) { .theme-options { grid-template-columns:1fr; } .settings-panel { padding:18px; } }
+
+.settings-shortcuts { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:16px; font-size:.85rem; color:var(--muted); }

@@ -29,6 +29,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     <div class="sub"><span id="appVersion">نسخه —</span> · <a href="#" style="color:#ffd" onclick="checkForUpdate(false);return false">🔄 بررسی به‌روزرسانی</a></div>
   </div>
   <div class="spacer"></div>
+  <button class="settings-gear" type="button" onclick="openAppSettings()" aria-label="تنظیمات برنامه" title="تنظیمات برنامه"><span aria-hidden="true">⚙</span></button>
   <span class="snd-box" title="آوای تأیید">
     <button class="snd-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
     <input type="range" id="soundVol" min="0" max="1" step="0.1" onchange="setSoundVol(this.value)"
@@ -687,6 +688,29 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
 
 </main>
 
+<!-- تنظیمات ظاهری برنامه -->
+<div class="settings-overlay" id="appSettings" hidden onclick="if(event.target===this) closeAppSettings()">
+  <section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-heading"><div><h2 id="settingsTitle">⚙️ تنظیمات برنامه</h2><p>ظاهر برنامه را به سلیقه خود تنظیم کنید.</p></div>
+      <button type="button" class="settings-close" onclick="closeAppSettings()" aria-label="بستن">×</button></div>
+    <fieldset class="theme-fieldset"><legend>🎨 انتخاب تم</legend>
+      <div class="theme-options">
+        <label class="theme-choice"><input type="radio" name="appTheme" value="green"><span class="theme-swatch green"></span><span>سبز کلاسیک</span></label>
+        <label class="theme-choice"><input type="radio" name="appTheme" value="blue"><span class="theme-swatch blue"></span><span>آبی اقیانوسی</span></label>
+        <label class="theme-choice"><input type="radio" name="appTheme" value="purple"><span class="theme-swatch purple"></span><span>بنفش شب</span></label>
+        <label class="theme-choice"><input type="radio" name="appTheme" value="amber"><span class="theme-swatch amber"></span><span>گرم کهربایی</span></label>
+      </div>
+    </fieldset>
+    <label class="settings-switch"><input type="checkbox" id="glassButtons"><span><b>دکمه‌های شیشه‌ای و برجسته</b><small>افزودن درخشش و سایه به دکمه‌های برنامه</small></span></label>
+    <div class="settings-shortcuts"><span>دسترسی به تنظیمات دیگر:</span>
+      <button type="button" class="btn sm ghost" onclick="closeAppSettings();showTabById('tab-pagesetup')">🖨️ تنظیمات صفحه و چاپ</button>
+      <button type="button" class="btn sm ghost" onclick="closeAppSettings();showTabById('tab-menu');document.getElementById('storageInfo').scrollIntoView({block:'center'})">🔒 نگهداری اطلاعات</button>
+    </div>
+    <p class="settings-note">تم و ظاهر دکمه‌ها بر قالب چاپ اثری ندارند؛ تغییرات را با دکمه ذخیره و اعمال ثبت کنید.</p>
+    <div class="settings-actions"><button type="button" class="btn ghost" onclick="closeAppSettings()">انصراف</button><button type="button" class="btn" onclick="saveAppSettings()">💾 ذخیره و اعمال تنظیمات</button></div>
+  </section>
+</div>
+
 <!-- مودال پرسنل -->
 <div class="modal-back" id="personModal">
   <div class="modal">
@@ -726,6 +750,7 @@ document.write('<scr' + 'ipt src="js/manifest.js?t=' + Date.now() + '"></scr' + 
     'js/sound.js',
     'js/storage.js',
     'js/store.js',
+    'js/app-settings.js',
     'js/jalali.js',
     'js/sheet.js',
     'js/manage.js',
