@@ -100,6 +100,9 @@ def build_project_zip(note=''):
                 rel = os.path.relpath(full, ROOT)
                 if rel.split(os.sep)[0] in EXCLUDE_DIRS:
                     continue
+                # بسته‌های خروجی در ریشه پروژه نباید داخل بسته جدید تکرار شوند.
+                if os.path.dirname(rel) == '' and f.lower().endswith('.zip'):
+                    continue
                 z.write(full, os.path.join('AmarGhaza', rel))
                 count += 1
         info = (
